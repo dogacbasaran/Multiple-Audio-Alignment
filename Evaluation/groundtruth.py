@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """ 
 grount_truth.py reads the offset values of the sequences from the GT_090912.xml 
 file and forms the pairwise connected sequence list. The list is then written in
