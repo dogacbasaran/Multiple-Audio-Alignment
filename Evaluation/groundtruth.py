@@ -1,8 +1,24 @@
 # -*- coding: utf-8 -*-
-"""
-Éditeur de Spyder
+""" 
+grount_truth.py reads the offset values of the sequences from the GT_090912.xml 
+file and forms the pairwise connected sequence list. The list is then written in
+a text file "grount_truth.txt".
+The code can work under Windows or Linus based OS. 
 
-Ceci est un script temporaire.
+Copyright (C) 2016  Dogac Basaran
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>
 """
 
 import numpy as np
@@ -138,7 +154,6 @@ if __name__ == '__main__':
         filename = offset_length_in_frames[i][0]
         offset = offset_length_in_frames[i][1]
         length = offset_length_in_frames[i][2]
-        #ground_truth[filename] = []
         for j in range(i+1,len(offset_length_in_frames)):
             filename_ = offset_length_in_frames[j][0]
             offset_ = offset_length_in_frames[j][1]
@@ -148,15 +163,11 @@ if __name__ == '__main__':
                 key_name = set_key_name(filename, filename_)
                 relative_offset_distance = set_relative_offset(key_name, filename, offset, offset_)
                 ground_truth[key_name] = relative_offset_distance
-                #ground_truth[key_name].append(relative_offset_distance)
                 print(key_name)       
                 print(ground_truth[key_name])
-                #ground_truth[filename].append((filename_, relative_offset_distance))
             else:
                 break
-        
-        #print(filename)       
-        #print(ground_truth[filename])       
+               
     json.dump(ground_truth,file(path1 + 'ground_truth.txt','w'))
     f.close()
 
