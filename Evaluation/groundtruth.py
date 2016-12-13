@@ -58,7 +58,7 @@ def extract_offsets(path, filelengths, silence_in_the_beginning, hopsize = 0.02)
     cnt3 = 1
     cnt4 = 1
     offset_length_in_frames = []
-    for line in open(path1 + '\\GT_090912.xml','r').readlines():
+    for line in open(path1 + 'GT_090912.xml','r').readlines():
         if line.find('offset') != -1:                        
             # Extract the length of the sequence
             mic_number = np.int(line.split('_')[2])
@@ -122,15 +122,15 @@ def set_relative_offset(key_name, filename, offset, offset_):
 
 def set_paths():
     cw_path = os.getcwd();
-    if cw_path.find('/')!=-1:
-        cw_path = cw_path[:cw_path.find('\\Evaluation\\')]
+    if cw_path.find('/')==-1:
+        cw_path_parent = cw_path[:cw_path.find('\\Evaluation')]
         path1 = cw_path + '\\ground_truth\\'
-        path2 = cw_path + '\\audio_data\\'
+        path2 = cw_path_parent + '\\audio_data\\'
         wl = 1; # Defines windows based OS
     else:
-        cw_path = cw_path[:cw_path.find('/Evaluation/')]
-        path1 = cw_path + '/ground_truth/'
-        path2 = cw_path + '/audio_data/'
+        cw_path_parent = cw_path[:cw_path.find('/Evaluation/')]
+        path1 = cw_path + 'ground_truth/'
+        path2 = cw_path_parent + '/audio_data/'
         wl = 2; # Defines windows based OS
         
     return (path1,path2,wl)

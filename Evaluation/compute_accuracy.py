@@ -154,24 +154,24 @@ def compute_accuracy(path, offset_estimation_result_filename, print_results = Fa
 
 if __name__ == '__main__':
     cw_path = os.getcwd();
-    if cw_path.find('/')!=-1:
-        cw_path = cw_path[:cw_path.find('\\Evaluation')]
+    if cw_path.find('/')==-1:
+        cw_path_parent = cw_path[:cw_path.find('\\Evaluation')]
         path1 = cw_path + '\\ground_truth'
-        path2 = cw_path + '\\audio_data'
-        path3 = cw_path + '\\SMC_based_alignment\\SMC_offset_estimation_results'
-        path4 = cw_path + '\\Fingerprinting_based_alignment\\fingerprinting_offset_estimation_results'
+        path2 = cw_path_parent + '\\audio_data'
+        path3 = cw_path + '\\SMC_offset_estimation_results'
+        path4 = cw_path + '\\fingerprinting_offset_estimation_results'
     else:
-        cw_path = cw_path[:cw_path.find('/Evaluation')]
-        path1 = cw_path + '/ground_truth'
-        path2 = cw_path + '/audio_data'
-        path3 = cw_path + '/SMC_based_alignment/SMC_offset_estimation_results'
-        path4 = cw_path + '/Fingerprinting_based_alignment/fingerprinting_offset_estimation_results'
+        cw_path_parent = cw_path[:cw_path.find('/Evaluation')]
+        path1 = cw_path + 'ground_truth'
+        path2 = cw_path_parent + '/audio_data'
+        path3 = cw_path + 'SMC_offset_estimation_results'
+        path4 = cw_path + 'fingerprinting_offset_estimation_results'
 
     path = [path1, path2, path3, path4]
 
     #offset_estimation_result_filename = 'offset_estimation_SMC_result_16_11_2016.txt'
     
-    offset_estimation_result_filename = 'offset_estimation_fingerprinting_thr_10_result_17_11_2016.txt'
+    offset_estimation_result_filename = 'offset_estimation_fingerprinting_thr_20_result_14_11_2016.txt'
     
     Omega, FN_1, FN_2, FP = compute_accuracy(path, offset_estimation_result_filename, True) 
     

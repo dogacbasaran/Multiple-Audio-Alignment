@@ -32,11 +32,18 @@ import os
 
 if __name__ == '__main__':
     cw_path = os.getcwd();
-    cw_path = cw_path[:cw_path.find('\\Evaluation')]
-    path1 = cw_path + '\\ground_truth'
-    path2 = cw_path + '\\audio_data'
-    path3 = cw_path + '\\SMC_based_alignment\\SMC_offset_estimation_results'
-    path4 = cw_path + '\\Fingerprinting_based_alignment\\fingerprinting_offset_estimation_results'
+    if cw_path.find('/')==-1:
+        cw_path_parent = cw_path[:cw_path.find('\\Evaluation')]
+        path1 = cw_path + '\\ground_truth'
+        path2 = cw_path_parent + '\\audio_data'
+        path3 = cw_path + '\\SMC_offset_estimation_results'
+        path4 = cw_path + '\\fingerprinting_offset_estimation_results'
+    else:
+        cw_path_parent = cw_path[:cw_path.find('/Evaluation')]
+        path1 = cw_path + 'ground_truth'
+        path2 = cw_path_parent + '/audio_data'
+        path3 = cw_path + 'SMC_offset_estimation_results'
+        path4 = cw_path + 'fingerprinting_offset_estimation_results'
     
     path = [path1, path2, path3, path4]
     
@@ -47,7 +54,7 @@ if __name__ == '__main__':
 
     # Illustration of the results of fingerprinting based alignment for 
     # threholds: 10, 20, ..., 150
-    thresholds = range(10,141,10)
+    thresholds = range(10,151,10)
     for thr in thresholds:        
         offset_estimation_result_filename = 'offset_estimation_fingerprinting_thr_' + np.str(thr) + '_result_14_11_2016.txt'
         Omega, FN_1, FN_2, FP = compute_accuracy.compute_accuracy(path, offset_estimation_result_filename)
@@ -59,13 +66,13 @@ if __name__ == '__main__':
     best_accuracy_fingerprinting_based = max(accuracy_omega)    
     index_of_best = accuracy_omega.index(best_accuracy_fingerprinting_based)
         
-    print('The best accuracy for fingerprinting based method \n   Threshold = {0}  Accuracy = %{1}'.format(thresholds[index_of_best-1], best_accuracy_fingerprinting_based))
+    print('The best accuracy for fingerprinting based method \n   Threshold = {0}  Accuracy = %{1}'.format(thresholds[index_of_best], best_accuracy_fingerprinting_based))
     
     fig, axes = plt.subplots(1,2)
     axes[0].plot(thresholds, accuracy_omega)
     axes[0].set_xlabel('Thresholds')
     axes[0].set_ylabel('Accuracy (%)')
-    axes[0].set_ylim([0,100])
+    axes[0].set_ylim([80,100])
     
     axes[1].plot(thresholds, accuracy_FN_1, label = '$FN_1$')
     axes[1].plot(thresholds, accuracy_FN_2, label = '$FN_2$')
