@@ -170,4 +170,3 @@ if __name__ == '__main__':
                
     json.dump(ground_truth,file(path1 + 'ground_truth.txt','w'))
     f.close()
-
