@@ -16,18 +16,17 @@
 %    along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 current_folder = pwd;
-if isempty(strfind(current_folder,'/'))==1
-    parent_folder = current_folder(1:strfind(current_folder,'\SMC_based_alignment')
-    load_path = parent_folder + 'audio_data\';
-    wl = 1; % OS is windows
-else
-    parent_folder = current_folder(1:strfind(current_folder,'/SMC_based_alignment'))
-    load_path = parent_folder + 'audio_data/';
-    wl = 2; % OS is Linux
+if isempty(strfind(current_folder,'/'))==1 % OS is Windows
+    parent_folder = current_folder(1:strfind(current_folder,'\SMC_based_alignment'));
+    load_path = [parent_folder 'audio_data\'];
+    
+else % OS is Linux
+    parent_folder = current_folder(1:strfind(current_folder,'/SMC_based_alignment'));
+    load_path = [parent_folder 'audio_data/'];    
 end
 
 % Extract features from audio dataset
-dataset_features = feature_extraction_module(load_path);
+dataset_features = feature_extract_module(load_path);
 
 % Align the unsyncronized audio signals (might take a while..)
 [Clusters, r_clusters, time_elapsed] = SMC_main_module(dataset_features);

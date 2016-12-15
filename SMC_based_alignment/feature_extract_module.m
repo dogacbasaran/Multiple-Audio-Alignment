@@ -31,7 +31,7 @@
     %       - First difference through frequency
     %       - Thresholding with 0 to obtain bit values that represents signs ->
     %       0 = "-" and   1 = "+", the result is saved in S{k}        
-function dataset_features = feature_extraction_module(load_path)
+function dataset_features = feature_extract_module(load_path)
 
     filenames = dir([load_path '*.wav']);
     
@@ -42,7 +42,7 @@ function dataset_features = feature_extraction_module(load_path)
     % MicRec is of the form  [1 1 ; 1 2 ; 1 3; .. ; 2 1 ; 2 2 ; 2 3 ;...]
     % See Manuscript:
     MicRec = zeros(K,2); 
-
+ 
     % Set the initial parameters for Sequential Monte Carlo Sampler
     smc_parameters = initialize_SMC_parameters();
     
@@ -75,11 +75,57 @@ function dataset_features = feature_extraction_module(load_path)
     
     % The structure holds necessary information for SMC procedure
     dataset_features = struct('S', {feature_parameters.S}, 'ss', {feature_parameters.ss}, 'Fs',feature_parameters.Fs,'F',feature_parameters.F,...
-                              'Nsteps',Nsteps, 'wsteps1',smc_parameters.wsteps1,'wsteps2',smc_parameters.wsteps2, 'K', K,...
-                              'MinNum_overlapping_frames', feature_parameters.Minimum_reliable_overlap_in_frames,...
+                              'Nsteps',Nsteps, 'wsteps1',smc_parameters.wsteps1,'wsteps2',smc_parameters.wsteps2, 'K', K, 'w_min', smc_parameters.w_min, ...
+                              'w_max', smc_parameters.w_max, 'MinNum_overlapping_frames', feature_parameters.Minimum_reliable_overlap_in_frames,...
                               'Lsteps',smc_parameters.Lsteps,'MicRec_sorted',MicRec_sorted, 'MicRec', MicRec,...
                               'minNumberOfSamples', smc_parameters.minNumberOfSamples, 'Ws', feature_parameters.Ws,...
                               'N', feature_parameters.N, 'Nsorted', Nsorted, 'numSteps', smc_parameters.numSteps);
+
+function [f,t]=enframe(x,win,inc)
+%	   Copyright (C) Mike Brookes 1997
+%      Version: $Id: enframe.m,v 1.7 2009/11/01 21:08:21 dmb Exp $
+%
+%   VOICEBOX is a MATLAB toolbox for speech processing.
+%   Home page: http://www.ee.ic.ac.uk/hp/staff/dmb/voicebox/voicebox.html
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   This program is free software; you can redistribute it and/or modify
+%   it under the terms of the GNU General Public License as published by
+%   the Free Software Foundation; either version 2 of the License, or
+%   (at your option) any later version.
+%
+%   This program is distributed in the hope that it will be useful,
+%   but WITHOUT ANY WARRANTY; without even the implied warranty of
+%   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%   GNU General Public License for more details.
+%
+%   You can obtain a copy of the GNU General Public License from
+%   http://www.gnu.org/copyleft/gpl.html or by writing to
+%   Free Software Foundation, Inc.,675 Mass Ave, Cambridge, MA 02139, USA.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+nx=length(x(:));
+nwin=length(win);
+if (nwin == 1)
+   len = win;
+else
+   len = nwin;
+end
+if (nargin < 3)
+   inc = len;
+end
+nf = fix((nx-len+inc)/inc);
+f=zeros(nf,len);
+indf= inc*(0:(nf-1)).';
+inds = (1:len);
+f(:) = x(indf(:,ones(1,len))+inds(ones(nf,1),:));
+if (nwin > 1)
+    w = win(:)';
+    f = f .* w(ones(nf,1),:);
+end
+if nargout>1
+    t=(1+len)/2+indf;
+end
 
 function smc_parameters = initialize_SMC_parameters(numSteps,w_min,w_max,minNumberOfSamples)
 
@@ -87,14 +133,14 @@ function smc_parameters = initialize_SMC_parameters(numSteps,w_min,w_max,minNumb
         case 0
             numSteps = 11;
             w_min = 0.51;
-            w_max = 0.63;
+            w_max = 0.64;
             minNumberOfSamples = 100;
         case 1
             w_min = 0.51;
-            w_max = 0.63;
+            w_max = 0.64;
             minNumberOfSamples = 100;
         case 2
-            w_max = 0.63;
+            w_max = 0.64;
             minNumberOfSamples = 100;
         case 3
             minNumberOfSamples = 100;
@@ -112,7 +158,7 @@ function smc_parameters = initialize_SMC_parameters(numSteps,w_min,w_max,minNumb
     t = 0:1/numSteps:1;        
     wsteps2 = (exp(coeff*t)-1)/(exp(coeff*t(end))-1)*(w_max-w_min) + w_min; 
     
-    smc_parameters = struct('numSteps', numSteps,'Lsteps', Lsteps, 'wsteps1', wsteps1, 'wsteps2',wsteps2,'minNumberOfSamples',minNumberOfSamples);
+    smc_parameters = struct('numSteps', numSteps,'Lsteps', Lsteps, 'w_min', w_min, 'w_max', w_max, 'wsteps1', wsteps1, 'wsteps2',wsteps2,'minNumberOfSamples',minNumberOfSamples);
 
 function feature_parameters = initialize_feature_parameters(numSteps, K, Fs, Ws, F, minimum_reliable_overlap_in_secs)
 

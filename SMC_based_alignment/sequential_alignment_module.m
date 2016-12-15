@@ -60,7 +60,7 @@
 %    along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 function [r_fixed, Cluster, Unclustered] = sequential_alignment_module(p, r_fixed, Clusters, NoC, run_number, dataset_features)
-
+ 
 % startResolution = 1;
 % N = data_struct.Nsteps(startResolution,:); % The last row of N -> The lengths of sequences in the lowest resolution
 global data_struct
@@ -109,7 +109,8 @@ for s = start:length(p) % index of the source to be aligned
         
     if alignment_possible
         
-        logL = initialize_samples(startResolution, r_start, r_end, currentSequence, wsteps, Cluster, r_fixed, p, s);
+        %logL = initialize_samples(startResolution, r_start, r_end, currentSequence, wsteps, Cluster, r_fixed, p, s);
+        logL = initialize_samples(startResolution, r_start, r_end, currentSequence, Cluster, r_fixed, p, s);
         
         
         closestRecLeft = closest{1};
@@ -117,9 +118,13 @@ for s = start:length(p) % index of the source to be aligned
         closestRecLeft_index = closest{3};
         closestRecRight_index = closest{4}; 
                       
-        [r_max, Num_overlapping_frames] = SMC_core_module(currentSequence, data_struct.S, F, Nsteps, wsteps, logL, Cluster, r_fixed,...
+        %[r_max, Num_overlapping_frames] = SMC_core_module(currentSequence, data_struct.S, F, Nsteps, wsteps, logL, Cluster, r_fixed,...
+        %                                                       startResolution, r_start, r_end, closestRecLeft, closestRecRight,...
+        %                                                       closestRecLeft_index, closestRecRight_index);
+        [r_max, Num_overlapping_frames] = SMC_core_module(currentSequence, data_struct, logL, Cluster, r_fixed,...
                                                                startResolution, r_start, r_end, closestRecLeft, closestRecRight,...
                                                                closestRecLeft_index, closestRecRight_index);
+
 
         [Cluster, NAS, r_fixed, Unclustered] = check_amount_of_overlap(Num_overlapping_frames, currentSequence, Unclustered, Cluster, r_fixed, r_max, NAS );
     else % The case where the current sequence cant be aligned due to other sequences from the same microphone
@@ -195,12 +200,15 @@ function [Cluster, NAS, r_fixed, Unclustered] = check_amount_of_overlap(Num_over
         Unclustered = update_Unclustered(Unclustered, currentSequence);
     end
 
-function logL = initialize_samples(startResolution, r_start, r_end, currentSequence, wsteps, Cluster, r_fixed, p, s)
+%function logL = initialize_samples(startResolution, r_start, r_end, currentSequence, wsteps, Cluster, r_fixed, p, s)
+function logL = initialize_samples(startResolution, r_start, r_end, currentSequence, Cluster, r_fixed, p, s)
     global data_struct
     
     N = data_struct.Nsteps(startResolution,:); % The last row of N -> The lengths of sequences in the lowest resolution
     L = data_struct.Lsteps(startResolution);  % Lowest resolution L
-    w = wsteps(startResolution); % w parameter for the lowest resolution
+    %w = wsteps(startResolution); % w parameter for the lowest resolution
+    w = data_struct.w_min;
+    
     x = data_struct.S(startResolution,:); % Data in lowest resolution
     F = data_struct.F; % The number of frequency bins in the feature
 

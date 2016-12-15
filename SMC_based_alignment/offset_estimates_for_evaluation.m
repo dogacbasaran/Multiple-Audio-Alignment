@@ -22,23 +22,23 @@ Nsorted = dataset_features.Nsorted;
 cw_path = pwd; % Get current working directory
 % Decide whether it is windows or linux based system based on the slash orientation
 if ~isempty(strfind(cw_path,'/')) % Linux based system
-    cw_path = cw_path(1:strfind(cw_path, 'SMC_based_alignment'));
-    gt_path = [cw_path '/Evaluation/ground_truth/'];
-    results_path = [cw_path '/Evaluation/ground_truth/SMC_offset_estimation_results/'];
+    cw_path = cw_path(1:strfind(cw_path, 'SMC_based_alignment')-1);
+    gt_path = [cw_path 'Evaluation/ground_truth/'];
+    results_path = [cw_path 'Evaluation/SMC_offset_estimation_results/'];
 else % Windows based system
-    cw_path = cw_path(1:strfind(cw_path, 'SMC_based_alignment'));
-    gt_path = [cw_path '\\Evaluation\\ground_truth\\'];
-    results_path = [cw_path '\\Evaluation\\ground_truth\\SMC_offset_estimation_results\\'];
+    cw_path = cw_path(1:strfind(cw_path, 'SMC_based_alignment')-1);
+    gt_path = [cw_path 'Evaluation\\ground_truth\\'];
+    results_path = [cw_path 'Evaluation\\SMC_offset_estimation_results\\'];
 end
 
 % Read the ground truth ordering of the sequences
-fid = fopen('ground_truth_sequence_ordering.txt','r');
+fid = fopen([gt_path 'ground_truth_sequence_ordering.txt'],'r');
 GT_ordering = textscan(fid, '%s', 'Delimiter', '\n'); % Ground truth ordering list
 fclose(fid);
 
 clk = clock;
 date_of_experiment = [num2str(clk(3)) '_' num2str(clk(2)) '_' num2str(clk(1)) '_' num2str(clk(4)) 'h_' num2str(clk(5)) 'm'];
-fileID = fopen(['offset_estimation_SMC_result_' date_of_experiment '.txt'],'w');
+fileID = fopen([results_path 'offset_estimation_SMC_result_' date_of_experiment '.txt'],'w');
 
 estimated_offsets = cell(length(GT_ordering{1}),1);
 for k = 1:length(GT_ordering{1}) 
