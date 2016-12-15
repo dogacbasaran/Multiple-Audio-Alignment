@@ -58,7 +58,7 @@ def extract_offsets(path, filelengths, silence_in_the_beginning, hopsize = 0.02)
     cnt3 = 1
     cnt4 = 1
     offset_length_in_frames = []
-    for line in open(path1 + 'GT_090912.xml','r').readlines():
+    for line in open(path1 + 'Jiku_GT_090912.xml','r').readlines():
         if line.find('offset') != -1:                        
             # Extract the length of the sequence
             mic_number = np.int(line.split('_')[2])
