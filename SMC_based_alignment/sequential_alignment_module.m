@@ -30,7 +30,7 @@
 %   Cluster                : Updated sequence indices that are connected (that are in the same cluster)
 %   Uncluster              : The sequence indices that are not in the current cluster (that can not be clustered with current cluster)
 % 
-% Copyright (C) 2016 Author: Dogac Basaran
+% Copyright (C) 2016  Author: Dogac Basaran
 %
 %    This program is free software: you can redistribute it and/or modify
 %    it under the terms of the GNU General Public License as published by

@@ -1,6 +1,6 @@
-% SMC Demonstration
+% SMC Demonstration: Demonstration of multiresolution alignment based on SMC samplers
 %
-% Copyright (C) 2016  Dogac Basaran
+% Copyright (C) 2016  Author: Dogac Basaran
 
 %    This program is free software: you can redistribute it and/or modify
 %    it under the terms of the GNU General Public License as published by
@@ -18,8 +18,7 @@
 current_folder = pwd;
 if isempty(strfind(current_folder,'/'))==1 % OS is Windows
     parent_folder = current_folder(1:strfind(current_folder,'\SMC_based_alignment'));
-    load_path = [parent_folder 'audio_data\'];
-    
+    load_path = [parent_folder 'audio_data\'];    
 else % OS is Linux
     parent_folder = current_folder(1:strfind(current_folder,'/SMC_based_alignment'));
     load_path = [parent_folder 'audio_data/'];    
