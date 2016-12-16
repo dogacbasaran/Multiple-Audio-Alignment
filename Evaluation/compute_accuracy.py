@@ -169,7 +169,7 @@ if __name__ == '__main__':
 
     path = [path1, path2, path3, path4]
 
-    offset_estimation_result_filename = 'offset_estimation_SMC_result_15_12_2016_13h_26m.txt'
+    offset_estimation_result_filename = 'offset_estimation_SMC_result_16_11_2016.txt'
     
     #offset_estimation_result_filename = 'offset_estimation_fingerprinting_thr_20_result_14_11_2016.txt'
     

@@ -1,0 +1,50 @@
+mic4_rec1.wav 
+mic1_rec1.wav 
+mic4_rec2.wav 
+mic4_rec3.wav 
+mic4_rec4.wav mic1_rec3.wav,6898 
+mic1_rec2.wav 
+mic1_rec3.wav mic4_rec4.wav,-6898 
+mic4_rec5.wav mic3_rec1.wav,16703 mic2_rec2.wav,26053 mic1_rec4.wav,15776 mic1_rec7.wav,30870 mic3_rec2.wav,33322 
+mic1_rec4.wav mic4_rec5.wav,-15776 mic3_rec1.wav,927 
+mic3_rec1.wav mic4_rec5.wav,-16703 mic2_rec2.wav,9350 mic1_rec4.wav,-927 mic1_rec7.wav,14167 
+mic2_rec1.wav mic1_rec5.wav,6318 
+mic1_rec5.wav mic2_rec1.wav,-6318 
+mic2_rec2.wav mic4_rec5.wav,-26053 mic3_rec1.wav,-9350 mic1_rec7.wav,4817 mic3_rec2.wav,7269 
+mic1_rec6.wav 
+mic1_rec7.wav mic4_rec5.wav,-30870 mic3_rec1.wav,-14167 mic2_rec2.wav,-4817 mic3_rec2.wav,2452 
+mic3_rec2.wav mic4_rec5.wav,-33322 mic2_rec2.wav,-7269 mic1_rec7.wav,-2452 
+mic2_rec3.wav mic1_rec8.wav,2135 
+mic1_rec8.wav mic2_rec3.wav,-2135 
+mic3_rec3.wav mic2_rec7.wav,16128 mic1_rec9.wav,4714 mic1_rec11.wav,14828 
+mic1_rec9.wav mic3_rec3.wav,-4714 
+mic2_rec4.wav 
+mic2_rec5.wav mic1_rec10.wav,550 
+mic1_rec10.wav mic2_rec5.wav,-550 
+mic2_rec6.wav 
+mic1_rec11.wav mic3_rec3.wav,-14828 mic2_rec7.wav,1300 
+mic2_rec7.wav mic3_rec3.wav,-16128 mic1_rec11.wav,-1300 
+mic1_rec12.wav mic3_rec4.wav,4245 
+mic3_rec4.wav mic1_rec12.wav,-4245 mic1_rec13.wav,8793 mic2_rec8.wav,7124 
+mic2_rec8.wav mic3_rec4.wav,-7124 
+mic1_rec13.wav mic3_rec4.wav,-8793 
+mic2_rec9.wav mic3_rec5.wav,6479 mic1_rec14.wav,5806 mic4_rec6.wav,6319 
+mic1_rec14.wav mic2_rec9.wav,-5806 mic3_rec5.wav,673 mic4_rec6.wav,513 
+mic4_rec6.wav mic2_rec9.wav,-6319 mic3_rec5.wav,160 mic1_rec14.wav,-513 
+mic3_rec5.wav mic2_rec9.wav,-6479 mic1_rec14.wav,-673 mic4_rec6.wav,-160 
+mic2_rec10.wav 
+mic2_rec11.wav 
+mic2_rec12.wav mic4_rec7.wav,2691 
+mic1_rec15.wav 
+mic4_rec7.wav mic2_rec12.wav,-2691 mic3_rec7.wav,18136 mic1_rec19.wav,23698 mic2_rec13.wav,16452 mic2_rec14.wav,25835 
+mic3_rec6.wav mic1_rec16.wav,1963 mic1_rec17.wav,10430 
+mic1_rec16.wav mic3_rec6.wav,-1963 
+mic1_rec17.wav mic3_rec6.wav,-10430 
+mic2_rec13.wav mic4_rec7.wav,-16452 mic3_rec7.wav,1684 
+mic3_rec7.wav mic4_rec7.wav,-18136 mic1_rec19.wav,5562 mic2_rec13.wav,-1684 mic2_rec14.wav,7699 
+mic1_rec18.wav 
+mic1_rec19.wav mic4_rec7.wav,-23698 mic3_rec7.wav,-5562 mic2_rec14.wav,2137 
+mic2_rec14.wav mic4_rec7.wav,-25835 mic3_rec7.wav,-7699 mic1_rec19.wav,-2137 
+mic4_rec8.wav mic3_rec8.wav,7725 
+mic3_rec8.wav mic4_rec8.wav,-7725 
+mic2_rec15.wav 
