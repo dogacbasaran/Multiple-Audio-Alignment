@@ -54,7 +54,7 @@ The results text file is available under the folder
 
 The evaluation software is written in python 2.7 and contains 3 files "groundtruth.py", "compute_accuracy.py" and "fingerprinting_evaluation.py" available under the folder "Evaluation".
 
-1. groundtruth.py
+1- groundtruth.py
 
 The ground-truth for the Jiku dataset is given in the "Jiku_GT_090912.xml" file available under the folder "Evaluation/ground_truth". The ground-truth is obtained from
 
@@ -65,7 +65,7 @@ Truth for the Jiku Mobile Video Dataset
 
 Note that "groundtruth.py" file have to be run for one time. Once the "ground_truth.txt" file is created, there is no need to run it again. 
 
-2. compute_accuracy.py
+2- compute_accuracy.py
 
 When an experiment is conducted with the multiresolution alignment software, the results are written into a text file and saved under the folder "Evaluation/SMC_offset_estimation_results". Similarly when an experiment is conducted with the baseline method, the results are written into a text file and saved under the folder "Evaluation/fingerprinting_offset_estimation_results".  
 
@@ -75,6 +75,6 @@ The variable 'offset_estimation_result_filename' has to be set to the name of th
 
 	offset_estimation_result_filename = 'offset_estimation_SMC_result_16_11_2016.txt'
 
-3. fingerprinting_evaluation.py
+3- fingerprinting_evaluation.py
 
 The baseline method requires a threshold to decide a matching/not matching decision between two sequences. A grid search is applied to tune the threshold for best accuracy result. The alignment estimation results are computed for thresholds {10 , 20 , ... , 150} with the baseline. "fingerprinting_evaluation.py" file computes accuracy for each estimation result using the "compute_accuracy.py", and prints the best accuracy and the threshold value. It also plots a figure with two subplots; the accuracy for each threshold, FP, FN_1 and FN_2 values for each threshold. 
