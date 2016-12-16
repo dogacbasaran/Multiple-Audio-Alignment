@@ -27,7 +27,13 @@ Here, the software takes the audio files for GT_090912 event of the Jiku dataset
 
 	<Sequence 1> <Sequence 2> <Relative offset>
 
-The results text file is available under the folder "Evaluation/SMC_offset_estimation_results".
+The results text file is available under the folder "Evaluation/SMC_offset_estimation_results". The name convention is;
+
+	offset_estimation_SMC_result_<dd>_<mm>_<yyyy>_<hh>h_<mm>m.txt
+
+As an example,
+
+	offset_estimation_SMC_result_16_12_2016_13h_26m.txt
 
 The detailed explanations and block diagrams of the main modules 'feature_extract_module', 'SMC_main_module', 'sequential_alignment_module' and 'SMC_core_module' can be found in the SoftwareX manuscript. 
 
@@ -48,7 +54,14 @@ For demonstration of the fingerprinting based alignment software, please run "fi
 	<Sequence 1> <Sequence 2> <Relative offset>
 
 The results text file is available under the folder 
-"Evaluation/fingerprinting_offset_estimation_results".
+"Evaluation/fingerprinting_offset_estimation_results". The name convention is;
+
+	offset_estimation_fingerprinting_thr_<value>_result.txt
+
+As an example,
+
+	offset_estimation_fingerprinting_thr_20_result.txt
+
 
 ### Evaluation 
 
@@ -78,3 +91,24 @@ The variable 'offset_estimation_result_filename' has to be set to the name of th
 3- fingerprinting_evaluation.py
 
 The baseline method requires a threshold to decide a matching/not matching decision between two sequences. A grid search is applied to tune the threshold for best accuracy result. The alignment estimation results are computed for thresholds {10 , 20 , ... , 150} with the baseline. "fingerprinting_evaluation.py" file computes accuracy for each estimation result using the "compute_accuracy.py", and prints the best accuracy and the threshold value. It also plots a figure with two subplots; the accuracy for each threshold, FP, FN_1 and FN_2 values for each threshold. 
+
+## For reviewers
+
+To test all the aspects provided by software, one should follow the steps below; 
+
+1- Run "/Evaluation/groundtruth.py" 
+
+2- Run "/SMC_based_alignment/SMC_demonstration.m"
+
+3- Run "Evaluation/compute_accuracy.py" by first setting the filename as the most recent files name,
+
+i.e., offset_estimation_SMC_result_16_11_2016_13h_26m.txt
+
+4- Run "/Fingerprinting_based_alignment/fingerprint_based_audio_alignment.m"
+
+5- Run "/Evaluation/fingerprinting_evaluation.py"
+
+Note that "ground_truth.txt" and baseline results for each threshold are already available in their respective paths. One can also skip the steps 1 and 4, and apply the rest of the steps in the same order for a shorter test. To make a shorter test, one can skip steps 1 and 5 and apply the rest of the steps in the same order.
+
+
+
