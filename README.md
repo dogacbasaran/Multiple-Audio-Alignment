@@ -5,9 +5,15 @@ This software is an implementation of
 ### Folder Structure
 
 audio_data
-Evaluation 
+
+Evaluation
+ 
   SMC_offset_estimation_results
+
   fingerprinting_offset_estimation_results
+
   ground_truth
+
 Fingerprinting_based_alignment
+
 SMC_based_alignment
