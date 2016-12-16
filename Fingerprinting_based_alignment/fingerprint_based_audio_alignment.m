@@ -33,9 +33,7 @@ estimated_alignments = cell(1, length(tks));
 for n = 1:length(thresholds)
     tic
     thr = thresholds(n);
-    clk = clock;
-    date_of_experiment = [num2str(clk(3)) '_' num2str(clk(2)) '_' num2str(clk(1))];
-    fileID = fopen(['offset_estimation_fingerprinting_thr_' num2str(thr) '_result_' date_of_experiment '.txt'],'w');
+    fileID = fopen(['offset_estimation_fingerprinting_thr_' num2str(thr) '_result.txt'],'w');
 
     for k = 1:length(tks)
         [x,Fs] = audioread(tks{k});

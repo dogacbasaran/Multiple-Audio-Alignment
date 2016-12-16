@@ -1,12 +1,6 @@
 """ 
 fingerprinting_evaluation.py  
 
-How to use:
-Manually write the name of the result text file from the result folder to the variable
-"offset_estimation_result_filename"
-Example:
-    offset_estimation_result_filename = 'offset_estimation_SMC_result_16_11_2016.txt'
-
 The code can work under Windows or Linus OS. 
 
 Copyright (C) 2016  Dogac Basaran
@@ -56,7 +50,7 @@ if __name__ == '__main__':
     # threholds: 10, 20, ..., 150
     thresholds = range(10,151,10)
     for thr in thresholds:        
-        offset_estimation_result_filename = 'offset_estimation_fingerprinting_thr_' + np.str(thr) + '_result_14_11_2016.txt'
+        offset_estimation_result_filename = 'offset_estimation_fingerprinting_thr_' + np.str(thr) + '_result.txt'
         Omega, FN_1, FN_2, FP = compute_accuracy.compute_accuracy(path, offset_estimation_result_filename)
         accuracy_omega.append(100*Omega)
         accuracy_FN_1.append(FN_1)
