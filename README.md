@@ -4,7 +4,7 @@
 
 There are 3 separate parts of the software; Multiresolution Alignment, Fingerprinting based alignment and Evaluation.
 
-# Multiresolution Alignment Software
+### Multiresolution Alignment Software
 
 The software consists of 5 Matlab files and is located under the folder "SMC_based_alignment".
 
@@ -14,7 +14,7 @@ To run the software first provide the path of the input dataset to feature_extra
 
 Then the resulting struct 'dataset_features' is fed into the SMC_main_module that finds the best alignment estimates using the multiresolution alignment scheme proposed in DSP Manuscript,
 	
-[Clusters, r_clusters, time_elapsed] = SMC_main_module(dataset_features)
+	[Clusters, r_clusters, time_elapsed] = SMC_main_module(dataset_features)
 
 'Clusters' is a cell array and a non-empty cell with index 'i' holds the list of connected sequences of the cluster 'i'. 
 
@@ -25,13 +25,13 @@ Then the resulting struct 'dataset_features' is fed into the SMC_main_module tha
 For the demonstration of the software, please run "SMC_demonstration.m" file. 
 Here, the software takes the audio files for GT_090912 event of the Jiku dataset as input (available under folder "audio_data") and returns the list of connected sequences (Clusters), their relative offset information (r_clusters) and the elapsed time information (time_elapsed). The results are written to a text file for each connected pair separately in a format 
 
-<Sequence 1> <Sequence 2> <Relative offset>
+	<Sequence 1> <Sequence 2> <Relative offset>
 
 The results text file is available under the folder "Evaluation/SMC_offset_estimation_results".
 
 The detailed explanations and block diagrams of the main modules 'feature_extract_module', 'SMC_main_module', 'sequential_alignment_module' and 'SMC_core_module' can be found in the SoftwareX manuscript. 
 
-# Fingerprinting based alignment
+### Fingerprinting based alignment
 
 The fingerprinting software is obtained from 
 
@@ -43,9 +43,9 @@ The codes are available under the folder "Fingerprinting_based_alignment".
 This software is not directly applicable to the alignment setting since it is a query-by-example based audio fingerprinting software. Here, we simply try to match all pairs of sequences from the number of exactly matching ngerprints and compute the relative offset from the time
 information of  fingerprints. A more detailed description can be found in Sec.4.1 in DSP manuscript. 
 
-For demonstration of the fingerprinting based alignment software, please run "fingerprint_based_audio_alignment.m" file. Here, the software takes the audio files for GT_090912 event of the Jiku dataset as input and returns The results are written to a text file for each connected pair separately in a format 
+For demonstration of the fingerprinting based alignment software, please run "fingerprint_based_audio_alignment.m" file. Here, the software takes the audio files for GT_090912 event of the Jiku dataset as input and the connected pair of sequences are estimated with their relative offsets using a threshold for the exact matching hashes. The threshold value is searched with a grid search method. The results are written to a separate text file for each threshold consisting each connected pair in a format 
 
-<Sequence 1> <Sequence 2> <Relative offset>
+	<Sequence 1> <Sequence 2> <Relative offset>
 
 The results text file is available under the folder 
 "Evaluation/fingerprinting_offset_estimation_results".
