@@ -1,5 +1,13 @@
 tic
-load_path = '/cal/homes/dbasaran/MesDocuments/Jiku dataset/audio/';
+current_folder = pwd;
+if isempty(strfind(current_folder,'/'))==1 % OS is Windows
+    parent_folder = current_folder(1:strfind(current_folder,'\SMC_based_alignment'));
+    load_path = [parent_folder 'audio_data\'];    
+else % OS is Linux
+    parent_folder = current_folder(1:strfind(current_folder,'/SMC_based_alignment'));
+    load_path = [parent_folder 'audio_data/'];    
+end
+
  % Read files
 tks= myls([load_path '*.wav']);
  
@@ -18,7 +26,7 @@ add_tracks(tks);
  
 fprintf('\nFeature extraction: %f secs\n',toc)
 
-% An ad-hoc threshold to find the most similar sequences
+% A grid search for the threshold to find the most similar sequences
 thresholds = 10:10:150;
 
 estimated_alignments = cell(1, length(tks));
