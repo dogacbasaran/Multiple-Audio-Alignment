@@ -28,10 +28,7 @@ end
 % Extract features from audio dataset
 dataset_features = feature_extract_module(load_path);
 
-% Align the unsyncronized audio signals (might take a while..)
+% Align the unsyncronized audio signals (might take a while..), the results
+% are written in a text file.
 [Clusters, r_clusters, time_elapsed] = SMC_main_module(dataset_features);
-
-% The results are written in a text file under "SMC_offset_estimation_results" folder
-% to be further used in the evaluation codes.
-offset_estimates_for_evaluation(Clusters, r_clusters, dataset_features);
 
