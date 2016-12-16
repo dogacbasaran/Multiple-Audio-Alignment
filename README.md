@@ -2,7 +2,7 @@
 
 ## How to use the software
 
-There are 3 separate parts of the software; Multiresolution Alignment, Fingerprinting based alignment and Evaluation.
+There are 3 separate parts of the software; Multiresolution Alignment, Baseline - Fingerprinting based alignment and Evaluation.
 
 ### Multiresolution Alignment Software
 
@@ -31,7 +31,7 @@ The results text file is available under the folder "Evaluation/SMC_offset_estim
 
 The detailed explanations and block diagrams of the main modules 'feature_extract_module', 'SMC_main_module', 'sequential_alignment_module' and 'SMC_core_module' can be found in the SoftwareX manuscript. 
 
-### Fingerprinting based alignment
+### Baseline - Fingerprinting based alignment
 
 The fingerprinting software is obtained from 
 
@@ -52,15 +52,29 @@ The results text file is available under the folder
 
 ### Evaluation 
 
-Contains the python codes for the evaluation of accuracy for both multiresolution alignment and baseline methods.
+The evaluation software is written in python 2.7 and contains 3 files "groundtruth.py", "compute_accuracy.py" and "fingerprinting_evaluation.py" available under the folder "Evaluation".
 
-This folder contains three subfolders:  
+1. groundtruth.py
 
--SMC_offset_estimation_results: Contains the resulting alignment estimates of the multiresolution alignment system. 
+The ground-truth for the Jiku dataset is given in the "Jiku_GT_090912.xml" file available under the folder "Evaluation/ground_truth". The ground-truth is obtained from
 
--fingerprinting_offset_estimation_results: Contains the results alignment estimates fo the baseline system. There are several results for different thresholds that determines matching sequences.
+M. Guggenberger, M. Lux, L. Boszormenyi, A Synchronization Ground
+Truth for the Jiku Mobile Video Dataset 
 
--ground_truth: Contains provided ground-truth file "Jiku_GT_090912.xml", the "groundtruth.txt" that provides the ground-truth matching sequences and their offsets at each row.
+"Jiku_GT_090912.xml" file contains the offset of each sequence on the universal time line that is not compatible with the evaluation procedure as in Sec. 4.2 in DSP Manuscript. We reformat the ground-truth information with the "groundtruth.py" file into a text file "ground_truth.txt" available under "Evaluation/ground_truth". 
 
+Note that "groundtruth.py" file have to be run for one time. Once the "ground_truth.txt" file is created, there is no need to run it again. 
 
+2. compute_accuracy.py
 
+When an experiment is conducted with the multiresolution alignment software, the results are written into a text file and saved under the folder "Evaluation/SMC_offset_estimation_results". Similarly when an experiment is conducted with the baseline method, the results are written into a text file and saved under the folder "Evaluation/fingerprinting_offset_estimation_results".  
+
+"compute_accuracy.py" file computes the accuracy of an alignment estimate result. It requires the ground-truth information from "ground_truth.txt" file and the text file that contains the resulting alignment estimates.  
+
+The variable 'offset_estimation_result_filename' has to be set to the name of the results text file, as an example;
+
+	offset_estimation_result_filename = 'offset_estimation_SMC_result_16_11_2016.txt'
+
+3. fingerprinting_evaluation.py
+
+The baseline method requires a threshold to decide a matching/not matching decision between two sequences. A grid search is applied to tune the threshold for best accuracy result. The alignment estimation results are computed for thresholds {10 , 20 , ... , 150} with the baseline. "fingerprinting_evaluation.py" file computes accuracy for each estimation result using the "compute_accuracy.py", and prints the best accuracy and the threshold value. It also plots a figure with two subplots; the accuracy for each threshold, FP, FN_1 and FN_2 values for each threshold. 
