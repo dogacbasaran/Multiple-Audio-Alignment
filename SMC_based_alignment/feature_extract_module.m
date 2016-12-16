@@ -1,6 +1,32 @@
-%% Feature Extraction Module:  %%
-% Copyright (C) 2016  Dogac Basaran
-
+% Feature Extraction Module:
+%
+% Input:
+%   load_path: The path for the dataset of sequences to be aligned
+% Output:
+%   dataset_features: type struct, extracted features of each sequence and related
+%                     parameters to other functions.
+%   
+%  Feature extraction follows the method in Haitsma et. al. "A highly robust audio fingerprinting system"
+%  to extract binary fingerprints
+    %   Preprocessing
+    %       - Read file
+    %       - Stereo to Mono
+    %       - Resample to 16kHz
+    %       - Normalize the signal
+    %       - Remove the silence 
+    %       - Save the file in ss{k} cell
+    %   Extraction
+    %       - Divide the signal into overlapping frames
+    %       - Take square of the magnitude spectrum to obtain spectrogram
+    %       energy
+    %       - Find subband energies
+    %       - First difference through time on spectrogram energies
+    %       - First difference through frequency
+    %       - Thresholding with 0 to obtain bit values that represents signs ->
+    %       0 = "-" and   1 = "+", the result is saved in S{k}        
+%
+% Copyright (C) 2016  Author: Dogac Basaran
+%
 %    This program is free software: you can redistribute it and/or modify
 %    it under the terms of the GNU General Public License as published by
 %    the Free Software Foundation, either version 3 of the License, or
@@ -14,23 +40,6 @@
 %    You should have received a copy of the GNU General Public License
 %    along with this program.  If not, see <http://www.gnu.org/licenses/>
 %
-%  Feature extraction follows the method in Haitsma et. al. "A highly robust audio fingerprinting system"
-    %   Preprocessing
-    %       - Read file
-    %       - Stereo to Mono
-    %       - Resample to 16kHz
-    %       - Normalize the signal
-    %       - Remove the silence from start and end of the file
-    %       - Save the file in ss{k} cell
-    %   Extraction
-    %       - Divide the signal into overlapping frames
-    %       - Take square of the magnitude spectrum to obtain spectrogram
-    %       energy
-    %       - Find subband energies
-    %       - First difference through time on spectrogram energies
-    %       - First difference through frequency
-    %       - Thresholding with 0 to obtain bit values that represents signs ->
-    %       0 = "-" and   1 = "+", the result is saved in S{k}        
 function dataset_features = feature_extract_module(load_path)
 
     filenames = dir([load_path '*.wav']);
