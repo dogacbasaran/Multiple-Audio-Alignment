@@ -10,15 +10,5 @@ There are 4 main folders;
 
 Contains the audio files to be synchronized.
 
-### Evaluation 
+### SMC_based_alignment
 
-This folder contains python  
-  	SMC_offset_estimation_results
-
-  	fingerprinting_offset_estimation_results
-
-  	ground_truth
-
-Fingerprinting_based_alignment
-
-SMC_based_alignment
