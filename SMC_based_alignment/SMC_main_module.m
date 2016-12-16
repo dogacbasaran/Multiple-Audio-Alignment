@@ -1,6 +1,18 @@
-%% SMC based alignment module
-% Copyright (C) 2016  Dogac Basaran
-
+% SMC main module:
+% This is the main module for the alignment of unsynchronized sequences. 
+% Inputs:
+%   dataset_features: type struct, extracted features of each sequence and related
+%                     parameters to other functions.
+%   print_proc: type boolean, True->print the intermediate results while running
+%   display_results: type boolean, print connected sequences in the same figure 
+%                    aligned with each other 
+% Outputs:
+%   Clusters: type cell array, each cell contains the list of connected sequences
+%   rs_fixed: type array, the relative offsets of the Clusters with the same index
+%   time_elapsed: Elapsed time in seconds
+%           
+% Copyright (C) 2016  Author: Dogac Basaran
+%
 %    This program is free software: you can redistribute it and/or modify
 %    it under the terms of the GNU General Public License as published by
 %    the Free Software Foundation, either version 3 of the License, or
@@ -102,18 +114,20 @@ end
 time_elapsed = toc;
 offset_estimates_for_evaluation(Clusters, rs_fixed, dataset_features);
 
-
 function [Clusters, rs_fixed] = update_clusters_offsets(Clusters, rs_fixed, NoC, Cluster, r_fixed)
     % Update the current cluster information and appropriate sequence indices        
     Clusters{NoC} = Cluster;
     rs_fixed{NoC} = r_fixed;
 
 function [Clusters, rs_fixed, NoC] = switch_to_next_cluster(Clusters,  rs_fixed, NoC, Unclustered)
+    % Finalize the current cluster and switch to the next cluster
     NoC = NoC + 1;
     Clusters{NoC} = Unclustered(1);
     rs_fixed{NoC} = 1;
 
 function terminate = check_no_unclustered(Unclustered)
+    % Check the termination condition, return terminate=true if there is at most
+    % one sequence in the unclustered list.
     if isempty(Unclustered)
         terminate = true;
     elseif length(Unclustered)==1
@@ -122,6 +136,7 @@ function terminate = check_no_unclustered(Unclustered)
         terminate = false;
     end
 
+% This function plots the clusters with their relative offsets    
 function display_results(Clusters, rs_fixed, NoC, dataset_features)
     ss = dataset_features.ss;
     N = dataset_features.N;
@@ -141,6 +156,8 @@ function display_results(Clusters, rs_fixed, NoC, dataset_features)
         end
     end
  
+% This function generates the result text file using the estimated Clusters,
+% and relative offsets     
 function offset_estimates_for_evaluation(Clusters, rs_fixed, dataset_features)
 
     MicRec_sorted = dataset_features.MicRec_sorted;
