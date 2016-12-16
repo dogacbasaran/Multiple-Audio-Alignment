@@ -1,5 +1,13 @@
-# Multiple-Audio-Alignment
+# Multiresolution Alignment for Multiple Unsynchronized Audio Sequences using Sequential Monte Carlo Samplers
 
-This software 
+This software is an implementation of 
 
-	feature_extract_module()
+### Folder Structure
+
+audio_data
+Evaluation 
+  SMC_offset_estimation_results
+  fingerprinting_offset_estimation_results
+  ground_truth
+Fingerprinting_based_alignment
+SMC_based_alignment
