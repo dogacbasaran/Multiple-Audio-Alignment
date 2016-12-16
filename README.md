@@ -2,17 +2,22 @@
 
 This software is an implementation of 
 
-### Folder Structure
+## Folder Structure
 
-audio_data
+There are 4 main folders;
 
-Evaluation
- 
-  SMC_offset_estimation_results
+### audio_data
 
-  fingerprinting_offset_estimation_results
+Contains the audio files to be synchronized.
 
-  ground_truth
+### Evaluation 
+
+This folder contains python  
+  	SMC_offset_estimation_results
+
+  	fingerprinting_offset_estimation_results
+
+  	ground_truth
 
 Fingerprinting_based_alignment
 
