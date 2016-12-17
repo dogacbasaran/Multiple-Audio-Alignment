@@ -1,5 +1,7 @@
 # Multiresolution Alignment for Multiple Unsynchronized Audio Sequences using Sequential Monte Carlo Samplers
 
+This is the distributed software for the article "Multiresolution Alignment for Multiple Unsynchronized Audio Sequences using Sequential Monte Carlo Samplers" submitted to Digital Signal Processing - SoftwareX joint special issue on Reproducible Research in signal processing.
+
 ## How to use the software
 
 There are 3 separate parts of the software; Multiresolution Alignment, Baseline - Fingerprinting based alignment and Evaluation.
