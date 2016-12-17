@@ -6,11 +6,11 @@ How to use:
 Manually write the name of the result text file from the result folder to the variable
 "offset_estimation_result_filename"
 Example:
-    offset_estimation_result_filename = 'offset_estimation_SMC_result_16_11_2016.txt'
+    offset_estimation_result_filename = 'offset_estimation_SMC_result_16_11_2016_13h_26m.txt'
 
 The code can work under Windows or Linus based OS. 
 
-Copyright (C) 2016  Dogac Basaran
+Copyright (C) 2016  Author: Dogac Basaran
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by

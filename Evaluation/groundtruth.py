@@ -1,10 +1,10 @@
 """ 
-grount_truth.py: This code pulls the offset values of the sequences from the GT_090912.xml 
+grount_truth.py: This code pulls the offset values of the sequences from the Jiku_GT_090912.xml 
 file and forms the pairwise connected sequence list. The list is then written in
 a text file "grount_truth.txt". 
 The code can work under Windows or Linus based OS. 
 
-Copyright (C) 2016  Dogac Basaran
+Copyright (C) 2016  Author: Dogac Basaran
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
