@@ -110,7 +110,6 @@ i.e., offset_estimation_SMC_result_16_11_2016_13h_26m.txt
 
 5- Run "/Evaluation/fingerprinting_evaluation.py"
 
-Note that "ground_truth.txt" and baseline results for each threshold are already available in their respective paths. One can also skip the steps 1 and 4, and apply the rest of the steps in the same order for a shorter test. To make a shorter test, one can skip steps 1 and 5 and apply the rest of the steps in the same order.
-
+Note that "ground_truth.txt" and baseline results for each threshold are already available in their respective paths. One can also skip the steps 1 and 4, and apply the rest of the steps in the same order for a shorter test. 
 
 
