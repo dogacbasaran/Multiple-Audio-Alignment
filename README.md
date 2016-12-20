@@ -102,7 +102,7 @@ To test all the aspects provided by software, one should follow the steps below;
 
 2- Run "/SMC_based_alignment/SMC_demonstration.m"
 
-3- Run "Evaluation/compute_accuracy.py" by first setting the filename as the most recent files name,
+3- Run "/Evaluation/compute_accuracy.py" by first setting the filename as the most recent files name,
 
 i.e., offset_estimation_SMC_result_16_11_2016_13h_26m.txt
 
