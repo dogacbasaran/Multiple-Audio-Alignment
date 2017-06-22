@@ -86,7 +86,7 @@ When an experiment is conducted with the multiresolution alignment software, the
 
 "compute_accuracy.py" file computes the accuracy of an alignment estimate result. It requires the ground-truth information from "ground_truth.txt" file and the text file that contains the resulting alignment estimates.  
 
-The variable 'offset_estimation_result_filename' has to be set to the name of the results text file, as an example;
+The variable 'offset_estimation_result_filename' has to be set to the name of the results text file, as an example ;
 
 	offset_estimation_result_filename = 'offset_estimation_SMC_result_16_11_2016.txt'
 
