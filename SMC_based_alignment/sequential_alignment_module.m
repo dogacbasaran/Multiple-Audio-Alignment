@@ -1,51 +1,40 @@
-% function [r_fixed, Cluster, Uncluster, internal_struct] = SM_M5_F5(p, r_fixed, Cluster, data_struct, internal_struct)
-% 
-% Sequential Matching Algorithm for M5: Be-Be F5: Feature: Threshold first Difference Through Time and Frequency
-% 
-% The inputs and outputs of the function are as follows;
-% 
-% Inputs:
-%   p                      : The sequence indices that are going to be aligned
-%   r_fixed                : The starting points of aligned sequences
-%   Cluster                : The sequence indices that are overlapping (that are in the same cluster)
-%   S                      : The sequences at each resolution (1st row is the lowest resolution)
-%   data_struct            : Structure contains the features of sequences of all resolution, length of each sequence,
-%                                   number of subbands, sampling frequency
-%                                   and minimum number of frame overlap, to be accepted as aligned
-%   internal_struct        : Structure contains internal variables S1 and S2
-% 
-% Outputs:
-%   r_fixed                : Updated starting points of aligned sequences
-%   Cluster                : Updated sequence indices that are overlapping (that are in the same cluster)
-%   Uncluster              : The sequence indices that are not in the same cluster (that can not be clustered with current cluster)
-%   internal_struct        : Updated structure contains internal variables S1 and S2
-% 
-% The generative model is,
-% 
-% lambda_tau ~ Be(lambda_tau; alpha_L)  True time line index
-% r_k ~ U[1,T-N_k+1] True time index for source k
-% x_(k,n) | r_k, lambda_tau ~ PROD(1:T) P(x_(k,n) | r_k, lambda_tau)^[n=tau-r_k]
-% 
-% P(x_(k,n) | r_k, lambda_tau) = exp(Sum_i Sum_j [x_(k,n)=i][lambda_tau=j] log(w))
+% SEQUENTIAL_ALIGNMENT_MODULE - Sequential alignment procedure 
 %
-% The aim is to find the best alignment of sources applying the following
-% methodology:
-% - Fix the first source alignment variable assume that it is known.
-% - Match the next source the first source as a pairwise manner. 
-% - Then match the next source according to the fixed source alignments
+%   This module aligns the sequences one-by-one in a sequential manner.
+%   The aim is to find the best alignment of sources applying the following
+%   methodology:
+%   - Fix the first source alignment variable assume that it is known.
+%   - Match the next source the first source as a pairwise manner. 
+%   - Then match the next source according to the fixed source alignments
 % 
-% - When aligning sources sequentially, if the current source do not
-% overlap with the previous sources, the ordering of the sources changes 
-% in a way that the non-overlapping source is moved to the end of the 
-% ordering and the rest of the sources are circulary shift to left by 1
-% Example:
-% p = [4 2 3 5 1 6]
-% Assume that source 4 and 2 overlaps the current search for source 3 and
-% it does not overlap with the previous sources then the ordering is
-% changed to p = [4 2 5 1 6 3]
-%% Sequential Alignment module: Applies the sequential alignment method in Manuscript Sec. 3.4
-% Copyright (C) 2016 Dogac Basaran
+%   - When aligning sources sequentially, if the current source do not
+%   overlap with the previous sources, the ordering of the sources changes 
+%   in a way that the non-overlapping source is moved to the end of the 
+%   ordering and the rest of the sources are circulary shift to left by 1
+%   Example:
+%   p = [4 2 3 5 1 6]
+%   Assume that source 4 and 2 overlaps the current search for source 3 and
+%   it does not overlap with the previous sources then the ordering is
+%   changed to p = [4 2 5 1 6 3]
+% 
+%   Inputs:
+%   
+%       p                      : The sequence indices that are going to be aligned
+%       r_fixed                : The starting points of aligned sequences
+%                                in the current cluster
+%       Clusters               : The sequence indices that are overlapping (that are in the same cluster)
+%       NoC                    : Number of defined clusters
+%       run_number             : The number of epoch where an epoch is
+%                                defined as scannin through all the sequences
+%                                in the list 'p'
+%       dataset_features       : The struct that contains features
+%                                extracted for each audio file in the dataset
+%   Outputs:
+%       r_fixed                : Updated starting points of aligned sequences
+%       Cluster                : Updated sequence indices that are overlapping (that are in the current cluster)
+%       Uncluster              : The sequence indices that are not in the same cluster (that can not be clustered with current cluster)
 
+% Copyright (C) 2016 Dogac Basaran
 %    This program is free software: you can redistribute it and/or modify
 %    it under the terms of the GNU General Public License as published by
 %    the Free Software Foundation, either version 3 of the License, or
@@ -61,8 +50,6 @@
 
 function [r_fixed, Cluster, Unclustered] = sequential_alignment_module(p, r_fixed, Clusters, NoC, run_number, dataset_features)
 
-% startResolution = 1;
-% N = data_struct.Nsteps(startResolution,:); % The last row of N -> The lengths of sequences in the lowest resolution
 global data_struct
 data_struct = dataset_features;
 
@@ -135,6 +122,7 @@ print_results(Cluster, Unclustered, run_number);
 
 function print_results(Cluster, Unclustered, run_number)
     % Print the results of the current Run
+    
     fprintf('\nResults of the Run: #%d', run_number);
     fprintf('\nClustered sequences: ');
     for k=1:length(Cluster)
@@ -151,6 +139,8 @@ function print_results(Cluster, Unclustered, run_number)
     end
 
 function [Cluster, r_fixed, NAS] = update_Cluster(Cluster, currentSequence, r_max, r_fixed, NAS, print_proc)
+    % Update the current cluster with the aligned sequences list
+
     global data_struct
     Nsteps = data_struct.Nsteps;
 
@@ -178,6 +168,7 @@ function [Cluster, r_fixed, NAS] = update_Cluster(Cluster, currentSequence, r_ma
     end
     
 function Unclustered = update_Unclustered(Unclustered, currentSequence, print_proc)
+    % Update the unclustered list of sequences
 
     if nargin < 3
         print_proc = true;
@@ -191,6 +182,9 @@ function Unclustered = update_Unclustered(Unclustered, currentSequence, print_pr
     end
         
 function [Cluster, NAS, r_fixed, Unclustered] = check_amount_of_overlap(Num_overlapping_frames, currentSequence, Unclustered, Cluster, r_fixed, r_max, NAS)
+    % Check the amount of overlap between the current sequence and the
+    % current cluster
+
     global data_struct
     Nsteps = data_struct.Nsteps;
     
@@ -200,8 +194,9 @@ function [Cluster, NAS, r_fixed, Unclustered] = check_amount_of_overlap(Num_over
         Unclustered = update_Unclustered(Unclustered, currentSequence);
     end
 
-%function logL = initialize_samples(startResolution, r_start, r_end, currentSequence, wsteps, Cluster, r_fixed, p, s)
 function logL = initialize_samples(startResolution, r_start, r_end, currentSequence, Cluster, r_fixed, p, s)
+    % Initialize the samples of SMC procedure in the lowest resolution
+
     global data_struct
     
     N = data_struct.Nsteps(startResolution,:); % The last row of N -> The lengths of sequences in the lowest resolution
@@ -255,6 +250,9 @@ function logL = initialize_samples(startResolution, r_start, r_end, currentSeque
     
 
 function [r_closestRecLeft, N_sequencesLeft, closestRecLeft, closestRecLeft_index] = find_closest_Rec_left(currentSequence, startResolution, Cluster, r_fixed, ind)
+    % Find the closest sequence that has a lower offset and is
+    % recorded by the same recorder.
+
     global data_struct;
     
     L = data_struct.Lsteps(startResolution);
@@ -289,6 +287,9 @@ function [r_closestRecLeft, N_sequencesLeft, closestRecLeft, closestRecLeft_inde
     end
 
 function [r_closestRecRight, N_sequencesRight, closestRecRight, closestRecRight_index] = find_closest_Rec_right(currentSequence, startResolution, Cluster, r_fixed, ind)
+    % Find the closest sequence that has a higher offset and is
+    % recorded by the same recorder.
+
     global data_struct;
     
     L = data_struct.Lsteps(startResolution);
@@ -323,6 +324,9 @@ function [r_closestRecRight, N_sequencesRight, closestRecRight, closestRecRight_
     end
     
 function [alignment_possible, r_start, r_end, closest] = apply_constraints(startResolution, Cluster, r_fixed, p, s)
+    % Apply the constraints regarding the sequences that are recorded with
+    % the same recording device.
+
     global data_struct;
     N = data_struct.Nsteps(startResolution,:); % Gather the length of each sequence in current resolution level
     L = data_struct.Lsteps(startResolution);
@@ -380,6 +384,9 @@ function [alignment_possible, r_start, r_end, closest] = apply_constraints(start
     end
     
 function enough_samples = check_number_of_samples(r_start, r_end, startResolution)
+    % Checks the number of samples in a particular resolution level for
+    % SMC procedure.
+
     global data_struct
     % If the number of samples is below the threshold (minNumberOfSamples)
     % then we start with a higher resolution to have enough samples
@@ -391,12 +398,15 @@ function enough_samples = check_number_of_samples(r_start, r_end, startResolutio
     end        
     
 function new_startResolution = re_set_resolution(r_start, r_end, startResolution)
+    % Re-sets the resolution for the SMC procedure
+
     global data_struct
     old_startResolution = startResolution;
     numberOfSamples = r_end - r_start + 1;
     new_startResolution = min([old_startResolution + ceil(log2(data_struct.minNumberOfSamples/numberOfSamples)) data_struct.numSteps]);
             
 function [alignment_possible, r_start, r_end, startResolution, closest] = set_search_space(startResolution, Cluster, r_fixed, p, s)    
+    % Sets the search space for the samples of SMC procedure
     
     [alignment_possible, r_start, r_end, closest] = apply_constraints(startResolution, Cluster, r_fixed, p, s);
     % After applying the constraints and decide that the Cluster and the current sequence can be aligned, 
@@ -412,6 +422,10 @@ function [alignment_possible, r_start, r_end, startResolution, closest] = set_se
     end
     
 function all_sequences_exist = check_all_sequences_exist(startResolution, Cluster, p, s)
+    % Checks all the sequences to be aligned exist in a particular
+    % resolution. Note that the length of the sequences decrease with the
+    % increasing resolution
+    
     global data_struct;
     
     if sum([data_struct.Nsteps(startResolution,Cluster) data_struct.Nsteps(startResolution,p(s))] == 0) == 0
@@ -421,6 +435,8 @@ function all_sequences_exist = check_all_sequences_exist(startResolution, Cluste
     end
 
 function startResolution = set_resolution(Cluster, p, s)
+    % Sets the starting resolution for the SMC procedure
+
     global data_struct;
     
     startResolution = 1; % For each sequence, start with the lowest possible resolution

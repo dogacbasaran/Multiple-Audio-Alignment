@@ -1,30 +1,34 @@
-% Feature Extraction Module:
+% FEATURE_EXTRACT_MODULE - Feature extraction of audio dataset
+%   Feature_extract_module extracts binary fingerprints (features)
+%   following the method proposed by Haitsma et. al. 
+%   J. Haitsma, T. Kalker, A highly robust audio fingerprinting system., in:
+%   Music Information Retrieval (ISMIR), 3rd International Conference on,
+%   2002, pp. 107?115
 %
-% Input:
-%   load_path: The path for the dataset of sequences to be aligned
-% Output:
-%   dataset_features: type struct, extracted features of each sequence and related
-%                     parameters to other functions.
+%   Input:
+%       load_path: The path for the dataset of sequences to be aligned
+%   Output:
+%       dataset_features: type struct, extracted features of each sequence and related
+%                         parameters to other functions.
 %   
-%  Feature extraction follows the method in Haitsma et. al. "A highly robust audio fingerprinting system"
-%  to extract binary fingerprints
-    %   Preprocessing
-    %       - Read file
-    %       - Stereo to Mono
-    %       - Resample to 16kHz
-    %       - Normalize the signal
-    %       - Remove the silence 
-    %       - Save the file in ss{k} cell
-    %   Extraction
-    %       - Divide the signal into overlapping frames
-    %       - Take square of the magnitude spectrum to obtain spectrogram
-    %       energy
-    %       - Find subband energies
-    %       - First difference through time on spectrogram energies
-    %       - First difference through frequency
-    %       - Thresholding with 0 to obtain bit values that represents signs ->
-    %       0 = "-" and   1 = "+", the result is saved in S{k}        
-%
+%  Feature extraction steps are as follows:
+%   Preprocessing
+%       - Read file
+%       - Stereo to Mono
+%       - Resample to 16kHz
+%       - Normalize the signal
+%       - Remove the silence 
+%       - Save the file in ss{k} cell
+%   Extraction
+%       - Divide the signal into overlapping frames
+%       - Take square of the magnitude spectrum to obtain spectrogram
+%       energy
+%       - Find subband energies
+%       - First difference through time on spectrogram energies
+%       - First difference through frequency
+%       - Thresholding with 0 to obtain bit values that represents signs ->
+%       0 = "-" and   1 = "+", the result is saved in S{k}        
+
 % Copyright (C) 2016  Author: Dogac Basaran
 %
 %    This program is free software: you can redistribute it and/or modify
@@ -137,7 +141,8 @@ if nargout>1
 end
 
 function smc_parameters = initialize_SMC_parameters(numSteps,w_min,w_max,minNumberOfSamples)
-
+    % Initialize the SMC procedure parameters
+    
     switch nargin
         case 0
             numSteps = 11;
@@ -170,6 +175,7 @@ function smc_parameters = initialize_SMC_parameters(numSteps,w_min,w_max,minNumb
     smc_parameters = struct('numSteps', numSteps,'Lsteps', Lsteps, 'w_min', w_min, 'w_max', w_max, 'wsteps1', wsteps1, 'wsteps2',wsteps2,'minNumberOfSamples',minNumberOfSamples);
 
 function feature_parameters = initialize_feature_parameters(numSteps, K, Fs, Ws, F, minimum_reliable_overlap_in_secs)
+    % Initialize the feature extraction parameters
 
     if nargin < 3
         Fs = 16000; % Sampling rate
@@ -220,7 +226,10 @@ function feature_parameters = initialize_feature_parameters(numSteps, K, Fs, Ws,
                                 'Minimum_reliable_overlap_in_frames',Minimum_reliable_overlap_in_frames, ...
                                 'subbands', subbands, 'N', N, 'S', {S}, 'ss', {ss});
 
-function s = preprocess_audio(s, fs, Fs)    
+function s = preprocess_audio(s, fs, Fs)  
+    % Preprocess audio to convert into mono, set the sampling rate, and
+    % normalize.
+
     % Stereo - Mono conversion
     if size(s,2) == 2 % if signal is stereo, turn into mono
         s = (s(:,1) + s(:,2))/2;
@@ -244,6 +253,8 @@ function s = preprocess_audio(s, fs, Fs)
     s = s(start_sample:end_sample);
 
 function [S, N] = extract_features(s, k, smc_parameters, feature_parameters)
+    % Extract features with predefined smc and feature parameters.
+    
     audioWindow = feature_parameters.audioWindow;
     frameInc = feature_parameters.frameInc;
     N = feature_parameters.N;
@@ -299,6 +310,7 @@ function [S, N] = extract_features(s, k, smc_parameters, feature_parameters)
     
 function micrec = extract_mic_rec_number(filename)
     % Extract the microphone number and record number from the filenames
+    
     MicInd = strfind(filename,'mic'); 
     RecInd = strfind(filename,'rec');
     DotInd = strfind(filename,'.');
@@ -311,6 +323,7 @@ function micrec = extract_mic_rec_number(filename)
 
 function [S, ss, Nsteps, Nsorted, MicRec_sorted, ind] = sort_sequences(S, ss, N, MicRec)
     % Sort the songs according to their lengths in decreasing order
+    
     [Nsorted,ind] = sort(N(end,:),'descend');
     Nsteps = N(:,ind);
     ss = ss(ind);
@@ -319,6 +332,7 @@ function [S, ss, Nsteps, Nsorted, MicRec_sorted, ind] = sort_sequences(S, ss, N,
 
 function filenames_sorted = print_ordered_files(filenames, ind)
     % Print the sorted filenamess on the screen
+    
     filenames_sorted = filenames(ind);
     fprintf('\nThe sorted filenames: \n');
     for i=1:length(filenames)

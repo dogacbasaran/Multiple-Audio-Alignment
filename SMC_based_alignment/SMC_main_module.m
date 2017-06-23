@@ -1,16 +1,16 @@
-% SMC main module:
-% This is the main module for the alignment of unsynchronized sequences. 
-% Inputs:
-%   dataset_features: type struct, extracted features of each sequence and related
-%                     parameters to other functions.
-%   print_proc: type boolean, True->print the intermediate results while running
-%   display_results: type boolean, print connected sequences in the same figure 
-%                    aligned with each other 
-% Outputs:
-%   Clusters: type cell array, each cell contains the list of connected sequences
-%   rs_fixed: type array, the relative offsets of the Clusters with the same index
-%   time_elapsed: Elapsed time in seconds
-%           
+% SMC_MAIN_MODULE - Main module for the alignment of the unsynchronized sequences 
+%   SMC_main_module is the main module where the alignment estimates are computed. 
+%   Inputs:
+%       dataset_features: type struct, extracted features of each sequence and related
+%                         parameters to other functions.
+%       print_proc: type boolean, True->print the intermediate results while running
+%       display_results: type boolean, print connected sequences in the same figure 
+%                        aligned with each other 
+%   Outputs:
+%       Clusters: type cell array, each cell contains the list of connected sequences
+%       rs_fixed: type array, the relative offsets of the Clusters with the same index
+%       time_elapsed: Elapsed time in seconds
+           
 % Copyright (C) 2016  Author: Dogac Basaran
 %
 %    This program is free software: you can redistribute it and/or modify
@@ -136,8 +136,8 @@ function terminate = check_no_unclustered(Unclustered)
         terminate = false;
     end
 
-% This function plots the clusters with their relative offsets    
 function display_results(Clusters, rs_fixed, NoC, dataset_features)
+    % Plot the clusters with their relative offsets
     ss = dataset_features.ss;
     N = dataset_features.N;
     Fs = dataset_features.Fs;
@@ -155,11 +155,10 @@ function display_results(Clusters, rs_fixed, NoC, dataset_features)
             set(gca, 'xlim', [0 (mx*hopsize*Fs+1)/Fs])
         end
     end
- 
-% This function generates the result text file using the estimated Clusters,
-% and relative offsets     
+      
 function offset_estimates_for_evaluation(Clusters, rs_fixed, dataset_features)
-
+    % Generates the result text file using the estimated Clusters,
+% and relative offsets
     MicRec_sorted = dataset_features.MicRec_sorted;
     Nsorted = dataset_features.Nsorted;
     

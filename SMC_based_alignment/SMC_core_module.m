@@ -1,7 +1,39 @@
-%% SMC core module: The main implementation of the SMC procedure
-%
-% Copyright (C) 2016  Dogac Basaran
+% SMC_CORE_MODULE: The main implementation of the SMC procedure
+%   This is core part of the implementation that aligns a sequence to a
+%   cluster with prealigned sequences using the multiresolution SMC
+%   procedure.
+%   Inputs:
+%       s                               : The index of the sequence to be
+%                                         aligned with the current cluster
+%       dataset_features                : The struct that contains the
+%                                         extracted features of audio dataset
+%       phi_L_low                       : Initial probabilities of SMC
+%                                         samples
+%       Cluster                         : Cluster to be aligned with
+%       r_fixed                         : The offset values of the aligned
+%                                         sequences in the cluster
+%       startResolution                 : The starting resolution of SMC
+%       r_start                         : The beginning of the search space
+%       r_end                           : The ending of the search
+%       closestRecLeft                  : The index of the closest
+%                                         sequence in the main list of sequences 
+%                                         to be aligned that has a higher offset value 
+%       closestRecRight                 : The index of the closest
+%                                         sequence in the main list of sequences 
+%                                         to be aligned that has a lower offset value
+%       closestRecLeft_index            : The index of the closest
+%                                         sequence in the cluster that has 
+%                                         a higher offset value 
+%       closestRecRight_index           : The index of the closest
+%                                         sequence in the cluster that has 
+%                                         a higher offset value
+%   Outputs:
+%       r_max                           : The offset estimate of the
+%                                         sequence that maximizes the score function
+%       Num_overllaping_frames          : The number of overlapping frames
+%                                         between the sequence and the cluster
 
+% Copyright (C) 2016  Dogac Basaran
 %    This program is free software: you can redistribute it and/or modify
 %    it under the terms of the GNU General Public License as published by
 %    the Free Software Foundation, either version 3 of the License, or
@@ -15,8 +47,7 @@
 %    You should have received a copy of the GNU General Public License
 %    along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-%function [r_max, Num_overlapping_frames] = SMC_core_(s, S, F, Nsteps,  wsteps, phi_L_low, Cluster, r_fixed, startResolution, r_start, r_end, closestRecLeft, closestRecRight , closestRecLeft_index, closestRecRight_index)
-function [r_max, Num_overlapping_frames] = SMC_core_(s, dataset_features, phi_L_low, Cluster, r_fixed, startResolution, r_start, r_end, closestRecLeft, closestRecRight , closestRecLeft_index, closestRecRight_index)
+function [r_max, Num_overlapping_frames] = SMC_core_module(s, dataset_features, phi_L_low, Cluster, r_fixed, startResolution, r_start, r_end, closestRecLeft, closestRecRight , closestRecLeft_index, closestRecRight_index)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 global data_struct                  % 
@@ -120,6 +151,10 @@ end
 Num_overlapping_frames = find_amount_of_overlap(temp_S1, r_max, N, s);
 
 function wsteps = hyperparameter_w_annealing(startResolution, numSteps)
+    % Computes the hyperparameter through each resolution step of SMC
+    %   wsteps1: Parameter is linearly increased
+    %   wsteps2: Parameter is exponentially increased
+    
     global data_struct
     w_min = data_struct.w_min;
     w_max = data_struct.w_max;
@@ -137,6 +172,7 @@ function wsteps = hyperparameter_w_annealing(startResolution, numSteps)
 
 function [S1, S2, temp_S1, temp_S2, length_of_likelihood] = compute_intermediate_values_for_likelihood(T, F, Cluster, r_fixed_L, N, s, S, step)
     % Intermediate values for computing likelihood function
+    
     S1 = zeros(1,T); % Holds the number of sequence coefficients aligned at each time instant in the interval [1:T]
     S2 = zeros(F,T); % Holds the sum of aligned coefficients aligned at each time instant in the interval [1:T]
     for k = 1:length(Cluster)
@@ -151,12 +187,17 @@ function [S1, S2, temp_S1, temp_S2, length_of_likelihood] = compute_intermediate
 
 
 function Num_overlapping_frames = find_amount_of_overlap(temp_S1, r_max, N, s)
+    % Finds the amount of overlap with the sequence and the current cluster
+
     temp1 = zeros(size(temp_S1));
     temp1(temp_S1>0)= 1;
     temp1(r_max:r_max+N(s)-1) = temp1(r_max:r_max+N(s)-1) + 1;
     Num_overlapping_frames =  sum(temp1>1); 
     
 function weight = check_effective_sample_size(weight, NumParticles, R)
+    % Checks the effective sample size by computing the weight for each
+    % sample
+
     W = weight/sum(weight);
     ESS = 1/sum(W.^2); % Effective sample size
     % Check the effective sample size
@@ -169,8 +210,8 @@ function weight = check_effective_sample_size(weight, NumParticles, R)
     end
     
 function [r_start, r_end] = set_offset_search_interval(r_fixed_L, N, s, length_of_likelihood, closestRecLeft, closestRecRight , closestRecLeft_index, closestRecRight_index)
-
     % The offset search boundaries are set with interval [r_start:r_end] in the current resolution level
+    
     if isempty(closestRecLeft)
         r_start = 2;
     else
@@ -185,6 +226,7 @@ function [r_start, r_end] = set_offset_search_interval(r_fixed_L, N, s, length_o
 function [r_proposed, len] = propose_offsets_from_higher_resolution(R,n,r_start,r_end,P,H)
     % Proposed alignment values for intermediate distributions between
     % resolutions      
+    
     len = P(1)+H(1); % The length of the region to be smoothed
     r_proposed = (1:len)-len/2+(2*R(n)-1);
     if r_proposed(1)< r_start
@@ -197,6 +239,7 @@ function phi_L = compute_phi_L_of_proposed_offsets(phi_L, length_of_likelihood, 
     % All the likelihood values phi_L(r_proposed) are computed for the proposed alignment values.
     % This is more efficient because at each forward move of a sample, same likelihood values are computed
     % as shown in Manuscript: Section 3.2 Forward Markov Kernel Design
+    
     for i=1:length(r_proposed)
         r = r_proposed(i);   
         if phi_L(r)==0
@@ -213,15 +256,18 @@ function phi_L = compute_phi_L_of_proposed_offsets(phi_L, length_of_likelihood, 
         end
     end
 
-% Values of the log likelihood into a distribution
 function Fp = log_2_distribution(r, f)
+    % Values of the log likelihood into a distribution
+
     Fp = f(r);
     Fp = Fp-max(Fp);
     Fp = exp(Fp);
     Fp = Fp/sum(Fp);
     
 function [r_n, weight_n] = forward_kernel(L, r_proposed, phi_L, Pi_1, P, H, weight, R, n)
-    
+    % The forward kernel that moves samples through each resolution of SMC
+    % procedure
+
     % Apply the procedure for all the resolution levels except the highest (original) level
     if L ~= 1       
         Fp = log_2_distribution(r_proposed, phi_L);
@@ -266,6 +312,9 @@ function [r_n, weight_n] = forward_kernel(L, r_proposed, phi_L, Pi_1, P, H, weig
     weight_n =weight(n);
 
 function pr_non_overlap = compute_non_overlapping_probability(temp_S1, temp_S2, N, s, S, step, L, F, w)
+    % Compute the non-overlapping probability in the original resolution by
+    % computing Phi(r=0,r*)
+
     r = 1;
     temp1 = temp_S1;
     temp2 = temp_S2;

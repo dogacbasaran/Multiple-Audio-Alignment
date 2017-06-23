@@ -1,5 +1,7 @@
-% SMC Demonstration: Demonstration of multiresolution alignment based on SMC samplers
-%
+% SMC_DEMONSTRATION - Demonstration of multiresolution alignment based on SMC samplers
+%   Demonstrates the SMC based multiresolution, multiple audio alignment
+%   method
+
 % Copyright (C) 2016  Author: Dogac Basaran
 
 %    This program is free software: you can redistribute it and/or modify
