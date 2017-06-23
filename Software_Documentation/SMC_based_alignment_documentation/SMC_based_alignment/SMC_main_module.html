@@ -1,0 +1,297 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of SMC_main_module</title>
+  <meta name="keywords" content="SMC_main_module">
+  <meta name="description" content="SMC_MAIN_MODULE - Main module for the alignment of the unsynchronized sequences">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">SMC_based_alignment</a> &gt; SMC_main_module.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for SMC_based_alignment&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>SMC_main_module
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>SMC_MAIN_MODULE - Main module for the alignment of the unsynchronized sequences</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [Clusters, rs_fixed, time_elapsed] = SMC_main_module(dataset_features, print_proc, display_results) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> SMC_MAIN_MODULE - Main module for the alignment of the unsynchronized sequences 
+   SMC_main_module is the main module where the alignment estimates are computed. 
+   Inputs:
+       dataset_features: type struct, extracted features of each sequence and related
+                         parameters to other functions.
+       print_proc: type boolean, True-&gt;print the intermediate results while running
+       display_results: type boolean, print connected sequences in the same figure 
+                        aligned with each other 
+   Outputs:
+       Clusters: type cell array, each cell contains the list of connected sequences
+       rs_fixed: type array, the relative offsets of the Clusters with the same index
+       time_elapsed: Elapsed time in seconds</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="sequential_alignment_module.html" class="code" title="function [r_fixed, Cluster, Unclustered] = sequential_alignment_module(p, r_fixed, Clusters, NoC, run_number, dataset_features)">sequential_alignment_module</a>	SEQUENTIAL_ALIGNMENT_MODULE - Sequential alignment procedure</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="SMC_demonstration.html" class="code" title="">SMC_demonstration</a>	SMC_DEMONSTRATION - Demonstration of multiresolution alignment based on SMC samplers</li></ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function [Clusters, rs_fixed] = update_clusters_offsets(Clusters, rs_fixed, NoC, Cluster, r_fixed)</a></li><li><a href="#_sub2" class="code">function [Clusters, rs_fixed, NoC] = switch_to_next_cluster(Clusters,  rs_fixed, NoC, Unclustered)</a></li><li><a href="#_sub3" class="code">function terminate = check_no_unclustered(Unclustered)</a></li><li><a href="#_sub4" class="code">function display_results(Clusters, rs_fixed, NoC, dataset_features)</a></li><li><a href="#_sub5" class="code">function offset_estimates_for_evaluation(Clusters, rs_fixed, dataset_features)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <span class="comment">% SMC_MAIN_MODULE - Main module for the alignment of the unsynchronized sequences</span>
+0002 <span class="comment">%   SMC_main_module is the main module where the alignment estimates are computed.</span>
+0003 <span class="comment">%   Inputs:</span>
+0004 <span class="comment">%       dataset_features: type struct, extracted features of each sequence and related</span>
+0005 <span class="comment">%                         parameters to other functions.</span>
+0006 <span class="comment">%       print_proc: type boolean, True-&gt;print the intermediate results while running</span>
+0007 <span class="comment">%       display_results: type boolean, print connected sequences in the same figure</span>
+0008 <span class="comment">%                        aligned with each other</span>
+0009 <span class="comment">%   Outputs:</span>
+0010 <span class="comment">%       Clusters: type cell array, each cell contains the list of connected sequences</span>
+0011 <span class="comment">%       rs_fixed: type array, the relative offsets of the Clusters with the same index</span>
+0012 <span class="comment">%       time_elapsed: Elapsed time in seconds</span>
+0013            
+0014 <span class="comment">% Copyright (C) 2016  Author: Dogac Basaran</span>
+0015 <span class="comment">%</span>
+0016 <span class="comment">%    This program is free software: you can redistribute it and/or modify</span>
+0017 <span class="comment">%    it under the terms of the GNU General Public License as published by</span>
+0018 <span class="comment">%    the Free Software Foundation, either version 3 of the License, or</span>
+0019 <span class="comment">%    (at your option) any later version.</span>
+0020 <span class="comment">%</span>
+0021 <span class="comment">%    This program is distributed in the hope that it will be useful,</span>
+0022 <span class="comment">%    but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+0023 <span class="comment">%    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+0024 <span class="comment">%    GNU General Public License for more details.</span>
+0025 <span class="comment">%</span>
+0026 <span class="comment">%    You should have received a copy of the GNU General Public License</span>
+0027 <span class="comment">%    along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;</span>
+0028 
+0029 
+0030 <a name="_sub0" href="#_subfunctions" class="code">function [Clusters, rs_fixed, time_elapsed] = SMC_main_module(dataset_features, print_proc, display_results)</a>
+0031 
+0032 <span class="keyword">if</span> nargin&lt;2
+0033     print_proc = true;
+0034     <a href="#_sub4" class="code" title="subfunction display_results(Clusters, rs_fixed, NoC, dataset_features)">display_results</a> = false;
+0035 <span class="keyword">elseif</span> nargin&lt;3
+0036     <a href="#_sub4" class="code" title="subfunction display_results(Clusters, rs_fixed, NoC, dataset_features)">display_results</a> = false;
+0037 <span class="keyword">end</span>
+0038 
+0039 <span class="comment">%% SMC Sampler based Sequential Alignment</span>
+0040 disp(<span class="string">' '</span>)
+0041 disp(<span class="string">'%%%%%%%%%%%%%%%%%%%%%%%%%%%'</span>)
+0042 disp(<span class="string">'% SMC procedure started.. %'</span>)
+0043 disp(<span class="string">'%%%%%%%%%%%%%%%%%%%%%%%%%%%'</span>)
+0044 tic
+0045 
+0046 <span class="comment">% Initialize the parameters of SMC procedure</span>
+0047 NoC = 1; <span class="comment">% Number of estimated clusters</span>
+0048 NAS = 1; <span class="comment">% Number of aligned sources for current cluster</span>
+0049 K = dataset_features.K; <span class="comment">% Number of audio sequences</span>
+0050 Clusters = cell(K,1);  <span class="comment">% All estimated clusters</span>
+0051 Clusters{1} = 1;
+0052 rs_fixed = cell(K,1); <span class="comment">% All estimated alignments</span>
+0053 rs_fixed{1} = 1;
+0054 p = 1:K; <span class="comment">% The list of sequence indices that are going to be aligned</span>
+0055 r_fixed = 1; <span class="comment">% The starting points of aligned sequences for current cluster</span>
+0056 run_number = 1; <span class="comment">% Number of runs of the sequential matching algorithm</span>
+0057 terminate = false; <span class="comment">% terminate = true ==&gt; Terminate the process</span>
+0058 
+0059 <span class="comment">% Unclustered list of sequence indices. At start, all the sequences are unclustered!</span>
+0060 <span class="comment">% This variable holds the unclustered list of sequence indices through all runs</span>
+0061 Unclustered = 1:K; 
+0062 
+0063 <span class="keyword">while</span> ~terminate
+0064     <span class="comment">% Display the Run number and sequence indices to be aligned</span>
+0065     disp(<span class="string">' '</span>)
+0066     disp([<span class="string">'-Run #'</span> num2str(run_number) <span class="string">'-'</span>]) 
+0067     <span class="keyword">if</span> print_proc
+0068         fprintf(<span class="string">'\nSequence Indices to be aligned: '</span>);
+0069         pu = p(Unclustered);
+0070         <span class="keyword">for</span> k=1:length(pu)
+0071             fprintf(<span class="string">'%d '</span>,pu(k));
+0072         <span class="keyword">end</span>
+0073         fprintf(<span class="string">'\n'</span>);
+0074     <span class="keyword">end</span>
+0075     
+0076     <span class="comment">% There are two types of runs of procedure:</span>
+0077     <span class="comment">%     Type 1: There are no pre-aligned sequences in the cluster</span>
+0078     <span class="comment">%     Type 2: There are pre-aligned sequences in the cluster</span>
+0079     <span class="comment">% Go through all unclustered sequences once to update the aligned sequence list</span>
+0080     [r_fixed, Cluster, Unclustered] = <a href="sequential_alignment_module.html" class="code" title="function [r_fixed, Cluster, Unclustered] = sequential_alignment_module(p, r_fixed, Clusters, NoC, run_number, dataset_features)">sequential_alignment_module</a>(p(Unclustered), rs_fixed{NoC}, Clusters, NoC, run_number, dataset_features);
+0081     
+0082     run_number = run_number +1; <span class="comment">% Update the run number</span>
+0083 
+0084     <span class="comment">% CLusters{NoC} holds the sequence indices aligned before the procedure with number run_number</span>
+0085     <span class="comment">% Cluster holds the sequence indices aligned after the procedure with number run_number</span>
+0086     <span class="comment">% Comparing these values, one can decide whether to decide the next procedure run</span>
+0087     <span class="comment">% would be Type 1 or Type 2 .</span>
+0088     <span class="keyword">if</span> length(Cluster) ~= length(Clusters{NoC}) <span class="comment">% Type 2</span>
+0089         <span class="comment">% Update the current cluster information and appropriate sequence indices</span>
+0090         [Clusters, rs_fixed] = <a href="#_sub1" class="code" title="subfunction [Clusters, rs_fixed] = update_clusters_offsets(Clusters, rs_fixed, NoC, Cluster, r_fixed)">update_clusters_offsets</a>(Clusters, rs_fixed, NoC, Cluster, r_fixed);
+0091 
+0092         terminate = <a href="#_sub3" class="code" title="subfunction terminate = check_no_unclustered(Unclustered)">check_no_unclustered</a>(Unclustered);
+0093         <span class="keyword">if</span> terminate == false 
+0094             <span class="comment">% When a few number of consecutive sequences starting from the</span>
+0095             <span class="comment">% first one are aligned at the end of a run. The remaining</span>
+0096             <span class="comment">% unclustered sequences don't align with this cluster.</span>
+0097             <span class="comment">% This case happens the minimum index of unclustered sequences</span>
+0098             <span class="comment">% and is larger than maximum index of clustered sequences</span>
+0099             mn_unclustered = min(Unclustered);
+0100             mx_clustered = max(Cluster);
+0101             <span class="keyword">if</span>  mx_clustered &lt; mn_unclustered
+0102                 <span class="comment">% Switch to next cluster</span>
+0103                 [Clusters, rs_fixed, NoC] = <a href="#_sub2" class="code" title="subfunction [Clusters, rs_fixed, NoC] = switch_to_next_cluster(Clusters,  rs_fixed, NoC, Unclustered)">switch_to_next_cluster</a>(Clusters, rs_fixed, NoC, Unclustered);
+0104                 terminate = <a href="#_sub3" class="code" title="subfunction terminate = check_no_unclustered(Unclustered)">check_no_unclustered</a>(Unclustered);                
+0105             <span class="keyword">end</span>            
+0106         <span class="keyword">end</span>
+0107     <span class="keyword">else</span> <span class="comment">% Type 1</span>
+0108         <span class="comment">% Switch to next cluster</span>
+0109         [Clusters, rs_fixed, NoC] = <a href="#_sub2" class="code" title="subfunction [Clusters, rs_fixed, NoC] = switch_to_next_cluster(Clusters,  rs_fixed, NoC, Unclustered)">switch_to_next_cluster</a>(Clusters, rs_fixed, NoC, Unclustered);
+0110         terminate = <a href="#_sub3" class="code" title="subfunction terminate = check_no_unclustered(Unclustered)">check_no_unclustered</a>(Unclustered);        
+0111     <span class="keyword">end</span>
+0112 <span class="keyword">end</span>
+0113 
+0114 time_elapsed = toc;
+0115 <a href="#_sub5" class="code" title="subfunction offset_estimates_for_evaluation(Clusters, rs_fixed, dataset_features)">offset_estimates_for_evaluation</a>(Clusters, rs_fixed, dataset_features);
+0116 
+0117 <a name="_sub1" href="#_subfunctions" class="code">function [Clusters, rs_fixed] = update_clusters_offsets(Clusters, rs_fixed, NoC, Cluster, r_fixed)</a>
+0118     <span class="comment">% Update the current cluster information and appropriate sequence indices</span>
+0119     Clusters{NoC} = Cluster;
+0120     rs_fixed{NoC} = r_fixed;
+0121 
+0122 <a name="_sub2" href="#_subfunctions" class="code">function [Clusters, rs_fixed, NoC] = switch_to_next_cluster(Clusters,  rs_fixed, NoC, Unclustered)</a>
+0123     <span class="comment">% Finalize the current cluster and switch to the next cluster</span>
+0124     NoC = NoC + 1;
+0125     Clusters{NoC} = Unclustered(1);
+0126     rs_fixed{NoC} = 1;
+0127 
+0128 <a name="_sub3" href="#_subfunctions" class="code">function terminate = check_no_unclustered(Unclustered)</a>
+0129     <span class="comment">% Check the termination condition, return terminate=true if there is at most</span>
+0130     <span class="comment">% one sequence in the unclustered list.</span>
+0131     <span class="keyword">if</span> isempty(Unclustered)
+0132         terminate = true;
+0133     <span class="keyword">elseif</span> length(Unclustered)==1
+0134         terminate = true;
+0135     <span class="keyword">else</span>
+0136         terminate = false;
+0137     <span class="keyword">end</span>
+0138 
+0139 <a name="_sub4" href="#_subfunctions" class="code">function display_results(Clusters, rs_fixed, NoC, dataset_features)</a>
+0140     <span class="comment">% Plot the clusters with their relative offsets</span>
+0141     ss = dataset_features.ss;
+0142     N = dataset_features.N;
+0143     Fs = dataset_features.Fs;
+0144     MicRec_sorted = dataset_features.MicRec_sorted;
+0145     hopsize = dataset_features.Ws / 2;
+0146      <span class="comment">% Displaying the alignment results</span>
+0147     <span class="keyword">for</span> i=1:NoC-1
+0148         len = length(Clusters{i});
+0149         figure,
+0150         mx = max(rs_fixed{i}+N(<span class="keyword">end</span>,Clusters{i}));
+0151         <span class="keyword">for</span> j = 1:len
+0152             subplot(len,1,j),plot((rs_fixed{i}(j)*hopsize*Fs:rs_fixed{i}(j)*hopsize*Fs+length(ss{Clusters{i}(j)})-1)/Fs,ss{Clusters{i}(j)})
+0153             title([<span class="string">'Seq. '</span> num2str(MicRec_sorted(Clusters{i}(j),1))])
+0154             title([<span class="string">'Mic'</span> num2str(MicRec_sorted(Clusters{i}(j),1)) <span class="string">'Rec'</span> num2str(MicRec_sorted(Clusters{i}(j),2))])
+0155             set(gca, <span class="string">'xlim'</span>, [0 (mx*hopsize*Fs+1)/Fs])
+0156         <span class="keyword">end</span>
+0157     <span class="keyword">end</span>
+0158       
+0159 <a name="_sub5" href="#_subfunctions" class="code">function offset_estimates_for_evaluation(Clusters, rs_fixed, dataset_features)</a>
+0160     <span class="comment">% Generates the result text file using the estimated Clusters,</span>
+0161 <span class="comment">% and relative offsets</span>
+0162     MicRec_sorted = dataset_features.MicRec_sorted;
+0163     Nsorted = dataset_features.Nsorted;
+0164     
+0165     cw_path = pwd; <span class="comment">% Get current working directory</span>
+0166     <span class="comment">% Decide whether it is windows or linux based system based on the slash orientation</span>
+0167     <span class="keyword">if</span> ~isempty(strfind(cw_path,<span class="string">'/'</span>)) <span class="comment">% Linux based system</span>
+0168         cw_path = cw_path(1:strfind(cw_path, <span class="string">'SMC_based_alignment'</span>)-1);
+0169         gt_path = [cw_path <span class="string">'Evaluation/ground_truth/'</span>];
+0170         results_path = [cw_path <span class="string">'Evaluation/SMC_offset_estimation_results/'</span>];
+0171     <span class="keyword">else</span> <span class="comment">% Windows based system</span>
+0172         cw_path = cw_path(1:strfind(cw_path, <span class="string">'SMC_based_alignment'</span>)-1);
+0173         gt_path = [cw_path <span class="string">'Evaluation\\ground_truth\\'</span>];
+0174         results_path = [cw_path <span class="string">'Evaluation\\SMC_offset_estimation_results\\'</span>];
+0175     <span class="keyword">end</span>
+0176     
+0177     <span class="comment">% Read the ground truth ordering of the sequences</span>
+0178     fid = fopen([gt_path <span class="string">'ground_truth_sequence_ordering.txt'</span>],<span class="string">'r'</span>);
+0179     GT_ordering = textscan(fid, <span class="string">'%s'</span>, <span class="string">'Delimiter'</span>, <span class="string">'\n'</span>); <span class="comment">% Ground truth ordering list</span>
+0180     fclose(fid);
+0181     
+0182     clk = clock;
+0183     date_of_experiment = [num2str(clk(3)) <span class="string">'_'</span> num2str(clk(2)) <span class="string">'_'</span> num2str(clk(1)) <span class="string">'_'</span> num2str(clk(4)) <span class="string">'h_'</span> num2str(clk(5)) <span class="string">'m'</span>];
+0184     fileID = fopen([results_path <span class="string">'offset_estimation_SMC_result_'</span> date_of_experiment <span class="string">'.txt'</span>],<span class="string">'w'</span>);
+0185     
+0186     estimated_offsets = cell(length(GT_ordering{1}),1);
+0187     <span class="keyword">for</span> k = 1:length(GT_ordering{1}) 
+0188         filename = GT_ordering{1}(k);
+0189         filename = filename{1};
+0190         <span class="comment">% Extract the mic number and rec number of the sequence</span>
+0191         mic_number = str2double(filename(strfind(filename,<span class="string">'mic'</span>)+3:strfind(filename,<span class="string">'rec'</span>)-2));
+0192         rec_number = str2double(filename(strfind(filename,<span class="string">'rec'</span>)+3:strfind(filename,<span class="string">'.wav'</span>)-1));
+0193         
+0194         str_towrite = [<span class="string">'mic'</span> num2str(mic_number) <span class="string">'_rec'</span> num2str(rec_number) <span class="string">'.wav '</span>];
+0195         
+0196         ind = find(MicRec_sorted(:,1)==mic_number &amp; MicRec_sorted(:,2)==rec_number);
+0197         res = 0; <span class="comment">% The amount of overlap in frames for which the overlap doesn't count</span>
+0198         <span class="keyword">for</span> c = 1:length(Clusters)
+0199             <span class="keyword">if</span> sum(Clusters{c}==ind) <span class="comment">% Checks if the cluster has that sequence</span>
+0200                 sequence_offsets = rs_fixed{c};
+0201                 sequence_list = Clusters{c};
+0202                 sequence_offsets(sequence_list == ind) = [];              
+0203                 sequence_list(sequence_list == ind) = [];                        
+0204                 
+0205                 <span class="comment">% Check each sequence if they are overlapping with the current</span>
+0206                 <span class="comment">% sequence</span>
+0207                 current_sequence_offset = rs_fixed{c}(Clusters{c}==ind);
+0208                 N_current_sequence = Nsorted(<span class="keyword">end</span>,ind);
+0209                 <span class="comment">%N_current_sequence = N(end,ind);</span>
+0210                 
+0211                 <span class="keyword">for</span> j = 1:length(sequence_list)
+0212                     test_sequence_offset = sequence_offsets(j);
+0213                     N_test_sequence = Nsorted(<span class="keyword">end</span>,sequence_list(j));
+0214                     <span class="comment">%N_test_sequence = N(end,sequence_list(j));</span>
+0215                     <span class="keyword">if</span> test_sequence_offset &lt;=current_sequence_offset
+0216                         <span class="keyword">if</span> test_sequence_offset + N_test_sequence &gt; current_sequence_offset + res
+0217                             str_towrite = [str_towrite <span class="string">'mic'</span> num2str(MicRec_sorted(sequence_list(j),1)) <span class="string">'_rec'</span> <span class="keyword">...</span>
+0218                                            num2str(MicRec_sorted(sequence_list(j),2)) <span class="string">'.wav,'</span><span class="keyword">...</span>
+0219                                            num2str(test_sequence_offset - current_sequence_offset) <span class="string">' '</span>];
+0220                         <span class="keyword">end</span>
+0221                     <span class="keyword">else</span>
+0222                         <span class="keyword">if</span> current_sequence_offset + N_current_sequence &gt; test_sequence_offset + res                        
+0223                             str_towrite = [str_towrite <span class="string">'mic'</span> num2str(MicRec_sorted(sequence_list(j),1)) <span class="string">'_rec'</span> <span class="keyword">...</span>
+0224                                            num2str(MicRec_sorted(sequence_list(j),2)) <span class="string">'.wav,'</span><span class="keyword">...</span>
+0225                                            num2str(test_sequence_offset - current_sequence_offset) <span class="string">' '</span>];
+0226                         <span class="keyword">end</span>
+0227                     <span class="keyword">end</span>
+0228                 <span class="keyword">end</span>
+0229                 
+0230                 str_towrite = [str_towrite <span class="string">'\n'</span>];
+0231                 fprintf(fileID,str_towrite);
+0232                 <span class="keyword">break</span>;
+0233             <span class="keyword">end</span>
+0234         <span class="keyword">end</span>
+0235     <span class="keyword">end</span>
+0236     fclose(fileID);
+0237</pre></div>
+<hr><address>Generated on Fri 23-Jun-2017 18:37:17 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

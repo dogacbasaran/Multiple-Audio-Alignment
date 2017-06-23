@@ -1,0 +1,542 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of sequential_alignment_module</title>
+  <meta name="keywords" content="sequential_alignment_module">
+  <meta name="description" content="SEQUENTIAL_ALIGNMENT_MODULE - Sequential alignment procedure">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">SMC_based_alignment</a> &gt; sequential_alignment_module.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for SMC_based_alignment&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>sequential_alignment_module
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>SEQUENTIAL_ALIGNMENT_MODULE - Sequential alignment procedure</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [r_fixed, Cluster, Unclustered] = sequential_alignment_module(p, r_fixed, Clusters, NoC, run_number, dataset_features) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> SEQUENTIAL_ALIGNMENT_MODULE - Sequential alignment procedure 
+
+   This module aligns the sequences one-by-one in a sequential manner.
+   The aim is to find the best alignment of sources applying the following
+   methodology:
+   - Fix the first source alignment variable assume that it is known.
+   - Match the next source the first source as a pairwise manner. 
+   - Then match the next source according to the fixed source alignments
+ 
+   - When aligning sources sequentially, if the current source do not
+   overlap with the previous sources, the ordering of the sources changes 
+   in a way that the non-overlapping source is moved to the end of the 
+   ordering and the rest of the sources are circulary shift to left by 1
+   Example:
+   p = [4 2 3 5 1 6]
+   Assume that source 4 and 2 overlaps the current search for source 3 and
+   it does not overlap with the previous sources then the ordering is
+   changed to p = [4 2 5 1 6 3]
+ 
+   Inputs:
+   
+       p                      : The sequence indices that are going to be aligned
+       r_fixed                : The starting points of aligned sequences
+                                in the current cluster
+       Clusters               : The sequence indices that are overlapping (that are in the same cluster)
+       NoC                    : Number of defined clusters
+       run_number             : The number of epoch where an epoch is
+                                defined as scannin through all the sequences
+                                in the list 'p'
+       dataset_features       : The struct that contains features
+                                extracted for each audio file in the dataset
+   Outputs:
+       r_fixed                : Updated starting points of aligned sequences
+       Cluster                : Updated sequence indices that are overlapping (that are in the current cluster)
+       Uncluster              : The sequence indices that are not in the same cluster (that can not be clustered with current cluster)</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="SMC_core_module.html" class="code" title="function [r_max, Num_overlapping_frames] = SMC_core_module(s, dataset_features, phi_L_low, Cluster, r_fixed, startResolution, r_start, r_end, closestRecLeft, closestRecRight , closestRecLeft_index, closestRecRight_index)">SMC_core_module</a>	SMC_CORE_MODULE: The main implementation of the SMC procedure</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="SMC_main_module.html" class="code" title="function [Clusters, rs_fixed, time_elapsed] = SMC_main_module(dataset_features, print_proc, display_results)">SMC_main_module</a>	SMC_MAIN_MODULE - Main module for the alignment of the unsynchronized sequences</li></ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function print_results(Cluster, Unclustered, run_number)</a></li><li><a href="#_sub2" class="code">function [Cluster, r_fixed, NAS] = update_Cluster(Cluster, currentSequence, r_max, r_fixed, NAS, print_proc)</a></li><li><a href="#_sub3" class="code">function Unclustered = update_Unclustered(Unclustered, currentSequence, print_proc)</a></li><li><a href="#_sub4" class="code">function [Cluster, NAS, r_fixed, Unclustered] = check_amount_of_overlap(Num_overlapping_frames, currentSequence, Unclustered, Cluster, r_fixed, r_max, NAS)</a></li><li><a href="#_sub5" class="code">function logL = initialize_samples(startResolution, r_start, r_end, currentSequence, Cluster, r_fixed, p, s)</a></li><li><a href="#_sub6" class="code">function [r_closestRecLeft, N_sequencesLeft, closestRecLeft, closestRecLeft_index] = find_closest_Rec_left(currentSequence, startResolution, Cluster, r_fixed, ind)</a></li><li><a href="#_sub7" class="code">function [r_closestRecRight, N_sequencesRight, closestRecRight, closestRecRight_index] = find_closest_Rec_right(currentSequence, startResolution, Cluster, r_fixed, ind)</a></li><li><a href="#_sub8" class="code">function [alignment_possible, r_start, r_end, closest] = apply_constraints(startResolution, Cluster, r_fixed, p, s)</a></li><li><a href="#_sub9" class="code">function enough_samples = check_number_of_samples(r_start, r_end, startResolution)</a></li><li><a href="#_sub10" class="code">function new_startResolution = re_set_resolution(r_start, r_end, startResolution)</a></li><li><a href="#_sub11" class="code">function [alignment_possible, r_start, r_end, startResolution, closest] = set_search_space(startResolution, Cluster, r_fixed, p, s)</a></li><li><a href="#_sub12" class="code">function all_sequences_exist = check_all_sequences_exist(startResolution, Cluster, p, s)</a></li><li><a href="#_sub13" class="code">function startResolution = set_resolution(Cluster, p, s)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <span class="comment">% SEQUENTIAL_ALIGNMENT_MODULE - Sequential alignment procedure</span>
+0002 <span class="comment">%</span>
+0003 <span class="comment">%   This module aligns the sequences one-by-one in a sequential manner.</span>
+0004 <span class="comment">%   The aim is to find the best alignment of sources applying the following</span>
+0005 <span class="comment">%   methodology:</span>
+0006 <span class="comment">%   - Fix the first source alignment variable assume that it is known.</span>
+0007 <span class="comment">%   - Match the next source the first source as a pairwise manner.</span>
+0008 <span class="comment">%   - Then match the next source according to the fixed source alignments</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">%   - When aligning sources sequentially, if the current source do not</span>
+0011 <span class="comment">%   overlap with the previous sources, the ordering of the sources changes</span>
+0012 <span class="comment">%   in a way that the non-overlapping source is moved to the end of the</span>
+0013 <span class="comment">%   ordering and the rest of the sources are circulary shift to left by 1</span>
+0014 <span class="comment">%   Example:</span>
+0015 <span class="comment">%   p = [4 2 3 5 1 6]</span>
+0016 <span class="comment">%   Assume that source 4 and 2 overlaps the current search for source 3 and</span>
+0017 <span class="comment">%   it does not overlap with the previous sources then the ordering is</span>
+0018 <span class="comment">%   changed to p = [4 2 5 1 6 3]</span>
+0019 <span class="comment">%</span>
+0020 <span class="comment">%   Inputs:</span>
+0021 <span class="comment">%</span>
+0022 <span class="comment">%       p                      : The sequence indices that are going to be aligned</span>
+0023 <span class="comment">%       r_fixed                : The starting points of aligned sequences</span>
+0024 <span class="comment">%                                in the current cluster</span>
+0025 <span class="comment">%       Clusters               : The sequence indices that are overlapping (that are in the same cluster)</span>
+0026 <span class="comment">%       NoC                    : Number of defined clusters</span>
+0027 <span class="comment">%       run_number             : The number of epoch where an epoch is</span>
+0028 <span class="comment">%                                defined as scannin through all the sequences</span>
+0029 <span class="comment">%                                in the list 'p'</span>
+0030 <span class="comment">%       dataset_features       : The struct that contains features</span>
+0031 <span class="comment">%                                extracted for each audio file in the dataset</span>
+0032 <span class="comment">%   Outputs:</span>
+0033 <span class="comment">%       r_fixed                : Updated starting points of aligned sequences</span>
+0034 <span class="comment">%       Cluster                : Updated sequence indices that are overlapping (that are in the current cluster)</span>
+0035 <span class="comment">%       Uncluster              : The sequence indices that are not in the same cluster (that can not be clustered with current cluster)</span>
+0036 
+0037 <span class="comment">% Copyright (C) 2016 Dogac Basaran</span>
+0038 <span class="comment">%    This program is free software: you can redistribute it and/or modify</span>
+0039 <span class="comment">%    it under the terms of the GNU General Public License as published by</span>
+0040 <span class="comment">%    the Free Software Foundation, either version 3 of the License, or</span>
+0041 <span class="comment">%    (at your option) any later version.</span>
+0042 <span class="comment">%</span>
+0043 <span class="comment">%    This program is distributed in the hope that it will be useful,</span>
+0044 <span class="comment">%    but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+0045 <span class="comment">%    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+0046 <span class="comment">%    GNU General Public License for more details.</span>
+0047 <span class="comment">%</span>
+0048 <span class="comment">%    You should have received a copy of the GNU General Public License</span>
+0049 <span class="comment">%    along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;</span>
+0050 
+0051 <a name="_sub0" href="#_subfunctions" class="code">function [r_fixed, Cluster, Unclustered] = sequential_alignment_module(p, r_fixed, Clusters, NoC, run_number, dataset_features)</a>
+0052 
+0053 <span class="keyword">global</span> data_struct
+0054 data_struct = dataset_features;
+0055 
+0056 F = data_struct.F;
+0057 Nsteps = data_struct.Nsteps;
+0058 Cluster = Clusters{NoC};
+0059 
+0060 wsteps = data_struct.wsteps2; <span class="comment">% We choose exponential increase of w parameter through different resolutions as annealing</span>
+0061 
+0062 <span class="comment">% Parameters are set for fresh Cluster with one sequence or a Cluster with more than one aligned sequences</span>
+0063 <span class="comment">%   NAS: Number of aligned sources</span>
+0064 <span class="comment">%   start: Starting sequence index from unclustered sequence list &quot;p&quot;</span>
+0065 <span class="comment">%   initialClusterLength: Initial length of the current cluster</span>
+0066 <span class="keyword">if</span> length(Cluster) == 1 <span class="comment">% The unclustered sequences are aligned against each other (fresh cluster)</span>
+0067     NAS = 1; 
+0068     start = 2; 
+0069     initialClusterLength = 1;
+0070 <span class="keyword">else</span>                    <span class="comment">% The unclustered sequences are aligned agains the current cluster with pre-aligned sequences</span>
+0071     NAS = length(Cluster); 
+0072     start = 1; 
+0073     initialClusterLength = NAS;
+0074 <span class="keyword">end</span>
+0075 
+0076 <span class="comment">% The list of unclustered sequence indices after one pass over all sequences is completed</span>
+0077 Unclustered = [];
+0078 
+0079 <span class="keyword">for</span> s = start:length(p) <span class="comment">% index of the source to be aligned</span>
+0080     
+0081     currentSequence = p(s); <span class="comment">% Current sequence index</span>
+0082     
+0083     <span class="keyword">if</span> initialClusterLength ~=1 &amp;&amp; initialClusterLength == NAS
+0084         <span class="keyword">if</span> currentSequence &gt; Cluster(end)
+0085             Unclustered = [Unclustered p(s:end)];
+0086             <span class="keyword">for</span> k=s:length(p)
+0087                 fprintf(<span class="string">'%d is NOT assigned to cluster!!\n'</span>,p(k));
+0088             <span class="keyword">end</span>
+0089             <span class="keyword">break</span>;
+0090         <span class="keyword">end</span>
+0091     <span class="keyword">end</span>
+0092         
+0093     startResolution = <a href="#_sub13" class="code" title="subfunction startResolution = set_resolution(Cluster, p, s)">set_resolution</a>(Cluster, p, s);
+0094 
+0095     [alignment_possible, r_start, r_end, startResolution, closest] = <a href="#_sub11" class="code" title="subfunction [alignment_possible, r_start, r_end, startResolution, closest] = set_search_space(startResolution, Cluster, r_fixed, p, s)">set_search_space</a>(startResolution, Cluster, r_fixed, p, s);    
+0096         
+0097     <span class="keyword">if</span> alignment_possible
+0098         
+0099         <span class="comment">%logL = initialize_samples(startResolution, r_start, r_end, currentSequence, wsteps, Cluster, r_fixed, p, s);</span>
+0100         logL = <a href="#_sub5" class="code" title="subfunction logL = initialize_samples(startResolution, r_start, r_end, currentSequence, Cluster, r_fixed, p, s)">initialize_samples</a>(startResolution, r_start, r_end, currentSequence, Cluster, r_fixed, p, s);
+0101         
+0102         
+0103         closestRecLeft = closest{1};
+0104         closestRecRight = closest{2};
+0105         closestRecLeft_index = closest{3};
+0106         closestRecRight_index = closest{4}; 
+0107                       
+0108         <span class="comment">%[r_max, Num_overlapping_frames] = SMC_core_module(currentSequence, data_struct.S, F, Nsteps, wsteps, logL, Cluster, r_fixed,...</span>
+0109         <span class="comment">%                                                       startResolution, r_start, r_end, closestRecLeft, closestRecRight,...</span>
+0110         <span class="comment">%                                                       closestRecLeft_index, closestRecRight_index);</span>
+0111         [r_max, Num_overlapping_frames] = <a href="SMC_core_module.html" class="code" title="function [r_max, Num_overlapping_frames] = SMC_core_module(s, dataset_features, phi_L_low, Cluster, r_fixed, startResolution, r_start, r_end, closestRecLeft, closestRecRight , closestRecLeft_index, closestRecRight_index)">SMC_core_module</a>(currentSequence, data_struct, logL, Cluster, r_fixed,<span class="keyword">...</span>
+0112                                                                startResolution, r_start, r_end, closestRecLeft, closestRecRight,<span class="keyword">...</span>
+0113                                                                closestRecLeft_index, closestRecRight_index);
+0114 
+0115 
+0116         [Cluster, NAS, r_fixed, Unclustered] = <a href="#_sub4" class="code" title="subfunction [Cluster, NAS, r_fixed, Unclustered] = check_amount_of_overlap(Num_overlapping_frames, currentSequence, Unclustered, Cluster, r_fixed, r_max, NAS)">check_amount_of_overlap</a>(Num_overlapping_frames, currentSequence, Unclustered, Cluster, r_fixed, r_max, NAS );
+0117     <span class="keyword">else</span> <span class="comment">% The case where the current sequence cant be aligned due to other sequences from the same microphone</span>
+0118         Unclustered = <a href="#_sub3" class="code" title="subfunction Unclustered = update_Unclustered(Unclustered, currentSequence, print_proc)">update_Unclustered</a>(Unclustered, currentSequence);        
+0119     <span class="keyword">end</span>
+0120 <span class="keyword">end</span>           
+0121 <a href="#_sub1" class="code" title="subfunction print_results(Cluster, Unclustered, run_number)">print_results</a>(Cluster, Unclustered, run_number);
+0122 
+0123 <a name="_sub1" href="#_subfunctions" class="code">function print_results(Cluster, Unclustered, run_number)</a>
+0124     <span class="comment">% Print the results of the current Run</span>
+0125     
+0126     fprintf(<span class="string">'\nResults of the Run: #%d'</span>, run_number);
+0127     fprintf(<span class="string">'\nClustered sequences: '</span>);
+0128     <span class="keyword">for</span> k=1:length(Cluster)
+0129         fprintf(<span class="string">'%d '</span>,Cluster(k));
+0130     <span class="keyword">end</span>
+0131     fprintf(<span class="string">'\nUnclustered sequences: '</span>);
+0132     <span class="keyword">if</span> isempty(Unclustered)
+0133         fprintf(<span class="string">'ALL CLUSTERED\n'</span>)
+0134     <span class="keyword">else</span>    
+0135         <span class="keyword">for</span> k=1:length(Unclustered)
+0136             fprintf(<span class="string">'%d '</span>,Unclustered(k));
+0137         <span class="keyword">end</span>
+0138         fprintf(<span class="string">'\n'</span>);
+0139     <span class="keyword">end</span>
+0140 
+0141 <a name="_sub2" href="#_subfunctions" class="code">function [Cluster, r_fixed, NAS] = update_Cluster(Cluster, currentSequence, r_max, r_fixed, NAS, print_proc)</a>
+0142     <span class="comment">% Update the current cluster with the aligned sequences list</span>
+0143 
+0144     <span class="keyword">global</span> data_struct
+0145     Nsteps = data_struct.Nsteps;
+0146 
+0147     <span class="keyword">if</span> nargin &lt; 6
+0148         print_proc = true;
+0149     <span class="keyword">end</span>
+0150     
+0151     Cluster = [Cluster currentSequence];
+0152     NAS = NAS + 1;
+0153     <span class="keyword">if</span> r_max &lt; Nsteps(<span class="keyword">end</span>,currentSequence)+1
+0154         r_fixed = r_fixed + Nsteps(<span class="keyword">end</span>,currentSequence)+1-r_max;
+0155         r_fixed = [r_fixed 1];                                
+0156     <span class="keyword">else</span>                
+0157         r_fixed = [r_fixed r_max-Nsteps(<span class="keyword">end</span>,currentSequence)];                
+0158     <span class="keyword">end</span>            
+0159 
+0160     <span class="keyword">if</span> print_proc
+0161         <span class="comment">% Printing the alignment result</span>
+0162         fprintf(<span class="string">'\n%d is assigned to cluster!!\n'</span>,currentSequence);
+0163         fprintf(<span class="string">'\nThe cluster: '</span>);
+0164         <span class="keyword">for</span> i=1:length(Cluster)
+0165             fprintf(<span class="string">' %d'</span>,Cluster(i));
+0166         <span class="keyword">end</span>
+0167         fprintf(<span class="string">'\n'</span>);
+0168     <span class="keyword">end</span>
+0169     
+0170 <a name="_sub3" href="#_subfunctions" class="code">function Unclustered = update_Unclustered(Unclustered, currentSequence, print_proc)</a>
+0171     <span class="comment">% Update the unclustered list of sequences</span>
+0172 
+0173     <span class="keyword">if</span> nargin &lt; 3
+0174         print_proc = true;
+0175     <span class="keyword">end</span>
+0176 
+0177     Unclustered = [Unclustered currentSequence];
+0178     
+0179     <span class="keyword">if</span> print_proc
+0180         <span class="comment">% Printing the alignment result</span>
+0181         fprintf(<span class="string">'\n%d is NOT assigned to cluster!!\n'</span>,currentSequence);            
+0182     <span class="keyword">end</span>
+0183         
+0184 <a name="_sub4" href="#_subfunctions" class="code">function [Cluster, NAS, r_fixed, Unclustered] = check_amount_of_overlap(Num_overlapping_frames, currentSequence, Unclustered, Cluster, r_fixed, r_max, NAS)</a>
+0185     <span class="comment">% Check the amount of overlap between the current sequence and the</span>
+0186     <span class="comment">% current cluster</span>
+0187 
+0188     <span class="keyword">global</span> data_struct
+0189     Nsteps = data_struct.Nsteps;
+0190     
+0191     <span class="keyword">if</span> Num_overlapping_frames &gt; data_struct.MinNum_overlapping_frames; <span class="comment">% DECIDE that the current source is aligned with previous sources</span>
+0192         [Cluster, r_fixed, NAS] = <a href="#_sub2" class="code" title="subfunction [Cluster, r_fixed, NAS] = update_Cluster(Cluster, currentSequence, r_max, r_fixed, NAS, print_proc)">update_Cluster</a>(Cluster, currentSequence, r_max, r_fixed, NAS);
+0193     <span class="keyword">else</span>
+0194         Unclustered = <a href="#_sub3" class="code" title="subfunction Unclustered = update_Unclustered(Unclustered, currentSequence, print_proc)">update_Unclustered</a>(Unclustered, currentSequence);
+0195     <span class="keyword">end</span>
+0196 
+0197 <a name="_sub5" href="#_subfunctions" class="code">function logL = initialize_samples(startResolution, r_start, r_end, currentSequence, Cluster, r_fixed, p, s)</a>
+0198     <span class="comment">% Initialize the samples of SMC procedure in the lowest resolution</span>
+0199 
+0200     <span class="keyword">global</span> data_struct
+0201     
+0202     N = data_struct.Nsteps(startResolution,:); <span class="comment">% The last row of N -&gt; The lengths of sequences in the lowest resolution</span>
+0203     L = data_struct.Lsteps(startResolution);  <span class="comment">% Lowest resolution L</span>
+0204     <span class="comment">%w = wsteps(startResolution); % w parameter for the lowest resolution</span>
+0205     w = data_struct.w_min;
+0206     
+0207     x = data_struct.S(startResolution,:); <span class="comment">% Data in lowest resolution</span>
+0208     F = data_struct.F; <span class="comment">% The number of frequency bins in the feature</span>
+0209 
+0210     T = sum(N(Cluster)) + 2*N(p(s)) - 1;
+0211 
+0212     r_fixed_Low = ceil(r_fixed/L); <span class="comment">% The fixed offset values in the current resolution</span>
+0213         
+0214     <span class="comment">% Intermediate values for computing likelihood function in the lowest</span>
+0215     <span class="comment">% resolution</span>
+0216     S1 = zeros(1,T);
+0217     S2 = zeros(F,T);
+0218 
+0219     <span class="keyword">for</span> k = 1:length(Cluster)
+0220         S1(r_fixed_Low(k):r_fixed_Low(k)+N(Cluster(k))-1) = S1(r_fixed_Low(k):r_fixed_Low(k)+N(Cluster(k))-1) + 1;        
+0221         S2(:,r_fixed_Low(k):r_fixed_Low(k)+N(Cluster(k))-1) = S2(:,r_fixed_Low(k):r_fixed_Low(k)+N(Cluster(k))-1) + squeeze(x{Cluster(k)});
+0222     <span class="keyword">end</span>
+0223 
+0224     len_phi = r_end-r_start+1;
+0225     logL = zeros(1, len_phi); <span class="comment">% Initialization of the likelihood function</span>
+0226 
+0227     temp_S1 = circshift(S1,[0,N(currentSequence)]); 
+0228     temp_S2 = circshift(S2,[0,N(currentSequence)]);
+0229 
+0230     xs = squeeze(x{currentSequence});
+0231 
+0232     <span class="keyword">for</span> r_est = r_start:r_end
+0233 
+0234         <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+0235         <span class="comment">%%%%%%%% Computation of likelihood function %%%%%%%%</span>
+0236         <span class="comment">%%%%%%%% for the current alignment r_est    %%%%%%%%</span>
+0237         <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+0238 
+0239         temp1 = temp_S1;
+0240         temp2 = temp_S2;
+0241         temp1(r_est:r_est+N(currentSequence)-1) = temp1(r_est:r_est+N(currentSequence)-1) + 1;
+0242         temp2(:,r_est:r_est+N(currentSequence)-1) = temp2(:,r_est:r_est+N(currentSequence)-1) + xs;
+0243 
+0244         ind = find(temp1&gt;0);
+0245         F1 = temp2(:,ind); <span class="comment">% Number of ones</span>
+0246         F2 = (temp1(ind)'*ones(1,F)*L)' - temp2(:,ind); <span class="comment">% Number of zeros</span>
+0247 
+0248         logL(r_est) = sum(sum(log(0.5 * w.^(F1) .* (1-w).^(F2) + 0.5 * w.^(F2) .* (1-w).^(F1))));        
+0249     <span class="keyword">end</span>
+0250     
+0251 
+0252 <a name="_sub6" href="#_subfunctions" class="code">function [r_closestRecLeft, N_sequencesLeft, closestRecLeft, closestRecLeft_index] = find_closest_Rec_left(currentSequence, startResolution, Cluster, r_fixed, ind)</a>
+0253     <span class="comment">% Find the closest sequence that has a lower offset and is</span>
+0254     <span class="comment">% recorded by the same recorder.</span>
+0255 
+0256     <span class="keyword">global</span> data_struct;
+0257     
+0258     L = data_struct.Lsteps(startResolution);
+0259     r_fixed_Low = ceil(r_fixed/L);
+0260     
+0261     currentMic = data_struct.MicRec_sorted(currentSequence,1); <span class="comment">% Current sequence: index of Microphone</span>
+0262     currentRec = data_struct.MicRec_sorted(currentSequence,2); <span class="comment">% Current sequence: index of Recording by that Microphone</span>
+0263     clusterMics = data_struct.MicRec_sorted(Cluster,1); <span class="comment">% The indices of Microphones in the current Cluster</span>
+0264     closestRecLeft = []; 
+0265     closestRecLeft_index = [];
+0266 
+0267     N = data_struct.Nsteps(startResolution,:); <span class="comment">% Gather the length of each sequence in current resolution level</span>
+0268     
+0269     clusterRecs = data_struct.MicRec_sorted(Cluster,2);
+0270     <span class="comment">% First check the sequences from the same microphone</span>
+0271     <span class="comment">%   1- Sequences recorded &quot;before&quot; the current sequence</span>
+0272     tempInd = find(clusterRecs(ind)&lt;currentRec);
+0273     <span class="keyword">if</span> ~isempty(tempInd) <span class="comment">% There are some recordings in the Cluster that are recorded before the current index</span>
+0274         <span class="comment">% The constraint on the left</span>
+0275         [mx, index] = max(clusterRecs(ind(tempInd)));
+0276         closestRecLeft_index = ind(tempInd(index));
+0277 
+0278         closestRecLeft = Cluster(closestRecLeft_index);                
+0279         r_closestRecLeft = r_fixed_Low(closestRecLeft_index);
+0280         ind1 = find(data_struct.MicRec_sorted(:,2)&gt;=data_struct.MicRec_sorted(closestRecLeft,2) <span class="keyword">...</span>
+0281                   &amp; data_struct.MicRec_sorted(:,2)&lt;data_struct.MicRec_sorted(currentSequence,2));
+0282         ind2 = find(data_struct.MicRec_sorted(ind1,1) == data_struct.MicRec_sorted(closestRecLeft,1));
+0283         N_sequencesLeft = N(ind1(ind2));    
+0284     <span class="keyword">else</span> <span class="comment">% There are no recordings in the Cluster that are recorded before the current index</span>
+0285         r_closestRecLeft = 1;
+0286         N_sequencesLeft = 0;
+0287     <span class="keyword">end</span>
+0288 
+0289 <a name="_sub7" href="#_subfunctions" class="code">function [r_closestRecRight, N_sequencesRight, closestRecRight, closestRecRight_index] = find_closest_Rec_right(currentSequence, startResolution, Cluster, r_fixed, ind)</a>
+0290     <span class="comment">% Find the closest sequence that has a higher offset and is</span>
+0291     <span class="comment">% recorded by the same recorder.</span>
+0292 
+0293     <span class="keyword">global</span> data_struct;
+0294     
+0295     L = data_struct.Lsteps(startResolution);
+0296     r_fixed_Low = ceil(r_fixed/L);
+0297     
+0298     currentMic = data_struct.MicRec_sorted(currentSequence,1); <span class="comment">% Current sequence: index of Microphone</span>
+0299     currentRec = data_struct.MicRec_sorted(currentSequence,2); <span class="comment">% Current sequence: index of Recording by that Microphone</span>
+0300     clusterMics = data_struct.MicRec_sorted(Cluster,1); <span class="comment">% The indices of Microphones in the current Cluster</span>
+0301     closestRecRight = []; 
+0302     closestRecRight_index = [];
+0303 
+0304     N = data_struct.Nsteps(startResolution,:); <span class="comment">% Gather the length of each sequence in current resolution level</span>
+0305     
+0306     clusterRecs = data_struct.MicRec_sorted(Cluster,2);
+0307     <span class="comment">% First check the sequences from the same microphone</span>
+0308     <span class="comment">%   1- Sequences recorded &quot;after&quot; the current sequence</span>
+0309     tempInd = find(clusterRecs(ind)&gt;currentRec);
+0310     <span class="keyword">if</span> ~isempty(tempInd) <span class="comment">% There are some recordings in the Cluster that are recorded after the current index</span>
+0311         <span class="comment">% The constraint on the right</span>
+0312         [mx, index] = max(clusterRecs(ind(tempInd)));
+0313         closestRecRight_index = ind(tempInd(index));
+0314 
+0315         closestRecRight = Cluster(closestRecRight_index);                
+0316         r_closestRecRight = r_fixed_Low(closestRecRight_index);
+0317         ind1 = find(data_struct.MicRec_sorted(:,2)&gt;=data_struct.MicRec_sorted(closestRecRight,2) <span class="keyword">...</span>
+0318                   &amp; data_struct.MicRec_sorted(:,2)&lt;data_struct.MicRec_sorted(currentSequence,2));
+0319         ind2 = find(data_struct.MicRec_sorted(ind1,1) == data_struct.MicRec_sorted(closestRecRight,1));
+0320         N_sequencesRight = N(ind1(ind2));    
+0321     <span class="keyword">else</span> <span class="comment">% There are no recordings in the Cluster that are recorded after the current index</span>
+0322         r_closestRecRight = 1;
+0323         N_sequencesRight = 0;
+0324     <span class="keyword">end</span>
+0325     
+0326 <a name="_sub8" href="#_subfunctions" class="code">function [alignment_possible, r_start, r_end, closest] = apply_constraints(startResolution, Cluster, r_fixed, p, s)</a>
+0327     <span class="comment">% Apply the constraints regarding the sequences that are recorded with</span>
+0328     <span class="comment">% the same recording device.</span>
+0329 
+0330     <span class="keyword">global</span> data_struct;
+0331     N = data_struct.Nsteps(startResolution,:); <span class="comment">% Gather the length of each sequence in current resolution level</span>
+0332     L = data_struct.Lsteps(startResolution);
+0333     r_fixed_Low = ceil(r_fixed/L); <span class="comment">% The fixed offset values in the current resolution</span>
+0334         
+0335     closest = cell(1,4); 
+0336 
+0337     <span class="comment">% alignment_possible = 1 -&gt; The sequence can't be aligned with current cluster</span>
+0338     <span class="comment">% alignment_possible = 0 -&gt; The sequence might be aligned with current cluster</span>
+0339     <span class="comment">% Start with assuming it can be aligned</span>
+0340     alignment_possible = true; 
+0341     
+0342     r_start = 1;
+0343     length_of_cluster = max(r_fixed_Low + N(Cluster))-min(r_fixed_Low); <span class="comment">% Length of current cluster</span>
+0344     r_end = N(p(s)) + length_of_cluster; <span class="comment">% The end of search space is length of the cluster + length of sequence</span>
+0345     
+0346     currentSequence = p(s); <span class="comment">% Current sequence index</span>
+0347     currentMic = data_struct.MicRec_sorted(currentSequence,1); <span class="comment">% Current sequence: index of Microphone</span>
+0348     currentRec = data_struct.MicRec_sorted(currentSequence,2); <span class="comment">% Current sequence: index of Recording by that Microphone</span>
+0349     clusterMics = data_struct.MicRec_sorted(Cluster,1); <span class="comment">% The indices of Microphones in the current Cluster</span>
+0350     
+0351     <span class="keyword">if</span> length(Cluster) == 1 <span class="comment">% The case: Fresh cluster (trying to align two sequences)</span>
+0352         <span class="comment">% The Microphone indices of the recordings are the same -&gt; Constraint 1</span>
+0353         <span class="comment">% See Manuscript: Sec. Experimental Results</span>
+0354         <span class="keyword">if</span> clusterMics == currentMic  
+0355             alignment_possible = false;            
+0356         <span class="keyword">end</span> 
+0357         <span class="comment">%closest = [0 0 0 0]; % This vector will be useless if alignment is not possible</span>
+0358     <span class="keyword">else</span>  <span class="comment">% The case: Mature cluster (trying to align a sequence to a group of pre-aligned sequences)</span>
+0359         ind = find(clusterMics == currentMic);
+0360         <span class="keyword">if</span> ~isempty(ind)        
+0361             [r_closestRecLeft, N_sequencesLeft, closestRecLeft, closestRecLeft_index] = <a href="#_sub6" class="code" title="subfunction [r_closestRecLeft, N_sequencesLeft, closestRecLeft, closestRecLeft_index] = find_closest_Rec_left(currentSequence, startResolution, Cluster, r_fixed, ind)">find_closest_Rec_left</a>(currentSequence, startResolution, Cluster, r_fixed, ind);
+0362             r_start = r_closestRecLeft + sum(N_sequencesLeft) + 1;
+0363             
+0364             [r_closestRecRight, N_sequencesRight, closestRecRight, closestRecRight_index] = <a href="#_sub7" class="code" title="subfunction [r_closestRecRight, N_sequencesRight, closestRecRight, closestRecRight_index] = find_closest_Rec_right(currentSequence, startResolution, Cluster, r_fixed, ind)">find_closest_Rec_right</a>(currentSequence, startResolution, Cluster, r_fixed, ind);
+0365             r_end = r_closestRecRight - N(currentSequence) ;
+0366             
+0367             <span class="keyword">if</span> r_start &gt;= r_end  <span class="comment">% If the first possible alignment is out of search space</span>
+0368                 alignment_possible = false;
+0369                 <span class="comment">%closest = [0 0 0 0]; % This vector will be useless if alignment is not possible</span>
+0370             <span class="keyword">else</span>
+0371                 closest{1} = closestRecLeft; 
+0372                 closest{2} = closestRecRight; 
+0373                 closest{3} = closestRecLeft_index;  
+0374                 closest{4} = closestRecRight_index;                 
+0375             <span class="keyword">end</span>          
+0376         <span class="comment">%else</span>
+0377         <span class="comment">%    closest = [0 0 0 0]; % This vector will be useless if no recording with the same microphone index exist in the cluster</span>
+0378         <span class="keyword">end</span>
+0379         <span class="comment">% An extra check if r_start is smaller than r_end</span>
+0380         <span class="keyword">if</span> r_end &lt;= r_start
+0381             alignment_possible = false;
+0382             <span class="comment">%closest = [0 0 0 0]; % This vector will be useless if alignment is not possible</span>
+0383         <span class="keyword">end</span>        
+0384     <span class="keyword">end</span>
+0385     
+0386 <a name="_sub9" href="#_subfunctions" class="code">function enough_samples = check_number_of_samples(r_start, r_end, startResolution)</a>
+0387     <span class="comment">% Checks the number of samples in a particular resolution level for</span>
+0388     <span class="comment">% SMC procedure.</span>
+0389 
+0390     <span class="keyword">global</span> data_struct
+0391     <span class="comment">% If the number of samples is below the threshold (minNumberOfSamples)</span>
+0392     <span class="comment">% then we start with a higher resolution to have enough samples</span>
+0393     numberOfSamples = r_end - r_start + 1;
+0394     <span class="keyword">if</span> numberOfSamples &lt; data_struct.minNumberOfSamples
+0395         enough_samples = false;    
+0396     <span class="keyword">else</span>
+0397         enough_samples = true;
+0398     <span class="keyword">end</span>        
+0399     
+0400 <a name="_sub10" href="#_subfunctions" class="code">function new_startResolution = re_set_resolution(r_start, r_end, startResolution)</a>
+0401     <span class="comment">% Re-sets the resolution for the SMC procedure</span>
+0402 
+0403     <span class="keyword">global</span> data_struct
+0404     old_startResolution = startResolution;
+0405     numberOfSamples = r_end - r_start + 1;
+0406     new_startResolution = min([old_startResolution + ceil(log2(data_struct.minNumberOfSamples/numberOfSamples)) data_struct.numSteps]);
+0407             
+0408 <a name="_sub11" href="#_subfunctions" class="code">function [alignment_possible, r_start, r_end, startResolution, closest] = set_search_space(startResolution, Cluster, r_fixed, p, s)    </a>
+0409     <span class="comment">% Sets the search space for the samples of SMC procedure</span>
+0410     
+0411     [alignment_possible, r_start, r_end, closest] = <a href="#_sub8" class="code" title="subfunction [alignment_possible, r_start, r_end, closest] = apply_constraints(startResolution, Cluster, r_fixed, p, s)">apply_constraints</a>(startResolution, Cluster, r_fixed, p, s);
+0412     <span class="comment">% After applying the constraints and decide that the Cluster and the current sequence can be aligned,</span>
+0413     <span class="comment">% one still needs to check if the phi() function has enough samples at the current resolution.</span>
+0414     <span class="keyword">if</span> alignment_possible
+0415         enough_samples = <a href="#_sub9" class="code" title="subfunction enough_samples = check_number_of_samples(r_start, r_end, startResolution)">check_number_of_samples</a>(r_start, r_end);
+0416         <span class="keyword">if</span> ~enough_samples <span class="comment">% If there is not enough samples re-set the resolution and r_start, r_end variables</span>
+0417             startResolution = <a href="#_sub10" class="code" title="subfunction new_startResolution = re_set_resolution(r_start, r_end, startResolution)">re_set_resolution</a>(r_start, r_end, startResolution);        
+0418             <span class="comment">% Note that by re-calling apply_constraints function, the start and end points of search</span>
+0419             <span class="comment">% space are automatically set,</span>
+0420             [alignment_possible, r_start, r_end, closest] = <a href="#_sub8" class="code" title="subfunction [alignment_possible, r_start, r_end, closest] = apply_constraints(startResolution, Cluster, r_fixed, p, s)">apply_constraints</a>(startResolution, Cluster, r_fixed, p, s);
+0421         <span class="keyword">end</span>
+0422     <span class="keyword">end</span>
+0423     
+0424 <a name="_sub12" href="#_subfunctions" class="code">function all_sequences_exist = check_all_sequences_exist(startResolution, Cluster, p, s)</a>
+0425     <span class="comment">% Checks all the sequences to be aligned exist in a particular</span>
+0426     <span class="comment">% resolution. Note that the length of the sequences decrease with the</span>
+0427     <span class="comment">% increasing resolution</span>
+0428     
+0429     <span class="keyword">global</span> data_struct;
+0430     
+0431     <span class="keyword">if</span> sum([data_struct.Nsteps(startResolution,Cluster) data_struct.Nsteps(startResolution,p(s))] == 0) == 0
+0432         all_sequences_exist = true;
+0433     <span class="keyword">else</span>
+0434         all_sequences_exist = false;
+0435     <span class="keyword">end</span>
+0436 
+0437 <a name="_sub13" href="#_subfunctions" class="code">function startResolution = set_resolution(Cluster, p, s)</a>
+0438     <span class="comment">% Sets the starting resolution for the SMC procedure</span>
+0439 
+0440     <span class="keyword">global</span> data_struct;
+0441     
+0442     startResolution = 1; <span class="comment">% For each sequence, start with the lowest possible resolution</span>
+0443         
+0444     <span class="comment">% Note that some sequence are very long i.e., mic4_rec5.wav -&gt; 17.57</span>
+0445     <span class="comment">% and some are very short i.e., mic1_rec1.wav -&gt; 00.29. Hence some lower level</span>
+0446     <span class="comment">% resolutions for short sequences don't exist. We identify such cases from the</span>
+0447     <span class="comment">% length information of the k'th sequence N(k) by the following way; If none</span>
+0448     <span class="comment">% of the lengths at the current resolution are zero, it means all the sequences</span>
+0449     <span class="comment">% to be aligned exist at that resolution.</span>
+0450     all_sequences_exist = <a href="#_sub12" class="code" title="subfunction all_sequences_exist = check_all_sequences_exist(startResolution, Cluster, p, s)">check_all_sequences_exist</a>(startResolution, Cluster, p, s);
+0451     <span class="keyword">if</span> ~all_sequences_exist 
+0452         <span class="comment">% Increase the resolution level upto where all the sequences to be aligned exist</span>
+0453         all_sequences_exist = false;
+0454         <span class="keyword">while</span>(~all_sequences_exist)
+0455             startResolution = startResolution + 1;
+0456             all_sequences_exist = <a href="#_sub12" class="code" title="subfunction all_sequences_exist = check_all_sequences_exist(startResolution, Cluster, p, s)">check_all_sequences_exist</a>(startResolution, Cluster, p, s);
+0457         <span class="keyword">end</span>
+0458     <span class="keyword">end</span>
+0459</pre></div>
+<hr><address>Generated on Fri 23-Jun-2017 18:37:17 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

@@ -1,0 +1,335 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>groundtruth &#8212; Evaluation 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Evaluation 1.0 documentation" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Evaluation 1.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for groundtruth</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">groundtruth.py</span>
+<span class="sd">~~~~~~~~~~~~~~~</span>
+
+<span class="sd">.. topic:: Contents:</span>
+<span class="sd">    </span>
+<span class="sd">    The groundtruth module pulls the offset values of the sequences from the Jiku_GT_090912.xml </span>
+<span class="sd">    file and forms the pairwise connected sequence list. The list is then written in</span>
+<span class="sd">    a text file &quot;grount_truth.txt&quot;. </span>
+
+<span class="sd">    Copyright (C) 2016  Author: Dogac Basaran</span>
+
+<span class="sd">    This program is free software: you can redistribute it and/or modify</span>
+<span class="sd">    it under the terms of the GNU General Public License as published by</span>
+<span class="sd">    the Free Software Foundation, either version 3 of the License, or</span>
+<span class="sd">    (at your option) any later version.</span>
+
+<span class="sd">    This program is distributed in the hope that it will be useful,</span>
+<span class="sd">    but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="sd">    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="sd">    GNU General Public License for more details.</span>
+
+<span class="sd">    You should have received a copy of the GNU General Public License</span>
+<span class="sd">    along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy.io.wavfile</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">os</span> <span class="k">import</span> <span class="n">listdir</span>
+
+<div class="viewcode-block" id="find_filelengths"><a class="viewcode-back" href="../index.html#groundtruth.find_filelengths">[docs]</a><span class="k">def</span> <span class="nf">find_filelengths</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>        
+    <span class="sd">&quot;&quot;&quot; Find the length of each sequence, in addition finds the silence parts in the</span>
+<span class="sd">        beginning of each sequence for calibration of the offsets accordingly </span>
+<span class="sd">        </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path: String </span>
+<span class="sd">        The path to the audio dataset</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    filelengths: Dictionary</span>
+<span class="sd">        The dictionary that contains the file lengths in seconds. Keys are the filenames</span>
+<span class="sd">    silence_at_the_beginning: Dictionary</span>
+<span class="sd">        The dictionary that contains the silence part in seconds for each file. Keys are the filenames&quot;&quot;&quot;</span>
+        
+    <span class="n">filelengths</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">silence_at_the_beginning</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">listdir</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+        <span class="n">Fs</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">wavfile</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">path</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="n">filename</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">x</span><span class="o">!=</span><span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span> <span class="o">&gt;=</span><span class="mi">0</span><span class="p">:</span>
+            <span class="n">silence_at_the_beginning</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">x</span><span class="o">!=</span><span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">(</span><span class="n">Fs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">silence_at_the_beginning</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span>
+        <span class="n">filelengths</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">(</span><span class="n">Fs</span><span class="p">)</span>    
+    <span class="k">return</span> <span class="n">filelengths</span><span class="p">,</span> <span class="n">silence_at_the_beginning</span></div>
+
+ 
+<div class="viewcode-block" id="extract_offsets"><a class="viewcode-back" href="../index.html#groundtruth.extract_offsets">[docs]</a><span class="k">def</span> <span class="nf">extract_offsets</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filelengths</span><span class="p">,</span> <span class="n">silence_in_the_beginning</span><span class="p">,</span> <span class="n">hopsize</span> <span class="o">=</span> <span class="mf">0.02</span><span class="p">):</span>
+    
+    <span class="sd">&quot;&quot;&quot;Extract offset information of each file from ground truth file GT_090912.xml </span>
+<span class="sd">    and convert length and offset information from seconds to frames (STFT based).</span>
+<span class="sd">    Note that this piece of code is unique for the GT_090912.xml file. For other</span>
+<span class="sd">    Jiku datasets it has to be modified!!</span>
+<span class="sd"> </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path: String</span>
+<span class="sd">        path of the GT_090912.xml file</span>
+<span class="sd">    filelengths: Dictionary</span>
+<span class="sd">        The dictionary that contains the file lengths in seconds. Keys are the filenames</span>
+<span class="sd">    silence_at_the_beginning: Dictionary</span>
+<span class="sd">        The dictionary that contains the silence part in seconds for each file. Keys are the filenames</span>
+<span class="sd">    hopsize: Float (default 0.02)</span>
+<span class="sd">        Hop size in the STFT</span>
+<span class="sd">        </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    offset_length_in_frames: List</span>
+<span class="sd">        The list of offset lengths in frames    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="c1"># cnti is the number of recordings for microphone i</span>
+    <span class="n">cnt1</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">cnt2</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">cnt3</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">cnt4</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">offset_length_in_frames</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">open</span><span class="p">(</span><span class="n">path1</span> <span class="o">+</span> <span class="s1">&#39;Jiku_GT_090912.xml&#39;</span><span class="p">,</span><span class="s1">&#39;r&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">readlines</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;offset&#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>                        
+            <span class="c1"># Extract the length of the sequence</span>
+            <span class="n">mic_number</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">2</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">mic_number</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="c1"># represents 1st mic</span>
+                <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;mic1_rec&#39;</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">str</span><span class="p">(</span><span class="n">cnt1</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;.wav&#39;</span>
+                <span class="n">N</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">filelengths</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span><span class="o">/</span><span class="n">hopsize</span><span class="p">)</span> <span class="c1"># Length in frames</span>
+                <span class="n">cnt1</span><span class="o">+=</span><span class="mi">1</span>
+            <span class="k">elif</span> <span class="n">mic_number</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span> <span class="c1"># represents 2nd mic</span>
+                <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;mic2_rec&#39;</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">str</span><span class="p">(</span><span class="n">cnt2</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;.wav&#39;</span>
+                <span class="n">N</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">filelengths</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span><span class="o">/</span><span class="n">hopsize</span><span class="p">)</span> <span class="c1"># Length in frames</span>
+                <span class="n">cnt2</span><span class="o">+=</span><span class="mi">1</span>
+            <span class="k">elif</span> <span class="n">mic_number</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span> <span class="c1"># represents 3rd mic</span>
+                <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;mic3_rec&#39;</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">str</span><span class="p">(</span><span class="n">cnt3</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;.wav&#39;</span>
+                <span class="n">N</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">filelengths</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span><span class="o">/</span><span class="n">hopsize</span><span class="p">)</span> <span class="c1"># Length in frames</span>
+                <span class="n">cnt3</span><span class="o">+=</span><span class="mi">1</span>
+            <span class="k">elif</span> <span class="n">mic_number</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span> <span class="c1"># represents 4th mic</span>
+                <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;mic4_rec&#39;</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">str</span><span class="p">(</span><span class="n">cnt4</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;.wav&#39;</span>
+                <span class="n">N</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">filelengths</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span><span class="o">/</span><span class="n">hopsize</span><span class="p">)</span> <span class="c1"># Length in frames</span>
+                <span class="n">cnt4</span><span class="o">+=</span><span class="mi">1</span>               
+            
+            <span class="c1"># Extract the offset of the sequence</span>
+            <span class="n">tmp_offset</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span> 
+            <span class="n">offset</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">(</span><span class="n">tmp_offset</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="mf">3600.</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">(</span><span class="n">tmp_offset</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">*</span> <span class="mf">60.</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">(</span><span class="n">tmp_offset</span><span class="p">[</span><span class="mi">3</span><span class="p">][:</span><span class="mi">6</span><span class="p">])</span>
+            <span class="n">offset</span> <span class="o">=</span> <span class="n">offset</span> <span class="o">+</span> <span class="n">silence_in_the_beginning</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span> <span class="c1"># Calibration for silence parts</span>
+            <span class="n">offset</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">offset</span><span class="o">/</span><span class="n">hopsize</span><span class="p">)</span> <span class="c1"># Convert offset from seconds to frames</span>
+            
+            <span class="c1"># Write Offset-Length tuple to the list    </span>
+            <span class="n">offset_length_in_frames</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">filename</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">N</span><span class="p">))</span>            
+    <span class="k">return</span> <span class="n">offset_length_in_frames</span></div>
+
+<div class="viewcode-block" id="set_key_name"><a class="viewcode-back" href="../index.html#groundtruth.set_key_name">[docs]</a><span class="k">def</span> <span class="nf">set_key_name</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">filename_</span><span class="p">):</span>
+    
+    <span class="sd">&quot;&quot;&quot; Sets the key name for ground_truth dictionary entry, order the sequences in </span>
+<span class="sd">        ascending order of microphone number and record number. Example: If sequence = &#39;mic4_rec2.wav&#39;, sequence_ = &#39;mic1_rec3.wav&#39;</span>
+<span class="sd">        the key_name = &#39;mic1_rec3.wav mic4_rec2.wav&#39;</span>
+<span class="sd">        </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename: String</span>
+<span class="sd">        First filename</span>
+<span class="sd">    filename_: String</span>
+<span class="sd">        Second filename</span>
+<span class="sd">        </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    key_name: String</span>
+<span class="sd">        Key name for the ground_truth dictionary. Either &#39;filename filename_&#39; or &#39;filename_ filename&#39;&quot;&quot;&quot;</span>
+    
+    <span class="n">mic_number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">filename</span><span class="p">[</span><span class="n">filename</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;mic&#39;</span><span class="p">)</span><span class="o">+</span><span class="mi">3</span><span class="p">:</span><span class="n">filename</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)])</span>
+    <span class="n">mic_number_</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">filename_</span><span class="p">[</span><span class="n">filename_</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;mic&#39;</span><span class="p">)</span><span class="o">+</span><span class="mi">3</span><span class="p">:</span><span class="n">filename_</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)])</span>
+    <span class="n">rec_number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">filename</span><span class="p">[</span><span class="n">filename</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;rec&#39;</span><span class="p">)</span><span class="o">+</span><span class="mi">3</span><span class="p">:</span><span class="n">filename</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;.wav&#39;</span><span class="p">)])</span>
+    <span class="n">rec_number_</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">filename_</span><span class="p">[</span><span class="n">filename_</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;rec&#39;</span><span class="p">)</span><span class="o">+</span><span class="mi">3</span><span class="p">:</span><span class="n">filename_</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;.wav&#39;</span><span class="p">)])</span>
+    
+    <span class="k">if</span> <span class="n">mic_number</span> <span class="o">&gt;</span> <span class="n">mic_number_</span><span class="p">:</span>
+        <span class="n">key_name</span> <span class="o">=</span> <span class="n">filename_</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">filename</span>
+    <span class="k">elif</span> <span class="n">mic_number</span> <span class="o">==</span> <span class="n">mic_number_</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">rec_number</span> <span class="o">&gt;</span> <span class="n">rec_number_</span><span class="p">:</span>
+            <span class="n">key_name</span> <span class="o">=</span> <span class="n">filename_</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">filename</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">key_name</span> <span class="o">=</span> <span class="n">filename</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">filename_</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">key_name</span> <span class="o">=</span> <span class="n">filename</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">filename_</span>
+    <span class="k">return</span> <span class="n">key_name</span></div>
+    
+<div class="viewcode-block" id="set_relative_offset"><a class="viewcode-back" href="../index.html#groundtruth.set_relative_offset">[docs]</a><span class="k">def</span> <span class="nf">set_relative_offset</span><span class="p">(</span><span class="n">key_name</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">offset_</span><span class="p">):</span>
+    
+    <span class="sd">&quot;&quot;&quot;Sets the true relative offset between two sequences according to the</span>
+<span class="sd">       ordering of the sequences</span>
+<span class="sd">       </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    key_name: String</span>
+<span class="sd">        The key name for the ground_truth dictionary entry</span>
+<span class="sd">    filename: String</span>
+<span class="sd">        The sequence name</span>
+<span class="sd">    offset: Integer</span>
+<span class="sd">        Offset of the first sequence in frames</span>
+<span class="sd">    offset_: Integer</span>
+<span class="sd">        Offset of the second sequence in frames</span>
+<span class="sd">   </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    relative_offset_distance: float</span>
+<span class="sd">        Relative offset according to the ordering of the aligned sequences&quot;&quot;&quot;</span>
+    
+    <span class="k">if</span> <span class="n">key_name</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+        <span class="n">relative_offset_distance</span> <span class="o">=</span> <span class="n">offset_</span><span class="o">-</span><span class="n">offset</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">relative_offset_distance</span> <span class="o">=</span> <span class="n">offset</span><span class="o">-</span><span class="n">offset_</span>
+    <span class="k">return</span> <span class="n">relative_offset_distance</span></div>
+
+<div class="viewcode-block" id="set_paths"><a class="viewcode-back" href="../index.html#groundtruth.set_paths">[docs]</a><span class="k">def</span> <span class="nf">set_paths</span><span class="p">():</span>
+    
+    <span class="sd">&quot;&quot;&quot;Set the paths to the ground_truth (Path 1) and audio data (Path 2). Detects</span>
+<span class="sd">    the operating system and set the paths accordingly.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    path1: String</span>
+<span class="sd">        Path to the ground truth</span>
+<span class="sd">    path2: String</span>
+<span class="sd">        Path to the audio dataset</span>
+<span class="sd">    wl: Integer</span>
+<span class="sd">        wl=1 represents Windows based, wl=2 represents Linux based systems &quot;&quot;&quot;</span>
+    
+    <span class="n">cw_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">();</span>
+    <span class="k">if</span> <span class="n">cw_path</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span><span class="o">==-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="n">cw_path_parent</span> <span class="o">=</span> <span class="n">cw_path</span><span class="p">[:</span><span class="n">cw_path</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">Evaluation&#39;</span><span class="p">)]</span>
+        <span class="n">path1</span> <span class="o">=</span> <span class="n">cw_path</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">ground_truth</span><span class="se">\\</span><span class="s1">&#39;</span>
+        <span class="n">path2</span> <span class="o">=</span> <span class="n">cw_path_parent</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">audio_data</span><span class="se">\\</span><span class="s1">&#39;</span>
+        <span class="n">wl</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="c1"># Defines windows based OS</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">cw_path_parent</span> <span class="o">=</span> <span class="n">cw_path</span><span class="p">[:</span><span class="n">cw_path</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;/Evaluation/&#39;</span><span class="p">)]</span>
+        <span class="n">path1</span> <span class="o">=</span> <span class="n">cw_path</span> <span class="o">+</span> <span class="s1">&#39;ground_truth/&#39;</span>
+        <span class="n">path2</span> <span class="o">=</span> <span class="n">cw_path_parent</span> <span class="o">+</span> <span class="s1">&#39;/audio_data/&#39;</span>
+        <span class="n">wl</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span> <span class="c1"># Defines windows based OS</span>
+        
+    <span class="k">return</span> <span class="p">(</span><span class="n">path1</span><span class="p">,</span><span class="n">path2</span><span class="p">,</span><span class="n">wl</span><span class="p">)</span></div>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    
+    <span class="n">path1</span><span class="p">,</span> <span class="n">path2</span><span class="p">,</span> <span class="n">wl</span> <span class="o">=</span> <span class="n">set_paths</span><span class="p">()</span>
+    
+    <span class="n">filelengths</span><span class="p">,</span> <span class="n">silence_in_the_beginning</span> <span class="o">=</span> <span class="n">find_filelengths</span><span class="p">(</span><span class="n">path2</span><span class="p">)</span>        
+    
+    <span class="n">offset_length_in_frames</span> <span class="o">=</span> <span class="n">extract_offsets</span><span class="p">(</span><span class="n">path2</span><span class="p">,</span> <span class="n">filelengths</span><span class="p">,</span> <span class="n">silence_in_the_beginning</span><span class="p">,</span> <span class="n">hopsize</span> <span class="o">=</span> <span class="mf">0.032</span><span class="p">)</span>        
+    
+    <span class="c1"># Finding the overlapping sequences and relative distances between offsets   </span>
+    <span class="n">ground_truth</span> <span class="o">=</span> <span class="p">{}</span>     
+    <span class="n">res</span> <span class="o">=</span> <span class="mi">4</span> <span class="c1"># The amount in frames that overlapping won&#39;t be counted</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">path1</span> <span class="o">+</span> <span class="s1">&#39;ground_truth_sequence_ordering.txt&#39;</span><span class="p">,</span><span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="c1"># write sequence ordering to a txt file</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">offset_length_in_frames</span><span class="p">)):</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">offset_length_in_frames</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>    
+        
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">offset_length_in_frames</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">offset</span> <span class="o">=</span> <span class="n">offset_length_in_frames</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">length</span> <span class="o">=</span> <span class="n">offset_length_in_frames</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">offset_length_in_frames</span><span class="p">)):</span>
+            <span class="n">filename_</span> <span class="o">=</span> <span class="n">offset_length_in_frames</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">offset_</span> <span class="o">=</span> <span class="n">offset_length_in_frames</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">length_</span> <span class="o">=</span> <span class="n">offset_length_in_frames</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span>
+            
+            <span class="k">if</span> <span class="n">offset</span> <span class="o">+</span> <span class="n">length</span> <span class="o">&gt;</span> <span class="n">offset_</span> <span class="o">+</span> <span class="n">res</span><span class="p">:</span>
+                <span class="n">key_name</span> <span class="o">=</span> <span class="n">set_key_name</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">filename_</span><span class="p">)</span>
+                <span class="n">relative_offset_distance</span> <span class="o">=</span> <span class="n">set_relative_offset</span><span class="p">(</span><span class="n">key_name</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">offset_</span><span class="p">)</span>
+                <span class="n">ground_truth</span><span class="p">[</span><span class="n">key_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">relative_offset_distance</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">key_name</span><span class="p">)</span>       
+                <span class="nb">print</span><span class="p">(</span><span class="n">ground_truth</span><span class="p">[</span><span class="n">key_name</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">break</span>
+               
+    <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">ground_truth</span><span class="p">,</span><span class="n">file</span><span class="p">(</span><span class="n">path1</span> <span class="o">+</span> <span class="s1">&#39;ground_truth.txt&#39;</span><span class="p">,</span><span class="s1">&#39;w&#39;</span><span class="p">))</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Evaluation 1.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Dogac Basaran.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.6.
+    </div>
+  </body>
+</html>

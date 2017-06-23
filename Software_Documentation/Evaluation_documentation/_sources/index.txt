@@ -1,0 +1,16 @@
+.. Evaluation documentation master file, created by
+   sphinx-quickstart on Fri Jun 23 23:15:22 2017.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
+Documentation
+-------------
+.. automodule:: groundtruth
+	:members:
+
+.. automodule:: compute_accuracy
+	:members:
+
+.. automodule:: fingerprinting_evaluation
+	:members:
+

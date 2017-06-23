@@ -1,0 +1,410 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of SMC_core_module</title>
+  <meta name="keywords" content="SMC_core_module">
+  <meta name="description" content="SMC_CORE_MODULE: The main implementation of the SMC procedure">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">SMC_based_alignment</a> &gt; SMC_core_module.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for SMC_based_alignment&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>SMC_core_module
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>SMC_CORE_MODULE: The main implementation of the SMC procedure</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [r_max, Num_overlapping_frames] = SMC_core_module(s, dataset_features, phi_L_low, Cluster, r_fixed, startResolution, r_start, r_end, closestRecLeft, closestRecRight , closestRecLeft_index, closestRecRight_index) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> SMC_CORE_MODULE: The main implementation of the SMC procedure
+   This is core part of the implementation that aligns a sequence to a
+   cluster with prealigned sequences using the multiresolution SMC
+   procedure.
+   Inputs:
+       s                               : The index of the sequence to be
+                                         aligned with the current cluster
+       dataset_features                : The struct that contains the
+                                         extracted features of audio dataset
+       phi_L_low                       : Initial probabilities of SMC
+                                         samples
+       Cluster                         : Cluster to be aligned with
+       r_fixed                         : The offset values of the aligned
+                                         sequences in the cluster
+       startResolution                 : The starting resolution of SMC
+       r_start                         : The beginning of the search space
+       r_end                           : The ending of the search
+       closestRecLeft                  : The index of the closest
+                                         sequence in the main list of sequences 
+                                         to be aligned that has a higher offset value 
+       closestRecRight                 : The index of the closest
+                                         sequence in the main list of sequences 
+                                         to be aligned that has a lower offset value
+       closestRecLeft_index            : The index of the closest
+                                         sequence in the cluster that has 
+                                         a higher offset value 
+       closestRecRight_index           : The index of the closest
+                                         sequence in the cluster that has 
+                                         a higher offset value
+   Outputs:
+       r_max                           : The offset estimate of the
+                                         sequence that maximizes the score function
+       Num_overllaping_frames          : The number of overlapping frames
+                                         between the sequence and the cluster</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="sequential_alignment_module.html" class="code" title="function [r_fixed, Cluster, Unclustered] = sequential_alignment_module(p, r_fixed, Clusters, NoC, run_number, dataset_features)">sequential_alignment_module</a>	SEQUENTIAL_ALIGNMENT_MODULE - Sequential alignment procedure</li></ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function wsteps = hyperparameter_w_annealing(startResolution, numSteps)</a></li><li><a href="#_sub2" class="code">function [S1, S2, temp_S1, temp_S2, length_of_likelihood] = compute_intermediate_values_for_likelihood(T, F, Cluster, r_fixed_L, N, s, S, step)</a></li><li><a href="#_sub3" class="code">function Num_overlapping_frames = find_amount_of_overlap(temp_S1, r_max, N, s)</a></li><li><a href="#_sub4" class="code">function weight = check_effective_sample_size(weight, NumParticles, R)</a></li><li><a href="#_sub5" class="code">function [r_start, r_end] = set_offset_search_interval(r_fixed_L, N, s, length_of_likelihood, closestRecLeft, closestRecRight , closestRecLeft_index, closestRecRight_index)</a></li><li><a href="#_sub6" class="code">function [r_proposed, len] = propose_offsets_from_higher_resolution(R,n,r_start,r_end,P,H)</a></li><li><a href="#_sub7" class="code">function phi_L = compute_phi_L_of_proposed_offsets(phi_L, length_of_likelihood, r_proposed, temp_S1, temp_S2,N , s, S, step, F, L, w)</a></li><li><a href="#_sub8" class="code">function Fp = log_2_distribution(r, f)</a></li><li><a href="#_sub9" class="code">function [r_n, weight_n] = forward_kernel(L, r_proposed, phi_L, Pi_1, P, H, weight, R, n)</a></li><li><a href="#_sub10" class="code">function pr_non_overlap = compute_non_overlapping_probability(temp_S1, temp_S2, N, s, S, step, L, F, w)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <span class="comment">% SMC_CORE_MODULE: The main implementation of the SMC procedure</span>
+0002 <span class="comment">%   This is core part of the implementation that aligns a sequence to a</span>
+0003 <span class="comment">%   cluster with prealigned sequences using the multiresolution SMC</span>
+0004 <span class="comment">%   procedure.</span>
+0005 <span class="comment">%   Inputs:</span>
+0006 <span class="comment">%       s                               : The index of the sequence to be</span>
+0007 <span class="comment">%                                         aligned with the current cluster</span>
+0008 <span class="comment">%       dataset_features                : The struct that contains the</span>
+0009 <span class="comment">%                                         extracted features of audio dataset</span>
+0010 <span class="comment">%       phi_L_low                       : Initial probabilities of SMC</span>
+0011 <span class="comment">%                                         samples</span>
+0012 <span class="comment">%       Cluster                         : Cluster to be aligned with</span>
+0013 <span class="comment">%       r_fixed                         : The offset values of the aligned</span>
+0014 <span class="comment">%                                         sequences in the cluster</span>
+0015 <span class="comment">%       startResolution                 : The starting resolution of SMC</span>
+0016 <span class="comment">%       r_start                         : The beginning of the search space</span>
+0017 <span class="comment">%       r_end                           : The ending of the search</span>
+0018 <span class="comment">%       closestRecLeft                  : The index of the closest</span>
+0019 <span class="comment">%                                         sequence in the main list of sequences</span>
+0020 <span class="comment">%                                         to be aligned that has a higher offset value</span>
+0021 <span class="comment">%       closestRecRight                 : The index of the closest</span>
+0022 <span class="comment">%                                         sequence in the main list of sequences</span>
+0023 <span class="comment">%                                         to be aligned that has a lower offset value</span>
+0024 <span class="comment">%       closestRecLeft_index            : The index of the closest</span>
+0025 <span class="comment">%                                         sequence in the cluster that has</span>
+0026 <span class="comment">%                                         a higher offset value</span>
+0027 <span class="comment">%       closestRecRight_index           : The index of the closest</span>
+0028 <span class="comment">%                                         sequence in the cluster that has</span>
+0029 <span class="comment">%                                         a higher offset value</span>
+0030 <span class="comment">%   Outputs:</span>
+0031 <span class="comment">%       r_max                           : The offset estimate of the</span>
+0032 <span class="comment">%                                         sequence that maximizes the score function</span>
+0033 <span class="comment">%       Num_overllaping_frames          : The number of overlapping frames</span>
+0034 <span class="comment">%                                         between the sequence and the cluster</span>
+0035 
+0036 <span class="comment">% Copyright (C) 2016  Dogac Basaran</span>
+0037 <span class="comment">%    This program is free software: you can redistribute it and/or modify</span>
+0038 <span class="comment">%    it under the terms of the GNU General Public License as published by</span>
+0039 <span class="comment">%    the Free Software Foundation, either version 3 of the License, or</span>
+0040 <span class="comment">%    (at your option) any later version.</span>
+0041 <span class="comment">%</span>
+0042 <span class="comment">%    This program is distributed in the hope that it will be useful,</span>
+0043 <span class="comment">%    but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+0044 <span class="comment">%    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+0045 <span class="comment">%    GNU General Public License for more details.</span>
+0046 <span class="comment">%</span>
+0047 <span class="comment">%    You should have received a copy of the GNU General Public License</span>
+0048 <span class="comment">%    along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;</span>
+0049 
+0050 <a name="_sub0" href="#_subfunctions" class="code">function [r_max, Num_overlapping_frames] = SMC_core_module(s, dataset_features, phi_L_low, Cluster, r_fixed, startResolution, r_start, r_end, closestRecLeft, closestRecRight , closestRecLeft_index, closestRecRight_index)</a>
+0051 
+0052 <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+0053 <span class="keyword">global</span> data_struct                  <span class="comment">%</span>
+0054 data_struct = dataset_features;     <span class="comment">%</span>
+0055                                     <span class="comment">%</span>
+0056 S = data_struct.S;                  <span class="comment">%</span>
+0057 F = data_struct.F;                  <span class="comment">%</span>
+0058 Nsteps = data_struct.Nsteps;        <span class="comment">%</span>
+0059 Lsteps = data_struct.Lsteps;        <span class="comment">%</span>
+0060 <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+0061 
+0062 <span class="comment">% Note: The first value of wsteps is for the lowest resolution where each offset is computed.</span>
+0063 <span class="comment">% That's why there are length(wsteps)-1 low resolution steps.</span>
+0064 <span class="comment">%numSteps = length(wsteps)-1; % Number of low resolution steps</span>
+0065 numSteps = data_struct.numSteps; <span class="comment">% Number of low resolution steps</span>
+0066 endResolution = numSteps + 1; <span class="comment">% Highest resolution</span>
+0067 
+0068 <span class="comment">% The values of Phi(r) are the samples at the lowest resolution. The procedure starts from 1 resolution higher</span>
+0069 <span class="keyword">if</span> startResolution ~= endResolution
+0070     startResolution = startResolution + 1; 
+0071 <span class="keyword">end</span>
+0072 
+0073 <span class="comment">% The sparse smoothing kernel parameters. For details see Manuscript Section 3.2 Forward Markov Transition Kernel Design</span>
+0074 winlen = [16 12 8 6 4 3 2 1]; <span class="comment">% The choices of window length  for the smoothing kernel (Averaging)</span>
+0075 hoplen = [8  4  4 2 2 1 1 1]; <span class="comment">% The hop length between two averaging windows</span>
+0076 <span class="comment">% The index of window and hop lengths. As an example, if there are 10 resolution levels i.e., numSteps = 10</span>
+0077 <span class="comment">% Lprec_ind = [5 5 5 5 5 5 4 3 2 1]</span>
+0078 <span class="comment">% For Lprec_ind(1) = 5  -&gt;  windowlength = winlen(5) = 4, hoplength = hoplen(5) = 2</span>
+0079 Lprec_ind = [5*ones(1,numSteps-4) 4 3 2 1]; 
+0080  
+0081 wsteps = <a href="#_sub1" class="code" title="subfunction wsteps = hyperparameter_w_annealing(startResolution, numSteps)">hyperparameter_w_annealing</a>(startResolution, numSteps);             
+0082              
+0083 <span class="comment">% r = 1 represents the non-overlapping alignment. That is just computed at the highest resolution</span>
+0084 <span class="comment">% Therefore in the intermediate resolutions the samples don't go to r=1.</span>
+0085 <span class="keyword">if</span> r_start == 1
+0086     r_start =2;
+0087 <span class="keyword">end</span>
+0088 NumParticles = r_end - r_start + 1; <span class="comment">% Number of particles</span>
+0089 R = r_start:r_end; <span class="comment">% Initial values of particles ( 2 3 ..) for the lowest resolution</span>
+0090 fprintf(<span class="string">'\nThe number of particles: %d \n'</span>,NumParticles);
+0091 
+0092 <span class="comment">% The initial distribution is shown as Pi_1</span>
+0093 Pi_1 = phi_L_low(R)*0.001; <span class="comment">% Annealing the initial stationary distribution</span>
+0094 Pi_1 = Pi_1 - max(Pi_1);
+0095 Pi_1 = exp(Pi_1)/sum(exp(Pi_1));
+0096 
+0097 weight = Pi_1; <span class="comment">% Initial weights</span>
+0098 
+0099 <span class="keyword">for</span> step = startResolution:endResolution  <span class="comment">% Low resolution steps 1/256, 1/128, 1/64...</span>
+0100     
+0101     P = winlen(Lprec_ind(step-1):end); <span class="comment">% Window lengths at each intermediate distribution between resolution changes</span>
+0102     H = hoplen(Lprec_ind(step-1):end); <span class="comment">% Hop lengths at each intermediate distribution between resolution changes</span>
+0103 
+0104     w = wsteps(step); <span class="comment">% The hyperparameter w is set according to annealing strategy</span>
+0105     N = Nsteps(step,:); <span class="comment">% Lengths of sources at current resolution level</span>
+0106     
+0107     L = 2^(endResolution -step); <span class="comment">% Current resolution L</span>
+0108     
+0109     <span class="comment">% Alignments(offsets) of the fixed sequences for resolution L</span>
+0110     r_fixed_L = r_fixed/(L);
+0111     [mx,ind] = min(r_fixed_L);
+0112     r_fixed_L(ind) = 1; <span class="comment">% Note: Minimum value of r_fixed is always 1, hence it is fixed to 1.</span>
+0113     r_fixed_L = ceil(r_fixed_L);        
+0114     
+0115     T = max(r_fixed_L + N(Cluster)) + 2*N(s) - 1; <span class="comment">% Length of the hidden feature vector lambda</span>
+0116 
+0117     <span class="comment">% S1 and S2 are precomputed values for effective computation of likelihood</span>
+0118     [S1, S2, temp_S1, temp_S2, length_of_likelihood] = <a href="#_sub2" class="code" title="subfunction [S1, S2, temp_S1, temp_S2, length_of_likelihood] = compute_intermediate_values_for_likelihood(T, F, Cluster, r_fixed_L, N, s, S, step)">compute_intermediate_values_for_likelihood</a>(T, F, Cluster, r_fixed_L, N, s, S, step);
+0119     
+0120     <span class="comment">% Set the boundaries of the offsets as the interval [r_start:r_end]</span>
+0121     [r_start, r_end] = <a href="#_sub5" class="code" title="subfunction [r_start, r_end] = set_offset_search_interval(r_fixed_L, N, s, length_of_likelihood, closestRecLeft, closestRecRight , closestRecLeft_index, closestRecRight_index)">set_offset_search_interval</a>(r_fixed_L, N, s, length_of_likelihood, closestRecLeft, closestRecRight , closestRecLeft_index, closestRecRight_index);
+0122     phi_L = zeros(1,length_of_likelihood); <span class="comment">% The initializatin of log likelihood</span>
+0123     
+0124     <span class="comment">% Move each sample with index n to the next resolution level</span>
+0125     <span class="keyword">for</span> n = 1:length(R)                
+0126     
+0127         <span class="comment">% Proposed alignment values for intermediate distributions between resolutions</span>
+0128         [r_proposed, len] = <a href="#_sub6" class="code" title="subfunction [r_proposed, len] = propose_offsets_from_higher_resolution(R,n,r_start,r_end,P,H)">propose_offsets_from_higher_resolution</a>(R,n,r_start,r_end, P, H);
+0129     
+0130         <span class="comment">% All the likelihood values phi_L(r_proposed) are computed for the proposed alignment values r_proposed.</span>
+0131         <span class="comment">% This is more efficient because at each forward move of a sample, same likelihood values are computed</span>
+0132         <span class="comment">% as shown in Manuscript: Section 3.2 Forward Markov Kernel Design</span>
+0133         phi_L = <a href="#_sub7" class="code" title="subfunction phi_L = compute_phi_L_of_proposed_offsets(phi_L, length_of_likelihood, r_proposed, temp_S1, temp_S2,N , s, S, step, F, L, w)">compute_phi_L_of_proposed_offsets</a>(phi_L, length_of_likelihood, r_proposed, temp_S1, temp_S2, N, s, S, step, F, L, w);            
+0134 
+0135         <span class="comment">% Sample with index n is moved to higher resolution</span>
+0136         [R(n), weight(n)] = <a href="#_sub9" class="code" title="subfunction [r_n, weight_n] = forward_kernel(L, r_proposed, phi_L, Pi_1, P, H, weight, R, n)">forward_kernel</a>(L, r_proposed, phi_L, Pi_1, P, H, weight, R, n);
+0137     <span class="keyword">end</span>
+0138     
+0139     <span class="keyword">if</span> L == 1 <span class="comment">% In the highest resolution compute phi_L(r=1) to compare all the results with a non-overlapping</span>
+0140         phi_L(1) = <a href="#_sub10" class="code" title="subfunction pr_non_overlap = compute_non_overlapping_probability(temp_S1, temp_S2, N, s, S, step, L, F, w)">compute_non_overlapping_probability</a>(temp_S1, temp_S2, N, s, S, step, L, F, w);
+0141         R = find(phi_L~=0); <span class="comment">% Samples at the original resolution</span>
+0142     <span class="keyword">else</span>
+0143         weight = <a href="#_sub4" class="code" title="subfunction weight = check_effective_sample_size(weight, NumParticles, R)">check_effective_sample_size</a>(weight, NumParticles, R);    
+0144     <span class="keyword">end</span>
+0145     
+0146     [mx,ind] = max(phi_L(R));
+0147     r_max = R(ind);
+0148     disp([<span class="string">'Optimum alignment for L='</span> num2str(L) <span class="string">' is r='</span>, num2str(R(ind)) , <span class="string">' or '</span> num2str((R(ind)-N(s)-1)*L*0.02) , <span class="string">' in secs'</span>])
+0149 <span class="keyword">end</span>
+0150 
+0151 Num_overlapping_frames = <a href="#_sub3" class="code" title="subfunction Num_overlapping_frames = find_amount_of_overlap(temp_S1, r_max, N, s)">find_amount_of_overlap</a>(temp_S1, r_max, N, s);
+0152 
+0153 <a name="_sub1" href="#_subfunctions" class="code">function wsteps = hyperparameter_w_annealing(startResolution, numSteps)</a>
+0154     <span class="comment">% Computes the hyperparameter through each resolution step of SMC</span>
+0155     <span class="comment">%   wsteps1: Parameter is linearly increased</span>
+0156     <span class="comment">%   wsteps2: Parameter is exponentially increased</span>
+0157     
+0158     <span class="keyword">global</span> data_struct
+0159     w_min = data_struct.w_min;
+0160     w_max = data_struct.w_max;
+0161     
+0162     wsteps1 = zeros(1,numSteps+1);
+0163     wsteps2 = zeros(1,numSteps+1);
+0164     
+0165     number_of_resolution_levels = (numSteps+1)-(startResolution-1)+1;
+0166     wsteps1(end-number_of_resolution_levels+1:end) = linspace(w_min,w_max,(numSteps+1)-(startResolution-1)+1);     
+0167     coeff = 2; <span class="comment">% Determines how sharp the non-linear change is</span>
+0168     t = 0:1/(number_of_resolution_levels-1):1;        
+0169     wsteps2(end-number_of_resolution_levels+1:end) = (exp(coeff*t)-1)/(exp(coeff*t(end))-1)*(w_max-w_min) + w_min; 
+0170     
+0171     wsteps = wsteps2;
+0172 
+0173 <a name="_sub2" href="#_subfunctions" class="code">function [S1, S2, temp_S1, temp_S2, length_of_likelihood] = compute_intermediate_values_for_likelihood(T, F, Cluster, r_fixed_L, N, s, S, step)</a>
+0174     <span class="comment">% Intermediate values for computing likelihood function</span>
+0175     
+0176     S1 = zeros(1,T); <span class="comment">% Holds the number of sequence coefficients aligned at each time instant in the interval [1:T]</span>
+0177     S2 = zeros(F,T); <span class="comment">% Holds the sum of aligned coefficients aligned at each time instant in the interval [1:T]</span>
+0178     <span class="keyword">for</span> k = 1:length(Cluster)
+0179         S1(r_fixed_L(k):r_fixed_L(k)+N(Cluster(k))-1) = S1(r_fixed_L(k):r_fixed_L(k)+N(Cluster(k))-1) + 1;        
+0180         S2(:,r_fixed_L(k):r_fixed_L(k)+N(Cluster(k))-1) = S2(:,r_fixed_L(k):r_fixed_L(k)+N(Cluster(k))-1) + squeeze(S{step,Cluster(k)});
+0181     <span class="keyword">end</span>
+0182     temp_S1 = circshift(S1,[0,N(s)]); 
+0183     temp_S2 = circshift(S2,[0,N(s)]);
+0184     
+0185     length_of_likelihood = N(s)+sum(S1~=0); <span class="comment">% Length of search space</span>
+0186     
+0187 
+0188 
+0189 <a name="_sub3" href="#_subfunctions" class="code">function Num_overlapping_frames = find_amount_of_overlap(temp_S1, r_max, N, s)</a>
+0190     <span class="comment">% Finds the amount of overlap with the sequence and the current cluster</span>
+0191 
+0192     temp1 = zeros(size(temp_S1));
+0193     temp1(temp_S1&gt;0)= 1;
+0194     temp1(r_max:r_max+N(s)-1) = temp1(r_max:r_max+N(s)-1) + 1;
+0195     Num_overlapping_frames =  sum(temp1&gt;1); 
+0196     
+0197 <a name="_sub4" href="#_subfunctions" class="code">function weight = check_effective_sample_size(weight, NumParticles, R)</a>
+0198     <span class="comment">% Checks the effective sample size by computing the weight for each</span>
+0199     <span class="comment">% sample</span>
+0200 
+0201     W = weight/sum(weight);
+0202     ESS = 1/sum(W.^2); <span class="comment">% Effective sample size</span>
+0203     <span class="comment">% Check the effective sample size</span>
+0204     <span class="keyword">if</span> NumParticles/2 &gt; ESS 
+0205         <span class="comment">% Resampling</span>
+0206         tempR = randgen(R,NumParticles,W);
+0207         R = sort(tempR);
+0208         weight = ones(1,NumParticles)*1/NumParticles;
+0209         disp([<span class="string">'Resampling at stage L='</span> num2str(L)]);
+0210     <span class="keyword">end</span>
+0211     
+0212 <a name="_sub5" href="#_subfunctions" class="code">function [r_start, r_end] = set_offset_search_interval(r_fixed_L, N, s, length_of_likelihood, closestRecLeft, closestRecRight , closestRecLeft_index, closestRecRight_index)</a>
+0213     <span class="comment">% The offset search boundaries are set with interval [r_start:r_end] in the current resolution level</span>
+0214     
+0215     <span class="keyword">if</span> isempty(closestRecLeft)
+0216         r_start = 2;
+0217     <span class="keyword">else</span>
+0218         r_start = r_fixed_L(closestRecLeft_index) + N(closestRecLeft) + 1;
+0219     <span class="keyword">end</span>
+0220     <span class="keyword">if</span> isempty(closestRecRight)
+0221         r_end = length_of_likelihood;
+0222     <span class="keyword">else</span>
+0223         r_end = r_fixed_L(closestRecRight_index) - N(s) ;        
+0224     <span class="keyword">end</span>
+0225     
+0226 <a name="_sub6" href="#_subfunctions" class="code">function [r_proposed, len] = propose_offsets_from_higher_resolution(R,n,r_start,r_end,P,H)</a>
+0227     <span class="comment">% Proposed alignment values for intermediate distributions between</span>
+0228     <span class="comment">% resolutions</span>
+0229     
+0230     len = P(1)+H(1); <span class="comment">% The length of the region to be smoothed</span>
+0231     r_proposed = (1:len)-len/2+(2*R(n)-1);
+0232     <span class="keyword">if</span> r_proposed(1)&lt; r_start
+0233         r_proposed = r_proposed + r_start - r_proposed(1);
+0234     <span class="keyword">elseif</span> r_proposed(end) &gt; r_end
+0235         r_proposed = r_proposed-(r_proposed(end)-r_end);
+0236     <span class="keyword">end</span>
+0237 
+0238 <a name="_sub7" href="#_subfunctions" class="code">function phi_L = compute_phi_L_of_proposed_offsets(phi_L, length_of_likelihood, r_proposed, temp_S1, temp_S2,N , s, S, step, F, L, w)</a>
+0239     <span class="comment">% All the likelihood values phi_L(r_proposed) are computed for the proposed alignment values.</span>
+0240     <span class="comment">% This is more efficient because at each forward move of a sample, same likelihood values are computed</span>
+0241     <span class="comment">% as shown in Manuscript: Section 3.2 Forward Markov Kernel Design</span>
+0242     
+0243     <span class="keyword">for</span> i=1:length(r_proposed)
+0244         r = r_proposed(i);   
+0245         <span class="keyword">if</span> phi_L(r)==0
+0246             temp1 = temp_S1;
+0247             temp2 = temp_S2;
+0248             temp1(r:r+N(s)-1) = temp1(r:r+N(s)-1) + 1;
+0249             temp2(:,r:r+N(s)-1) = temp2(:,r:r+N(s)-1) + S{step, s};
+0250 
+0251             ind = find(temp1&gt;0);
+0252             F1 = temp2(:,ind); <span class="comment">% Number of ones</span>
+0253             F2 = (temp1(ind)'*ones(1,F)*L)' - temp2(:,ind); <span class="comment">% Number of zeros</span>
+0254 
+0255             phi_L(r) = sum(sum(log(0.5 * w.^(F1) .* (1-w).^(F2) + 0.5 * w.^(F2) .* (1-w).^(F1))));                                        
+0256         <span class="keyword">end</span>
+0257     <span class="keyword">end</span>
+0258 
+0259 <a name="_sub8" href="#_subfunctions" class="code">function Fp = log_2_distribution(r, f)</a>
+0260     <span class="comment">% Values of the log likelihood into a distribution</span>
+0261 
+0262     Fp = f(r);
+0263     Fp = Fp-max(Fp);
+0264     Fp = exp(Fp);
+0265     Fp = Fp/sum(Fp);
+0266     
+0267 <a name="_sub9" href="#_subfunctions" class="code">function [r_n, weight_n] = forward_kernel(L, r_proposed, phi_L, Pi_1, P, H, weight, R, n)</a>
+0268     <span class="comment">% The forward kernel that moves samples through each resolution of SMC</span>
+0269     <span class="comment">% procedure</span>
+0270 
+0271     <span class="comment">% Apply the procedure for all the resolution levels except the highest (original) level</span>
+0272     <span class="keyword">if</span> L ~= 1       
+0273         Fp = <a href="#_sub8" class="code" title="subfunction Fp = log_2_distribution(r, f)">log_2_distribution</a>(r_proposed, phi_L);
+0274         rs = r_proposed;
+0275 
+0276         number_of_smooth_distributions = length(P);
+0277         <span class="comment">% Move the sample between same resolution smooth distributions</span>
+0278         <span class="keyword">for</span> i=1:number_of_smooth_distributions 
+0279             win1 = Fp(1:P(i)); <span class="comment">% The probabilities of the samples from the first window</span>
+0280             rs1 = rs(1:P(i)); <span class="comment">% The samples from the first window</span>
+0281             win2 = Fp(H(i)+1:end); <span class="comment">% The probabilities of the samples from the second window</span>
+0282             rs2 = rs(H(i)+1:end); <span class="comment">% The samples from the second window</span>
+0283 
+0284             <span class="comment">% Move the sample to one of the windows with a probability proportional</span>
+0285             <span class="comment">% to the sum of probabilities in each window</span>
+0286             rt1 = sum(win1);
+0287             rt2 = sum(win2);
+0288             pr = rt1/(rt1+rt2);
+0289             <span class="keyword">if</span> rand(1) &lt; pr                                
+0290                 <span class="comment">% Weight update</span>
+0291                 weight(n) = weight(n) * rt1/(Pi_1(n));
+0292                 <span class="comment">% Update the initial distribution for the next sample move</span>
+0293                 Pi_1(n) = rt1; 
+0294                 <span class="comment">% Assign the new set of offsets for the next sample move</span>
+0295                 rs = rs1; 
+0296                 <span class="comment">% Compute the probabilities of the samples</span>
+0297                 Fp = <a href="#_sub8" class="code" title="subfunction Fp = log_2_distribution(r, f)">log_2_distribution</a>(rs, phi_L); 
+0298             <span class="keyword">else</span>                
+0299                 <span class="comment">% Weight update</span>
+0300                 weight(n) = weight(n) * rt2/(Pi_1(n));
+0301                 <span class="comment">% Update the initial distribution for the next sample move</span>
+0302                 Pi_1(n) = rt2;
+0303                 <span class="comment">% Assign the new set of offsets for the next sample move</span>
+0304                 rs = rs2;
+0305                 <span class="comment">% Compute the probabilities of the samples</span>
+0306                 Fp = <a href="#_sub8" class="code" title="subfunction Fp = log_2_distribution(r, f)">log_2_distribution</a>(rs, phi_L);                
+0307             <span class="keyword">end</span>
+0308         <span class="keyword">end</span>
+0309         R(n)  = rs; <span class="comment">% Accepted move of the proposed sample</span>
+0310     <span class="keyword">end</span>
+0311     r_n = R(n);
+0312     weight_n =weight(n);
+0313 
+0314 <a name="_sub10" href="#_subfunctions" class="code">function pr_non_overlap = compute_non_overlapping_probability(temp_S1, temp_S2, N, s, S, step, L, F, w)</a>
+0315     <span class="comment">% Compute the non-overlapping probability in the original resolution by</span>
+0316     <span class="comment">% computing Phi(r=0,r*)</span>
+0317 
+0318     r = 1;
+0319     temp1 = temp_S1;
+0320     temp2 = temp_S2;
+0321     temp1(r:r+N(s)-1) = temp1(r:r+N(s)-1) + 1;
+0322     temp2(:,r:r+N(s)-1) = temp2(:,r:r+N(s)-1) + S{step, s};
+0323 
+0324     ind = find(temp1&gt;0);
+0325     F1 = temp2(:,ind); <span class="comment">% Number of ones</span>
+0326     F2 = (temp1(ind)'*ones(1,F)*L)' - temp2(:,ind); <span class="comment">% Number of zeros</span>
+0327 
+0328     pr_non_overlap = sum(sum(log(0.5 * w.^(F1) .* (1-w).^(F2) + 0.5 * w.^(F2) .* (1-w).^(F1))));</pre></div>
+<hr><address>Generated on Fri 23-Jun-2017 18:37:17 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>
