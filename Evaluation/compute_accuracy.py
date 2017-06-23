@@ -66,7 +66,11 @@ def set_relative_offset(key_name, sequence, relative_offset_):
 def extract_estimated_pairs(path, offset_estimation_result_filename, coeff=1.):
     estimations = {}
     # Start reading the estimation results 
-    f = open(path + '\\' + offset_estimation_result_filename,'r') 
+    if path.find('/')==-1: # Windows based
+        f = open(path + '\\' + offset_estimation_result_filename,'r') 
+    else: # Linux based
+        f = open(path + '/' + offset_estimation_result_filename,'r') 
+    
     for line in f.readlines():
         estimated_sequences = line.split(" ")
         sequence = estimated_sequences[0] # The first sequence is current sequence
@@ -83,18 +87,19 @@ def extract_estimated_pairs(path, offset_estimation_result_filename, coeff=1.):
     f.close()
     return estimations
 
-def compute_accuracy(path, offset_estimation_result_filename, print_results = False):
+def compute_accuracy(path, offset_estimation_result_filename, verbose = False):
     path1 = path[0]
     path2 = path[1]
     path3 = path[2]
     path4 = path[3]
 
-    FN_1 = 0. # False Negative Type 1
-    FN_2 = 0. # False Negative Type 2
+    FN = 0. # False Negative
     FP = 0. # False Positive
+    TP = 0. # True Positive
+    TN = 0. # True Negative
     
     # Read precomputed ground truth dictionary
-    if path1.find('/')!=-1: # Windows based
+    if path1.find('/')==-1: # Windows based
         ground_truth = json.load(file(path1 + '\\' + 'ground_truth.txt')) 
     else: # Linux based
         ground_truth = json.load(file(path1 + '/' + 'ground_truth.txt')) 
@@ -105,7 +110,7 @@ def compute_accuracy(path, offset_estimation_result_filename, print_results = Fa
     else:
         estimations = extract_estimated_pairs(path4, offset_estimation_result_filename)
         
-    # Scan estimations to find FN_2 and FP types of errors
+    # Scan estimations to find FN, FP types of errors and TP
     tolerance = 10 # The alignment is acceptable in neighborhood of ground truth with amount of tolerance
     for key, value in estimations.iteritems():
         if ground_truth.has_key(key):
@@ -113,14 +118,16 @@ def compute_accuracy(path, offset_estimation_result_filename, print_results = Fa
             estimated_relative_offset = value
             #print(key + ' ' + np.str(true_relative_offset) + ' ' + np.str(estimated_relative_offset) + '   ' + np.str(np.abs(true_relative_offset-estimated_relative_offset)))
             if np.abs(true_relative_offset - estimated_relative_offset) > tolerance:
-                FN_2+=1.            
+                FN+=1.            
+            else:
+                TP+=1
         else:
             FP+=1.
     
-    # Scan ground_truth to find FN_1 type of error
+    # Scan ground_truth to find FN type of error
     for key in ground_truth.iterkeys():
         if estimations.has_key(key) == False:
-            FN_1+=1.
+            FN+=1.
     
     # Find number of recordings for each microphone
     number_of_microphones = 4
@@ -141,16 +148,28 @@ def compute_accuracy(path, offset_estimation_result_filename, print_results = Fa
         K_tmp = number_of_recordings[i]
         excluded_number_of_pairs += K_tmp * (K_tmp-1)/2            
     
-    # Compute the final evaluation score OMEGA
-    Omega = 1. - (FN_1 + FN_2 + FP)/(total_number_of_pairs-excluded_number_of_pairs)
-    if print_results == True:
-        print("\nThe evaluation results for " + offset_estimation_result_filename)
-        print(('False Negative Type 1 - FN_1 = {0}').format(FN_1))
-        print(('False Negative Type 2 - FN_2 = {0}').format(FN_2))
-        print(('False Positive - FP = {0}').format(FP))
-        print(('Omega = {0}').format(Omega))
+    # True Negatives are computed
+    TN = total_number_of_pairs - (FN + FP + TP) - excluded_number_of_pairs
     
-    return (Omega, FN_1, FN_2, FP)  
+    # Compute the evaluation metrics: Accuracy, Precision, Recall, F-measure
+    Accuracy = (TP + TN)/(TP + TN + FP + FN)
+    Precision = TP / (TP + FP)
+    Recall = TP / (TP + FN)
+    F_measure = 2 * (Precision * Recall)/(Precision + Recall)
+    
+    if verbose == True:
+        print("\nThe evaluation results for " + offset_estimation_result_filename)
+#        print(('False Negative Type 1 - FN_1 = {0}').format(FN_1))
+        print(('False Negative - FN = {0}').format(FN))
+        print(('False Positive - FP = {0}').format(FP))
+        print(('True Positive - TP = {0}').format(TP))
+        print(('True Negative - TN = {0}').format(TN))
+        print(('Accuracy = {0}').format(Accuracy))
+        print(('Precision = {0}').format(Precision))
+        print(('Recall = {0}').format(Recall))
+        print(('F-measure = {0}').format(F_measure))
+    
+    return (Accuracy, Precision, Recall, F_measure, TP, TN, FP, FN)  
 
 if __name__ == '__main__':
     cw_path = os.getcwd();
@@ -162,18 +181,18 @@ if __name__ == '__main__':
         path4 = cw_path + '\\fingerprinting_offset_estimation_results'
     else:
         cw_path_parent = cw_path[:cw_path.find('/Evaluation')]
-        path1 = cw_path + 'ground_truth'
+        path1 = cw_path + '/ground_truth'
         path2 = cw_path_parent + '/audio_data'
-        path3 = cw_path + 'SMC_offset_estimation_results'
-        path4 = cw_path + 'fingerprinting_offset_estimation_results'
+        path3 = cw_path + '/SMC_offset_estimation_results'
+        path4 = cw_path + '/fingerprinting_offset_estimation_results'
 
     path = [path1, path2, path3, path4]
 
     # Example input for the Multiresolution alignment result
-    offset_estimation_result_filename = 'offset_estimation_SMC_result_16_11_2016_13h_26m.txt'
+#    offset_estimation_result_filename = 'offset_estimation_SMC_result_16_11_2016_13h_26m.txt'
     
     # Example input for the baseline method result
-    #offset_estimation_result_filename = 'offset_estimation_fingerprinting_thr_20_result_14_11_2016.txt'
+    offset_estimation_result_filename = 'offset_estimation_fingerprinting_thr_20_result.txt'
     
-    Omega, FN_1, FN_2, FP = compute_accuracy(path, offset_estimation_result_filename, True) 
+    Accuracy, Precision, Recall, F_measure, TP, TN, FP, FN = compute_accuracy(path, offset_estimation_result_filename, True) 
     

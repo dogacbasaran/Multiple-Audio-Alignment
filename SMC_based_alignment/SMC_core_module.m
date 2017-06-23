@@ -1,6 +1,6 @@
 %% SMC core module: The main implementation of the SMC procedure
 %
-% Copyright (C) 2016  Author: Dogac Basaran
+% Copyright (C) 2016  Dogac Basaran
 
 %    This program is free software: you can redistribute it and/or modify
 %    it under the terms of the GNU General Public License as published by
@@ -15,6 +15,7 @@
 %    You should have received a copy of the GNU General Public License
 %    along with this program.  If not, see <http://www.gnu.org/licenses/>
 
+%function [r_max, Num_overlapping_frames] = SMC_core_(s, S, F, Nsteps,  wsteps, phi_L_low, Cluster, r_fixed, startResolution, r_start, r_end, closestRecLeft, closestRecRight , closestRecLeft_index, closestRecRight_index)
 function [r_max, Num_overlapping_frames] = SMC_core_(s, dataset_features, phi_L_low, Cluster, r_fixed, startResolution, r_start, r_end, closestRecLeft, closestRecRight , closestRecLeft_index, closestRecRight_index)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -29,6 +30,7 @@ Lsteps = data_struct.Lsteps;        %
 
 % Note: The first value of wsteps is for the lowest resolution where each offset is computed.
 % That's why there are length(wsteps)-1 low resolution steps.
+%numSteps = length(wsteps)-1; % Number of low resolution steps 
 numSteps = data_struct.numSteps; % Number of low resolution steps 
 endResolution = numSteps + 1; % Highest resolution
 
@@ -45,7 +47,6 @@ hoplen = [8  4  4 2 2 1 1 1]; % The hop length between two averaging windows
 % For Lprec_ind(1) = 5  ->  windowlength = winlen(5) = 4, hoplength = hoplen(5) = 2
 Lprec_ind = [5*ones(1,numSteps-4) 4 3 2 1]; 
  
-% Hyperparameter w values through each resolution              
 wsteps = hyperparameter_w_annealing(startResolution, numSteps);             
              
 % r = 1 represents the non-overlapping alignment. That is just computed at the highest resolution
@@ -118,7 +119,6 @@ end
 
 Num_overlapping_frames = find_amount_of_overlap(temp_S1, r_max, N, s);
 
-% Computes the hyperparameter w value for each resolution (acts as annealing)
 function wsteps = hyperparameter_w_annealing(startResolution, numSteps)
     global data_struct
     w_min = data_struct.w_min;
@@ -134,7 +134,7 @@ function wsteps = hyperparameter_w_annealing(startResolution, numSteps)
     wsteps2(end-number_of_resolution_levels+1:end) = (exp(coeff*t)-1)/(exp(coeff*t(end))-1)*(w_max-w_min) + w_min; 
     
     wsteps = wsteps2;
-    
+
 function [S1, S2, temp_S1, temp_S2, length_of_likelihood] = compute_intermediate_values_for_likelihood(T, F, Cluster, r_fixed_L, N, s, S, step)
     % Intermediate values for computing likelihood function
     S1 = zeros(1,T); % Holds the number of sequence coefficients aligned at each time instant in the interval [1:T]
@@ -148,6 +148,8 @@ function [S1, S2, temp_S1, temp_S2, length_of_likelihood] = compute_intermediate
     
     length_of_likelihood = N(s)+sum(S1~=0); % Length of search space
     
+
+
 function Num_overlapping_frames = find_amount_of_overlap(temp_S1, r_max, N, s)
     temp1 = zeros(size(temp_S1));
     temp1(temp_S1>0)= 1;
