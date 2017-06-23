@@ -1,10 +1,14 @@
 """ 
-grount_truth.py: This code pulls the offset values of the sequences from the Jiku_GT_090912.xml 
-file and forms the pairwise connected sequence list. The list is then written in
-a text file "grount_truth.txt". 
-The code can work under Windows or Linus based OS. 
+groundtruth.py
+~~~~~~~~~~~~~~~
 
-Copyright (C) 2016  Author: Dogac Basaran
+.. topic:: Contents:
+    
+    The groundtruth module pulls the offset values of the sequences from the Jiku_GT_090912.xml 
+    file and forms the pairwise connected sequence list. The list is then written in
+    a text file "grount_truth.txt". 
+
+    Copyright (C) 2016  Author: Dogac Basaran
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,8 +21,7 @@ Copyright (C) 2016  Author: Dogac Basaran
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>
-"""
+    along with this program.  If not, see <http://www.gnu.org/licenses/>"""
 
 import numpy as np
 import scipy.io.wavfile
@@ -26,13 +29,22 @@ import json
 import os
 from os import listdir
 
-
-# Find the length of each sequence, in addition finds the silence parts in the
-# beginning of each sequence for calibration of the offsets accordingly 
-# Input: path - path of the files
-# Output: filelengths - Type: Dictionary keys: filenames values: lengths of files
-#         silence_in_the_beginning - Type Dictionary keys: filenames values: amount of silence in seconds
 def find_filelengths(path):        
+    """ Find the length of each sequence, in addition finds the silence parts in the
+        beginning of each sequence for calibration of the offsets accordingly 
+        
+    Parameters
+    ----------
+    path: String 
+        The path to the audio dataset
+
+    Returns
+    -------
+    filelengths: Dictionary
+        The dictionary that contains the file lengths in seconds. Keys are the filenames
+    silence_at_the_beginning: Dictionary
+        The dictionary that contains the silence part in seconds for each file. Keys are the filenames"""
+        
     filelengths = {}
     silence_at_the_beginning = {}
     for filename in listdir(path):
@@ -44,14 +56,31 @@ def find_filelengths(path):
         filelengths[filename] = np.float64(x.shape[0])/np.float64(Fs)    
     return filelengths, silence_at_the_beginning
 
-# Extract offset information of each file from ground truth file GT_090912.xml 
-# and convert length and offset information from seconds to frames (STFT based)
-# Note that this piece of code is unique for the GT_090912.xml file. For other
-# Jiku datasets it has to be modified!!
-# Input: path - path of the GT_090912.xml file
-#        filelengths - dictionary keys: filenames values: lengths of files
-# Output: offset_length_in_frames - Type:List in format "filename-offset-length"
+ 
 def extract_offsets(path, filelengths, silence_in_the_beginning, hopsize = 0.02):
+    
+    """Extract offset information of each file from ground truth file GT_090912.xml 
+    and convert length and offset information from seconds to frames (STFT based).
+    Note that this piece of code is unique for the GT_090912.xml file. For other
+    Jiku datasets it has to be modified!!
+ 
+    Parameters
+    ----------
+    path: String
+        path of the GT_090912.xml file
+    filelengths: Dictionary
+        The dictionary that contains the file lengths in seconds. Keys are the filenames
+    silence_at_the_beginning: Dictionary
+        The dictionary that contains the silence part in seconds for each file. Keys are the filenames
+    hopsize: Float (default 0.02)
+        Hop size in the STFT
+        
+    Returns
+    -------
+    offset_length_in_frames: List
+        The list of offset lengths in frames    
+    """
+    
     # cnti is the number of recordings for microphone i
     cnt1 = 1
     cnt2 = 1
@@ -89,14 +118,24 @@ def extract_offsets(path, filelengths, silence_in_the_beginning, hopsize = 0.02)
             offset_length_in_frames.append((filename, offset, N))            
     return offset_length_in_frames
 
-# Sets the key name for ground_truth dictionary entry, order the sequences in 
-# ascending order of microphone number and record number
-# Example: If filename = 'mic4_rec2.wav', filename_ = 'mic1_rec3.wav'
-#           the key_name = 'mic1_rec3.wav mic4_rec2.wav'
-# Input: filename - First filename
-#        filename_ - Second filename
-# Output: key_name - Either 'filename filename_' or 'filename_ filename'
 def set_key_name(filename, filename_):
+    
+    """ Sets the key name for ground_truth dictionary entry, order the sequences in 
+        ascending order of microphone number and record number. Example: If sequence = 'mic4_rec2.wav', sequence_ = 'mic1_rec3.wav'
+        the key_name = 'mic1_rec3.wav mic4_rec2.wav'
+        
+    Parameters
+    ----------
+    filename: String
+        First filename
+    filename_: String
+        Second filename
+        
+    Returns
+    -------
+    key_name: String
+        Key name for the ground_truth dictionary. Either 'filename filename_' or 'filename_ filename'"""
+    
     mic_number = int(filename[filename.find('mic')+3:filename.find('_')])
     mic_number_ = int(filename_[filename_.find('mic')+3:filename_.find('_')])
     rec_number = int(filename[filename.find('rec')+3:filename.find('.wav')])
@@ -114,6 +153,26 @@ def set_key_name(filename, filename_):
     return key_name
     
 def set_relative_offset(key_name, filename, offset, offset_):
+    
+    """Sets the true relative offset between two sequences according to the
+       ordering of the sequences
+       
+    Parameters
+    ----------
+    key_name: String
+        The key name for the ground_truth dictionary entry
+    filename: String
+        The sequence name
+    offset: Integer
+        Offset of the first sequence in frames
+    offset_: Integer
+        Offset of the second sequence in frames
+   
+    Returns
+    -------
+    relative_offset_distance: float
+        Relative offset according to the ordering of the aligned sequences"""
+    
     if key_name.find(filename)==0:
         relative_offset_distance = offset_-offset
     else:
@@ -121,6 +180,22 @@ def set_relative_offset(key_name, filename, offset, offset_):
     return relative_offset_distance
 
 def set_paths():
+    
+    """Set the paths to the ground_truth (Path 1) and audio data (Path 2). Detects
+    the operating system and set the paths accordingly.
+    
+    Parameters
+    ----------
+    
+    Returns
+    -------
+    path1: String
+        Path to the ground truth
+    path2: String
+        Path to the audio dataset
+    wl: Integer
+        wl=1 represents Windows based, wl=2 represents Linux based systems """
+    
     cw_path = os.getcwd();
     if cw_path.find('/')==-1:
         cw_path_parent = cw_path[:cw_path.find('\\Evaluation')]

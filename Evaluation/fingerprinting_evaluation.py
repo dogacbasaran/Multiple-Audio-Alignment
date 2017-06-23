@@ -1,9 +1,13 @@
 """ 
 fingerprinting_evaluation.py  
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. topic:: Contents
 
-The code can work under Windows or Linus OS. 
-
-Copyright (C) 2016  Author: Dogac Basaran
+    This function searches for the best threshold value for the fingerprinting
+    based alignment system by evaluating the Accuracy, Precision, Recall and 
+    F-measure metrics. The best threshold is found using the aacuracy measure.
+    
+    Copyright (C) 2016  Author: Dogac Basaran
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,8 +20,7 @@ Copyright (C) 2016  Author: Dogac Basaran
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>
-"""
+    along with this program.  If not, see <http://www.gnu.org/licenses/>"""
 
 import numpy as np
 import compute_accuracy
@@ -82,24 +85,7 @@ if __name__ == '__main__':
     axes[1].plot(thresholds, recall_list, '+',label = '$Recall$')
     axes[1].plot(thresholds, F_measure_list, '--',label = '$F-measure$')
     axes[1].set_xlabel('Thresholds')
-    axes[1].legend()
-##    
-#    axis_font = {'fontname':'Arial', 'size':'15'}
-#
-#    plt.Figure()
-#    plt.plot(thresholds, accuracy_list)
-#    plt.xlabel('Thresholds', **axis_font)
-#    plt.ylabel('Accuracy (%)', **axis_font)
-#    plt.ylim([80,100])
-#    
-#    plt.Figure()
-#    plt.rc('legend', fontsize=14)
-#    plt.plot(thresholds, precision_list, label = '$Precision$')
-#    plt.plot(thresholds, recall_list, '+',label = '$Recall$')
-#    plt.plot(thresholds, F_measure_list, '--',label = '$F-measure$')
-#    plt.xlabel('Thresholds', **axis_font)
-#    plt.legend()
-    
+    axes[1].legend()    
     
     fig.tight_layout()
     if cw_path.find('/')==-1:
