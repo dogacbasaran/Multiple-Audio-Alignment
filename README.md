@@ -14,7 +14,7 @@ Here, we demostrate the software with using the audio dataset from GT_090912 eve
 
 ## Multiresolution Multiple Audio Alignment Software
 
-This is the main software that computes the alignment estimates of unsynchronized audio files using the SMC based multiresolution multiple audio alignment method. The software is written in Matlab and is located under the folder "/SMC_based_alignment". The documentation of the software is available [here](www.dogacbasaran.com/Software_documentation/SMC_based_alignment_documentation/index.html)
+This is the main software that computes the alignment estimates of unsynchronized audio files using the SMC based multiresolution multiple audio alignment method. The software is written in Matlab and is located under the folder "/SMC_based_alignment". The documentation of the software is available [here](http://www.dogacbasaran.com/Software_documentation/SMC_based_alignment_documentation/index.html)
  
 ## Fingerprinting Based Multiple Audio Alignment Software (Baseline)
 
@@ -29,7 +29,7 @@ Note that this software is not directly applicable to the alignment setting sinc
 
 ## Evaluation 
 
-The evaluation software is written in python 2.7 and is located under the folder "/Evaluation". The documentation of the software is available [here](www.dogacbasaran.com/Software_documentation/Evaluation_documentation/index.html)
+The evaluation software is written in python 2.7 and is located under the folder "/Evaluation". The documentation of the software is available [here](http://www.dogacbasaran.com/Software_documentation/Evaluation_documentation/index.html)
 
 The ground-truth for the Jiku dataset is given in the "Jiku_GT_090912.xml" file available under the subfolder "/Evaluation/ground_truth". The ground-truth is obtained from
 
