@@ -39,7 +39,12 @@ end
 
 % Choose the directory where the audio dataset is present
 load_path = uigetdir(current_folder,'Select the path to the audio dataset');
-
+if isempty(strfind(load_path,'/'))==1 % OS is Windows
+    load_path = [load_path '\'];
+else % OS is Linux
+    load_path = [load_path '/'];
+end
+    
 % Read files
 tks= myls([load_path '/*.wav']);
  
