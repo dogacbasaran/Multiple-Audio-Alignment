@@ -30,7 +30,7 @@ Then the resulting struct 'dataset_features' is fed into the SMC_main_module tha
 
 'time_elapsed' variable holds the elapsed time in seconds for the procedure to be completed i.e., all the sequences are aligned.
  
-For the demonstration of the software, please run "SMC_demonstration.m" file. 
+For the demonstration of the software, please run "SMC_demonstration.m" file. You'll first choose the directory of the audio data set () 
 Here, the software takes the audio files for GT_090912 event of the Jiku dataset as input (available under folder "audio_data") and returns the list of connected sequences (Clusters), their relative offset information (r_clusters) and the elapsed time information (time_elapsed). The results are written to a text file for each connected pair separately in a format 
 
 	<Sequence 1> <Sequence 2> <Relative offset>
