@@ -26,18 +26,22 @@
 
 tic
 current_folder = pwd;
+% Add path to the fingerprinting implementation
 if isempty(strfind(current_folder,'/'))==1 % OS is Windows
-    parent_folder = current_folder(1:strfind(current_folder,'\Fingerprinting_based_alignment'));
-    load_path = [parent_folder 'audio_data\'];    
     addpath([current_folder '\fingerprint_labrosa']);
+    parent_folder = current_folder(1:strfind(current_folder,'\Fingerprinting_based_alignment'));
+    evaluation_folder = [parent_folder 'Evaluation\'];    
 else % OS is Linux
     parent_folder = current_folder(1:strfind(current_folder,'/Fingerprinting_based_alignment'));
-    load_path = [parent_folder 'audio_data/'];
+    evaluation_folder = [parent_folder 'Evaluation/'];
     addpath([current_folder '/fingerprint_labrosa']);
 end
 
+% Choose the directory where the audio dataset is present
+load_path = uigetdir(current_folder,'Select the path to the audio dataset');
+
 % Read files
-tks= myls([load_path '*.wav']);
+tks= myls([load_path '/*.wav']);
  
 filenames = cell(1, length(tks));
 for k = 1:length(tks)   
@@ -61,7 +65,7 @@ estimated_alignments = cell(1, length(tks));
 for n = 1:length(thresholds)
     tic
     thr = thresholds(n);
-    fileID = fopen(['offset_estimation_fingerprinting_thr_' num2str(thr) '_result.txt'],'w');
+    fileID = fopen([evaluation_folder 'offset_estimation_fingerprinting_thr_' num2str(thr) '_result.txt'],'w');
 
     for k = 1:length(tks)
         [x,Fs] = audioread(tks{k});

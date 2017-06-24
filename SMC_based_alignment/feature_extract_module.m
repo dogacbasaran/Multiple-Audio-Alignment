@@ -46,7 +46,7 @@
 %
 function dataset_features = feature_extract_module(load_path)
 
-    filenames = dir([load_path '*.wav']);
+    filenames = dir([load_path '/*.wav']);
     
     % The number of audio sequences in the dataset
     K = length(filenames); 

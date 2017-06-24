@@ -17,14 +17,8 @@
 %    You should have received a copy of the GNU General Public License
 %    along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-current_folder = pwd;
-if isempty(strfind(current_folder,'/'))==1 % OS is Windows
-    parent_folder = current_folder(1:strfind(current_folder,'\SMC_based_alignment'));
-    load_path = [parent_folder 'audio_data\'];    
-else % OS is Linux
-    parent_folder = current_folder(1:strfind(current_folder,'/SMC_based_alignment'));
-    load_path = [parent_folder 'audio_data/'];    
-end
+% Choose the directory where the audio dataset is present
+load_path = uigetdir(current_folder,'Select the path to the audio dataset');
 
 % Extract features from audio dataset
 dataset_features = feature_extract_module(load_path);
