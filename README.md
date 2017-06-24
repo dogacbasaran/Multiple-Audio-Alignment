@@ -6,11 +6,11 @@ This is the distributed software for the article "Multiresolution Alignment for 
 
 There are 3 separate parts of the software; 
 
-1- Multiresolution multiple audio alignment software 
+1- Multiresolution multiple audio alignment software. 
 
-2- Fingerprinting based multiple audio alignment software (Baseline)
+2- Fingerprinting based multiple audio alignment software (Baseline).
 
-3- Evaluation
+3- Evaluation.
 
 ### Multiresolution Multiple Audio Alignment Software
 

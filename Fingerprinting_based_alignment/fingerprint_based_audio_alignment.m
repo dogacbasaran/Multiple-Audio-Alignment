@@ -7,7 +7,7 @@
 %   The function reads the audio files from the dataset, applies a grid
 %   search to find the best threshold to detect matching sequences. The
 %   estimated alignments with the highest accuracy are written in a text
-%   file.
+%   file. 
 
 % Copyright (C) 2016  Author: Dogac Basaran
 %
