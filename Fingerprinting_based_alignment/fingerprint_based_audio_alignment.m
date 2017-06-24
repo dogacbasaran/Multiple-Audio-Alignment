@@ -30,10 +30,10 @@ current_folder = pwd;
 if isempty(strfind(current_folder,'/'))==1 % OS is Windows
     addpath([current_folder '\fingerprint_labrosa']);
     parent_folder = current_folder(1:strfind(current_folder,'\Fingerprinting_based_alignment'));
-    evaluation_folder = [parent_folder 'Evaluation\'];    
+    evaluation_folder = [parent_folder 'Evaluation\fingerprinting_offset_estimation_results\'];    
 else % OS is Linux
     parent_folder = current_folder(1:strfind(current_folder,'/Fingerprinting_based_alignment'));
-    evaluation_folder = [parent_folder 'Evaluation/'];
+    evaluation_folder = [parent_folder 'Evaluation/fingerprinting_offset_estimation_results/'];
     addpath([current_folder '/fingerprint_labrosa']);
 end
 
