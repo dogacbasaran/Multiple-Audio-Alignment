@@ -14,7 +14,7 @@ Here, we demostrate the software with using the audio dataset from GT_090912 eve
 
 ## Multiresolution Multiple Audio Alignment Software
 
-This is the main software that computes the alignment estimates of unsynchronized audio files using the SMC based multiresolution multiple audio alignment method. The software is written in Matlab and is located under the folder "SMC_based_alignment". The documentation of the software is available [here](www.dogacbasaran.com/Software_documentation/SMC_based_alignment_documentation/index.html)
+This is the main software that computes the alignment estimates of unsynchronized audio files using the SMC based multiresolution multiple audio alignment method. The software is written in Matlab and is located under the folder "/SMC_based_alignment". The documentation of the software is available [here](https:// www.dogacbasaran.com/Software_documentation/SMC_based_alignment_documentation/index.html)
  
 ## Fingerprinting Based Multiple Audio Alignment Software (Baseline)
 
@@ -23,15 +23,15 @@ As a baseline, we use a fingerprinting based alignment approach. The fingerprint
 D. Ellis, Robust Landmark based Audio Fingerprinting, web source, available (2009).
 URL http://labrosa.ee.columbia.edu/matlab/fingerprint/
 
-The codes for fingerprinting software are available under the subfolder "Fingerprinting_based_alignment/fingerprint_labrosa".
+The codes for fingerprinting software are available under the subfolder "/Fingerprinting_based_alignment/fingerprint_labrosa".
 
 Note that this software is not directly applicable to the alignment setting since it is a query-by-example based audio fingerprinting software. For alignment purposes, we simply count the number of exact hash(fingerprint) matches between each pair of sequences. Then by thresholding according to the number of hash matches, we decide if the sequences are matching. The time information of the matching hashes are then used to compute the relative offset between sequences. A more detailed description can be found in Sec.4.1 in the DSP manuscript.  
 
 ## Evaluation 
 
-The evaluation software is written in python 2.7 and is located under the folder "Evaluation".
+The evaluation software is written in python 2.7 and is located under the folder "/Evaluation". The documentation of the software is available [here](https://www.dogacbasaran.com/Software_documentation/Evaluation_documentation/index.html)
 
-The ground-truth for the Jiku dataset is given in the "Jiku_GT_090912.xml" file available under the folder "Evaluation/ground_truth". The ground-truth is obtained from
+The ground-truth for the Jiku dataset is given in the "Jiku_GT_090912.xml" file available under the subfolder "/Evaluation/ground_truth". The ground-truth is obtained from
 
 M. Guggenberger, M. Lux, L. Boszormenyi, A Synchronization Ground
 Truth for the Jiku Mobile Video Dataset 
