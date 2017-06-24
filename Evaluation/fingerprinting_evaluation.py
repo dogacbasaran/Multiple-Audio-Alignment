@@ -79,8 +79,18 @@ if __name__ == '__main__':
     best_accuracy_fingerprinting_based = max(accuracy_list)    
     index_of_best = accuracy_list.index(best_accuracy_fingerprinting_based)
         
-    print('The best accuracy for fingerprinting based method \n   Threshold = {0}  Accuracy = %{1}'.format(thresholds[index_of_best], best_accuracy_fingerprinting_based))
-        
+    print('The best accuracy is obtained for threshold = {0} with accuracy = {1}'.format(thresholds[index_of_best], best_accuracy_fingerprinting_based))
+    
+    print('\nOther metrics:')
+    print(('\nFalse Negative - FN = {0}').format(FN_list[index_of_best]))
+    print(('False Positive - FP = {0}').format(FP_list[index_of_best]))
+    print(('True Positive - TP = {0}').format(TP_list[index_of_best]))
+    print(('True Negative - TN = {0}').format(TN_list[index_of_best]))
+    print(('\nAccuracy = {0}').format(accuracy_list[index_of_best]))
+    print(('Precision = {0}').format(precision_list[index_of_best]))
+    print(('Recall = {0}').format(recall_list[index_of_best]))
+    print(('F-measure = {0}').format(F_measure_list[index_of_best]))
+    
     fig, axes = plt.subplots(1,2)
     axes[0].plot(thresholds, accuracy_list)
     axes[0].set_xlabel('Thresholds')
