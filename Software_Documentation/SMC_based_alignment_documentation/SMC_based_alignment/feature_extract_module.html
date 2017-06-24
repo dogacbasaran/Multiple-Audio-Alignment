@@ -121,298 +121,304 @@ This function is called by:
 0046 <span class="comment">%</span>
 0047 <a name="_sub0" href="#_subfunctions" class="code">function dataset_features = feature_extract_module(load_path)</a>
 0048 
-0049     filenames = dir([load_path <span class="string">'*.wav'</span>]);
-0050     
-0051     <span class="comment">% The number of audio sequences in the dataset</span>
-0052     K = length(filenames); 
-0053 
-0054     <span class="comment">% Holds microphone number and recording number in that microphone</span>
-0055     <span class="comment">% MicRec is of the form  [1 1 ; 1 2 ; 1 3; .. ; 2 1 ; 2 2 ; 2 3 ;...]</span>
-0056     <span class="comment">% See Manuscript:</span>
-0057     MicRec = zeros(K,2); 
-0058  
-0059     <span class="comment">% Set the initial parameters for Sequential Monte Carlo Sampler</span>
-0060     smc_parameters = <a href="#_sub2" class="code" title="subfunction smc_parameters = initialize_SMC_parameters(numSteps,w_min,w_max,minNumberOfSamples)">initialize_SMC_parameters</a>();
-0061     
-0062     <span class="comment">% Set the parameters for feature extraction</span>
-0063     feature_parameters = <a href="#_sub3" class="code" title="subfunction feature_parameters = initialize_feature_parameters(numSteps, K, Fs, Ws, F, minimum_reliable_overlap_in_secs)">initialize_feature_parameters</a>(smc_parameters.numSteps, K);
-0064 
-0065     <span class="keyword">for</span> k = 1:K
-0066         fprintf(<span class="string">'\nSequence %s\n'</span>,filenames(k).name);
-0067 
-0068         <span class="comment">% Read the file</span>
-0069         [s, fs] = audioread([load_path filenames(k).name]);
-0070         
-0071         <span class="comment">% Preprocessing</span>
-0072         s = <a href="#_sub4" class="code" title="subfunction s = preprocess_audio(s, fs, Fs)">preprocess_audio</a>(s, fs, feature_parameters.Fs);
+0049     <span class="keyword">if</span> isempty(strfind(load_path,<span class="string">'/'</span>))==1 <span class="comment">% OS is Windows</span>
+0050         load_path = [load_path <span class="string">'\'</span>];
+0051     <span class="keyword">else</span> <span class="comment">% OS is Linux</span>
+0052         load_path = [load_path <span class="string">'/'</span>];
+0053     <span class="keyword">end</span>
+0054         
+0055     filenames = dir([load_path <span class="string">'*.wav'</span>]);
+0056     
+0057     <span class="comment">% The number of audio sequences in the dataset</span>
+0058     K = length(filenames); 
+0059 
+0060     <span class="comment">% Holds microphone number and recording number in that microphone</span>
+0061     <span class="comment">% MicRec is of the form  [1 1 ; 1 2 ; 1 3; .. ; 2 1 ; 2 2 ; 2 3 ;...]</span>
+0062     <span class="comment">% See Manuscript:</span>
+0063     MicRec = zeros(K,2); 
+0064  
+0065     <span class="comment">% Set the initial parameters for Sequential Monte Carlo Sampler</span>
+0066     smc_parameters = <a href="#_sub2" class="code" title="subfunction smc_parameters = initialize_SMC_parameters(numSteps,w_min,w_max,minNumberOfSamples)">initialize_SMC_parameters</a>();
+0067     
+0068     <span class="comment">% Set the parameters for feature extraction</span>
+0069     feature_parameters = <a href="#_sub3" class="code" title="subfunction feature_parameters = initialize_feature_parameters(numSteps, K, Fs, Ws, F, minimum_reliable_overlap_in_secs)">initialize_feature_parameters</a>(smc_parameters.numSteps, K);
+0070 
+0071     <span class="keyword">for</span> k = 1:K
+0072         fprintf(<span class="string">'\nSequence %s\n'</span>,filenames(k).name);
 0073 
-0074         <span class="comment">% Extract microphone and recording number</span>
-0075         MicRec(k,:) = <a href="#_sub6" class="code" title="subfunction micrec = extract_mic_rec_number(filename)">extract_mic_rec_number</a>(filenames(k).name);
-0076         <span class="comment">% Save the audio sequences in their raw form for displaying purposes</span>
-0077         feature_parameters.ss{k} = s;
-0078 
-0079         <span class="comment">% Extract the binary features for audio source</span>
-0080         [feature_parameters.S, feature_parameters.N] = <a href="#_sub5" class="code" title="subfunction [S, N] = extract_features(s, k, smc_parameters, feature_parameters)">extract_features</a>(s, k, smc_parameters, feature_parameters); 
-0081     <span class="keyword">end</span>
-0082 
-0083     <span class="comment">% Sort the binary sequences according to their length N in decreasing order</span>
-0084     [feature_parameters.S, feature_parameters.ss, Nsteps, Nsorted, MicRec_sorted, sorting_index] = <a href="#_sub7" class="code" title="subfunction [S, ss, Nsteps, Nsorted, MicRec_sorted, ind] = sort_sequences(S, ss, N, MicRec)">sort_sequences</a>(feature_parameters.S, feature_parameters.ss, feature_parameters.N, MicRec);    
-0085     
-0086     <span class="comment">% Print the ordered sequences on the screen</span>
-0087     filenames_sorted = <a href="#_sub8" class="code" title="subfunction filenames_sorted = print_ordered_files(filenames, ind)">print_ordered_files</a>(filenames, sorting_index);
-0088     
-0089     <span class="comment">% The structure holds necessary information for SMC procedure</span>
-0090     dataset_features = struct(<span class="string">'S'</span>, {feature_parameters.S}, <span class="string">'ss'</span>, {feature_parameters.ss}, <span class="string">'Fs'</span>,feature_parameters.Fs,<span class="string">'F'</span>,feature_parameters.F,<span class="keyword">...</span>
-0091                               <span class="string">'Nsteps'</span>,Nsteps, <span class="string">'wsteps1'</span>,smc_parameters.wsteps1,<span class="string">'wsteps2'</span>,smc_parameters.wsteps2, <span class="string">'K'</span>, K, <span class="string">'w_min'</span>, smc_parameters.w_min, <span class="keyword">...</span>
-0092                               <span class="string">'w_max'</span>, smc_parameters.w_max, <span class="string">'MinNum_overlapping_frames'</span>, feature_parameters.Minimum_reliable_overlap_in_frames,<span class="keyword">...</span>
-0093                               <span class="string">'Lsteps'</span>,smc_parameters.Lsteps,<span class="string">'MicRec_sorted'</span>,MicRec_sorted, <span class="string">'MicRec'</span>, MicRec,<span class="keyword">...</span>
-0094                               <span class="string">'minNumberOfSamples'</span>, smc_parameters.minNumberOfSamples, <span class="string">'Ws'</span>, feature_parameters.Ws,<span class="keyword">...</span>
-0095                               <span class="string">'N'</span>, feature_parameters.N, <span class="string">'Nsorted'</span>, Nsorted, <span class="string">'numSteps'</span>, smc_parameters.numSteps);
-0096 
-0097 <a name="_sub1" href="#_subfunctions" class="code">function [f,t]=enframe(x,win,inc)</a>
-0098 <span class="comment">%       Copyright (C) Mike Brookes 1997</span>
-0099 <span class="comment">%      Version: $Id: enframe.m,v 1.7 2009/11/01 21:08:21 dmb Exp $</span>
-0100 <span class="comment">%</span>
-0101 <span class="comment">%   VOICEBOX is a MATLAB toolbox for speech processing.</span>
-0102 <span class="comment">%   Home page: http://www.ee.ic.ac.uk/hp/staff/dmb/voicebox/voicebox.html</span>
-0103 <span class="comment">%</span>
-0104 <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
-0105 <span class="comment">%   This program is free software; you can redistribute it and/or modify</span>
-0106 <span class="comment">%   it under the terms of the GNU General Public License as published by</span>
-0107 <span class="comment">%   the Free Software Foundation; either version 2 of the License, or</span>
-0108 <span class="comment">%   (at your option) any later version.</span>
+0074         <span class="comment">% Read the file</span>
+0075         [s, fs] = audioread([load_path filenames(k).name]);
+0076         
+0077         <span class="comment">% Preprocessing</span>
+0078         s = <a href="#_sub4" class="code" title="subfunction s = preprocess_audio(s, fs, Fs)">preprocess_audio</a>(s, fs, feature_parameters.Fs);
+0079 
+0080         <span class="comment">% Extract microphone and recording number</span>
+0081         MicRec(k,:) = <a href="#_sub6" class="code" title="subfunction micrec = extract_mic_rec_number(filename)">extract_mic_rec_number</a>(filenames(k).name);
+0082         <span class="comment">% Save the audio sequences in their raw form for displaying purposes</span>
+0083         feature_parameters.ss{k} = s;
+0084 
+0085         <span class="comment">% Extract the binary features for audio source</span>
+0086         [feature_parameters.S, feature_parameters.N] = <a href="#_sub5" class="code" title="subfunction [S, N] = extract_features(s, k, smc_parameters, feature_parameters)">extract_features</a>(s, k, smc_parameters, feature_parameters); 
+0087     <span class="keyword">end</span>
+0088 
+0089     <span class="comment">% Sort the binary sequences according to their length N in decreasing order</span>
+0090     [feature_parameters.S, feature_parameters.ss, Nsteps, Nsorted, MicRec_sorted, sorting_index] = <a href="#_sub7" class="code" title="subfunction [S, ss, Nsteps, Nsorted, MicRec_sorted, ind] = sort_sequences(S, ss, N, MicRec)">sort_sequences</a>(feature_parameters.S, feature_parameters.ss, feature_parameters.N, MicRec);    
+0091     
+0092     <span class="comment">% Print the ordered sequences on the screen</span>
+0093     filenames_sorted = <a href="#_sub8" class="code" title="subfunction filenames_sorted = print_ordered_files(filenames, ind)">print_ordered_files</a>(filenames, sorting_index);
+0094     
+0095     <span class="comment">% The structure holds necessary information for SMC procedure</span>
+0096     dataset_features = struct(<span class="string">'S'</span>, {feature_parameters.S}, <span class="string">'ss'</span>, {feature_parameters.ss}, <span class="string">'Fs'</span>,feature_parameters.Fs,<span class="string">'F'</span>,feature_parameters.F,<span class="keyword">...</span>
+0097                               <span class="string">'Nsteps'</span>,Nsteps, <span class="string">'wsteps1'</span>,smc_parameters.wsteps1,<span class="string">'wsteps2'</span>,smc_parameters.wsteps2, <span class="string">'K'</span>, K, <span class="string">'w_min'</span>, smc_parameters.w_min, <span class="keyword">...</span>
+0098                               <span class="string">'w_max'</span>, smc_parameters.w_max, <span class="string">'MinNum_overlapping_frames'</span>, feature_parameters.Minimum_reliable_overlap_in_frames,<span class="keyword">...</span>
+0099                               <span class="string">'Lsteps'</span>,smc_parameters.Lsteps,<span class="string">'MicRec_sorted'</span>,MicRec_sorted, <span class="string">'MicRec'</span>, MicRec,<span class="keyword">...</span>
+0100                               <span class="string">'minNumberOfSamples'</span>, smc_parameters.minNumberOfSamples, <span class="string">'Ws'</span>, feature_parameters.Ws,<span class="keyword">...</span>
+0101                               <span class="string">'N'</span>, feature_parameters.N, <span class="string">'Nsorted'</span>, Nsorted, <span class="string">'numSteps'</span>, smc_parameters.numSteps);
+0102 
+0103 <a name="_sub1" href="#_subfunctions" class="code">function [f,t]=enframe(x,win,inc)</a>
+0104 <span class="comment">%       Copyright (C) Mike Brookes 1997</span>
+0105 <span class="comment">%      Version: $Id: enframe.m,v 1.7 2009/11/01 21:08:21 dmb Exp $</span>
+0106 <span class="comment">%</span>
+0107 <span class="comment">%   VOICEBOX is a MATLAB toolbox for speech processing.</span>
+0108 <span class="comment">%   Home page: http://www.ee.ic.ac.uk/hp/staff/dmb/voicebox/voicebox.html</span>
 0109 <span class="comment">%</span>
-0110 <span class="comment">%   This program is distributed in the hope that it will be useful,</span>
-0111 <span class="comment">%   but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
-0112 <span class="comment">%   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
-0113 <span class="comment">%   GNU General Public License for more details.</span>
-0114 <span class="comment">%</span>
-0115 <span class="comment">%   You can obtain a copy of the GNU General Public License from</span>
-0116 <span class="comment">%   http://www.gnu.org/copyleft/gpl.html or by writing to</span>
-0117 <span class="comment">%   Free Software Foundation, Inc.,675 Mass Ave, Cambridge, MA 02139, USA.</span>
-0118 <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
-0119 
-0120 nx=length(x(:));
-0121 nwin=length(win);
-0122 <span class="keyword">if</span> (nwin == 1)
-0123    len = win;
-0124 <span class="keyword">else</span>
-0125    len = nwin;
-0126 <span class="keyword">end</span>
-0127 <span class="keyword">if</span> (nargin &lt; 3)
-0128    inc = len;
-0129 <span class="keyword">end</span>
-0130 nf = fix((nx-len+inc)/inc);
-0131 f=zeros(nf,len);
-0132 indf= inc*(0:(nf-1)).';
-0133 inds = (1:len);
-0134 f(:) = x(indf(:,ones(1,len))+inds(ones(nf,1),:));
-0135 <span class="keyword">if</span> (nwin &gt; 1)
-0136     w = win(:)';
-0137     f = f .* w(ones(nf,1),:);
-0138 <span class="keyword">end</span>
-0139 <span class="keyword">if</span> nargout&gt;1
-0140     t=(1+len)/2+indf;
-0141 <span class="keyword">end</span>
-0142 
-0143 <a name="_sub2" href="#_subfunctions" class="code">function smc_parameters = initialize_SMC_parameters(numSteps,w_min,w_max,minNumberOfSamples)</a>
-0144     <span class="comment">% Initialize the SMC procedure parameters</span>
-0145     
-0146     <span class="keyword">switch</span> nargin
-0147         <span class="keyword">case</span> 0
-0148             numSteps = 11;
-0149             w_min = 0.51;
-0150             w_max = 0.64;
-0151             minNumberOfSamples = 100;
-0152         <span class="keyword">case</span> 1
-0153             w_min = 0.51;
-0154             w_max = 0.64;
-0155             minNumberOfSamples = 100;
-0156         <span class="keyword">case</span> 2
-0157             w_max = 0.64;
-0158             minNumberOfSamples = 100;
-0159         <span class="keyword">case</span> 3
-0160             minNumberOfSamples = 100;
-0161         <span class="keyword">otherwise</span>
-0162     <span class="keyword">end</span>
-0163 
-0164     Lsteps = 2.^((numSteps):-1:0); <span class="comment">% The resolution levels  ...256 128 64 32 16 8 4 2 1</span>
-0165     
-0166     <span class="comment">% Hyperparameter w at each low resolution level</span>
-0167     <span class="comment">% There two choices</span>
-0168     <span class="comment">%       1- wsteps1 = w changes linearly from w_min to w_max</span>
-0169     <span class="comment">%       2- wsteps2 = w changes non-linearly from w_min to w_max</span>
-0170     wsteps1 = linspace(w_min,w_max,numSteps+1);     
-0171     coeff = 2; <span class="comment">% Determines how sharp the non-linear change is</span>
-0172     t = 0:1/numSteps:1;        
-0173     wsteps2 = (exp(coeff*t)-1)/(exp(coeff*t(end))-1)*(w_max-w_min) + w_min; 
-0174     
-0175     smc_parameters = struct(<span class="string">'numSteps'</span>, numSteps,<span class="string">'Lsteps'</span>, Lsteps, <span class="string">'w_min'</span>, w_min, <span class="string">'w_max'</span>, w_max, <span class="string">'wsteps1'</span>, wsteps1, <span class="string">'wsteps2'</span>,wsteps2,<span class="string">'minNumberOfSamples'</span>,minNumberOfSamples);
-0176 
-0177 <a name="_sub3" href="#_subfunctions" class="code">function feature_parameters = initialize_feature_parameters(numSteps, K, Fs, Ws, F, minimum_reliable_overlap_in_secs)</a>
-0178     <span class="comment">% Initialize the feature extraction parameters</span>
-0179 
-0180     <span class="keyword">if</span> nargin &lt; 3
-0181         Fs = 16000; <span class="comment">% Sampling rate</span>
-0182         Ws = 0.064; <span class="comment">% Frame length in seconds</span>
-0183         F = 32; <span class="comment">% Number of subbands</span>
-0184         minimum_reliable_overlap_in_secs = 10; <span class="comment">% In seconds</span>
-0185     <span class="keyword">elseif</span> nargin &lt; 4
-0186         Ws = 0.064; <span class="comment">% Frame length in seconds</span>
-0187         F = 32; <span class="comment">% Number of subbands</span>
-0188         minimum_reliable_overlap_in_secs = 10; <span class="comment">% In seconds</span>
-0189     <span class="keyword">elseif</span> nargin &lt;5
-0190         F = 32; <span class="comment">% Number of subbands</span>
-0191         minimum_reliable_overlap_in_secs = 10; <span class="comment">% In seconds</span>
-0192     <span class="keyword">elseif</span> nargin &lt;6
-0193         minimum_reliable_overlap_in_secs = 10; <span class="comment">% In seconds</span>
-0194     <span class="keyword">end</span>
-0195     
-0196     frameLen = round(Ws*Fs); <span class="comment">% Frame length in samples</span>
-0197     frameInc = round(frameLen/2); <span class="comment">% Hopsize is half of the window size</span>
-0198     audioWindow = hamming(frameLen); <span class="comment">% Hamming window is used in framing</span>
-0199     
-0200     subbands = round(logspace(log10(100),log10(Fs/2),F+2)); <span class="comment">% Subbands with logarithmic spacing</span>
+0110 <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+0111 <span class="comment">%   This program is free software; you can redistribute it and/or modify</span>
+0112 <span class="comment">%   it under the terms of the GNU General Public License as published by</span>
+0113 <span class="comment">%   the Free Software Foundation; either version 2 of the License, or</span>
+0114 <span class="comment">%   (at your option) any later version.</span>
+0115 <span class="comment">%</span>
+0116 <span class="comment">%   This program is distributed in the hope that it will be useful,</span>
+0117 <span class="comment">%   but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+0118 <span class="comment">%   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+0119 <span class="comment">%   GNU General Public License for more details.</span>
+0120 <span class="comment">%</span>
+0121 <span class="comment">%   You can obtain a copy of the GNU General Public License from</span>
+0122 <span class="comment">%   http://www.gnu.org/copyleft/gpl.html or by writing to</span>
+0123 <span class="comment">%   Free Software Foundation, Inc.,675 Mass Ave, Cambridge, MA 02139, USA.</span>
+0124 <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+0125 
+0126 nx=length(x(:));
+0127 nwin=length(win);
+0128 <span class="keyword">if</span> (nwin == 1)
+0129    len = win;
+0130 <span class="keyword">else</span>
+0131    len = nwin;
+0132 <span class="keyword">end</span>
+0133 <span class="keyword">if</span> (nargin &lt; 3)
+0134    inc = len;
+0135 <span class="keyword">end</span>
+0136 nf = fix((nx-len+inc)/inc);
+0137 f=zeros(nf,len);
+0138 indf= inc*(0:(nf-1)).';
+0139 inds = (1:len);
+0140 f(:) = x(indf(:,ones(1,len))+inds(ones(nf,1),:));
+0141 <span class="keyword">if</span> (nwin &gt; 1)
+0142     w = win(:)';
+0143     f = f .* w(ones(nf,1),:);
+0144 <span class="keyword">end</span>
+0145 <span class="keyword">if</span> nargout&gt;1
+0146     t=(1+len)/2+indf;
+0147 <span class="keyword">end</span>
+0148 
+0149 <a name="_sub2" href="#_subfunctions" class="code">function smc_parameters = initialize_SMC_parameters(numSteps,w_min,w_max,minNumberOfSamples)</a>
+0150     <span class="comment">% Initialize the SMC procedure parameters</span>
+0151     
+0152     <span class="keyword">switch</span> nargin
+0153         <span class="keyword">case</span> 0
+0154             numSteps = 11;
+0155             w_min = 0.51;
+0156             w_max = 0.64;
+0157             minNumberOfSamples = 100;
+0158         <span class="keyword">case</span> 1
+0159             w_min = 0.51;
+0160             w_max = 0.64;
+0161             minNumberOfSamples = 100;
+0162         <span class="keyword">case</span> 2
+0163             w_max = 0.64;
+0164             minNumberOfSamples = 100;
+0165         <span class="keyword">case</span> 3
+0166             minNumberOfSamples = 100;
+0167         <span class="keyword">otherwise</span>
+0168     <span class="keyword">end</span>
+0169 
+0170     Lsteps = 2.^((numSteps):-1:0); <span class="comment">% The resolution levels  ...256 128 64 32 16 8 4 2 1</span>
+0171     
+0172     <span class="comment">% Hyperparameter w at each low resolution level</span>
+0173     <span class="comment">% There two choices</span>
+0174     <span class="comment">%       1- wsteps1 = w changes linearly from w_min to w_max</span>
+0175     <span class="comment">%       2- wsteps2 = w changes non-linearly from w_min to w_max</span>
+0176     wsteps1 = linspace(w_min,w_max,numSteps+1);     
+0177     coeff = 2; <span class="comment">% Determines how sharp the non-linear change is</span>
+0178     t = 0:1/numSteps:1;        
+0179     wsteps2 = (exp(coeff*t)-1)/(exp(coeff*t(end))-1)*(w_max-w_min) + w_min; 
+0180     
+0181     smc_parameters = struct(<span class="string">'numSteps'</span>, numSteps,<span class="string">'Lsteps'</span>, Lsteps, <span class="string">'w_min'</span>, w_min, <span class="string">'w_max'</span>, w_max, <span class="string">'wsteps1'</span>, wsteps1, <span class="string">'wsteps2'</span>,wsteps2,<span class="string">'minNumberOfSamples'</span>,minNumberOfSamples);
+0182 
+0183 <a name="_sub3" href="#_subfunctions" class="code">function feature_parameters = initialize_feature_parameters(numSteps, K, Fs, Ws, F, minimum_reliable_overlap_in_secs)</a>
+0184     <span class="comment">% Initialize the feature extraction parameters</span>
+0185 
+0186     <span class="keyword">if</span> nargin &lt; 3
+0187         Fs = 16000; <span class="comment">% Sampling rate</span>
+0188         Ws = 0.064; <span class="comment">% Frame length in seconds</span>
+0189         F = 32; <span class="comment">% Number of subbands</span>
+0190         minimum_reliable_overlap_in_secs = 10; <span class="comment">% In seconds</span>
+0191     <span class="keyword">elseif</span> nargin &lt; 4
+0192         Ws = 0.064; <span class="comment">% Frame length in seconds</span>
+0193         F = 32; <span class="comment">% Number of subbands</span>
+0194         minimum_reliable_overlap_in_secs = 10; <span class="comment">% In seconds</span>
+0195     <span class="keyword">elseif</span> nargin &lt;5
+0196         F = 32; <span class="comment">% Number of subbands</span>
+0197         minimum_reliable_overlap_in_secs = 10; <span class="comment">% In seconds</span>
+0198     <span class="keyword">elseif</span> nargin &lt;6
+0199         minimum_reliable_overlap_in_secs = 10; <span class="comment">% In seconds</span>
+0200     <span class="keyword">end</span>
 0201     
-0202     <span class="comment">% Minimum reliable overlap - See Manuscript: Sec. 5.1 Evaluation criterion</span>
-0203     Minimum_reliable_overlap_in_frames = minimum_reliable_overlap_in_secs*Fs/frameInc; <span class="comment">% In frames</span>
-0204 
-0205     N = zeros(numSteps+1,K); <span class="comment">% The length of sequences in frames at each resolution</span>
-0206     <span class="comment">% The form of N is;  ( Assuming Nk is the length of k'th sequence)</span>
+0202     frameLen = round(Ws*Fs); <span class="comment">% Frame length in samples</span>
+0203     frameInc = round(frameLen/2); <span class="comment">% Hopsize is half of the window size</span>
+0204     audioWindow = hamming(frameLen); <span class="comment">% Hamming window is used in framing</span>
+0205     
+0206     subbands = round(logspace(log10(100),log10(Fs/2),F+2)); <span class="comment">% Subbands with logarithmic spacing</span>
 0207     
-0208     <span class="comment">%         .           .            .                   .</span>
-0209     <span class="comment">%         .           .            .                   .</span>
-0210     <span class="comment">%       N1/4    N2/4     N3/4    ...     NK/4</span>
-0211     <span class="comment">%       N1/2    N2/2     N3/2    ...     NK/2</span>
-0212     <span class="comment">%       N1      N2       N3      ...     NK</span>
-0213        
-0214     S = cell(numSteps+1,K); <span class="comment">% Feature sequences all in cell 'S' at each resolution</span>
-0215     <span class="comment">% The form of S is; (* Assuming xk is the k'th sequence and xk_L is the low resolution of xk at resolution L)</span>
-0216     
-0217     <span class="comment">%         .            .             .                       .</span>
-0218     <span class="comment">%         .            .             .                       .</span>
-0219     <span class="comment">%       x1_4     x2_4      x3_4     ...        xK_4</span>
-0220     <span class="comment">%       x1_2     x2_2      x3_2     ...        xK_2</span>
-0221     <span class="comment">%       x1       x2        x3       ...        xK</span>
-0222             
-0223     ss = cell(1,K); <span class="comment">% Original signals in cell 'ss'</span>
-0224     
-0225     feature_parameters = struct(<span class="string">'Fs'</span>, Fs, <span class="string">'Ws'</span>, Ws, <span class="string">'F'</span>, F, <span class="string">'frameLen'</span>, frameLen, <span class="string">'frameInc'</span>, frameInc, <span class="string">'audioWindow'</span>, audioWindow,<span class="keyword">...</span>
-0226                                 <span class="string">'Minimum_reliable_overlap_in_frames'</span>,Minimum_reliable_overlap_in_frames, <span class="keyword">...</span>
-0227                                 <span class="string">'subbands'</span>, subbands, <span class="string">'N'</span>, N, <span class="string">'S'</span>, {S}, <span class="string">'ss'</span>, {ss});
-0228 
-0229 <a name="_sub4" href="#_subfunctions" class="code">function s = preprocess_audio(s, fs, Fs)  </a>
-0230     <span class="comment">% Preprocess audio to convert into mono, set the sampling rate, and</span>
-0231     <span class="comment">% normalize.</span>
-0232 
-0233     <span class="comment">% Stereo - Mono conversion</span>
-0234     <span class="keyword">if</span> size(s,2) == 2 <span class="comment">% if signal is stereo, turn into mono</span>
-0235         s = (s(:,1) + s(:,2))/2;
-0236     <span class="keyword">end</span>
-0237 
-0238     <span class="comment">% Set the sampling frequency to Fs</span>
-0239     <span class="keyword">if</span> (fs ~= Fs)
-0240         s = resample(s,Fs,fs); <span class="comment">% Resample the signal to have chosen sampling rate i.e., 16KHz</span>
-0241     <span class="keyword">end</span>
-0242     
-0243     <span class="comment">% Normalization</span>
-0244     s = s/std(s);
-0245 
-0246     <span class="comment">% Remove the silence parts from the beginning and end of sequences if exists</span>
-0247     ind1 = find(s~=0);
-0248     ind2 = find(s(end:-1:1)~=0);
-0249 
-0250     start_sample = ind1(1);
-0251     end_sample = length(s)-ind2(1)+1;
-0252 
-0253     s = s(start_sample:end_sample);
-0254 
-0255 <a name="_sub5" href="#_subfunctions" class="code">function [S, N] = extract_features(s, k, smc_parameters, feature_parameters)</a>
-0256     <span class="comment">% Extract features with predefined smc and feature parameters.</span>
-0257     
-0258     audioWindow = feature_parameters.audioWindow;
-0259     frameInc = feature_parameters.frameInc;
-0260     N = feature_parameters.N;
-0261     Fs = feature_parameters.Fs;
-0262     F = feature_parameters.F;
-0263     S = feature_parameters.S;
-0264     subbands = feature_parameters.subbands;
-0265     
-0266     numSteps = smc_parameters.numSteps;
-0267     
-0268     <span class="comment">% Framing</span>
-0269     frames = <a href="#_sub1" class="code" title="subfunction [f,t]=enframe(x,win,inc)">enframe</a>(s,audioWindow,frameInc)';
-0270     
-0271     <span class="comment">% Length of k'th sequence in frames</span>
-0272     N(<span class="keyword">end</span>,k) = size(frames,2)-1; 
-0273 
-0274     <span class="comment">% Energy of each coefficient in spectrogram</span>
-0275     <span class="keyword">try</span> <span class="comment">% To avoid the memory problems with long files</span>
-0276         power_spectrum = abs(fft(frames,Fs/2)).^2;
-0277     <span class="keyword">catch</span> me 
-0278         disp(me.message)
-0279         power_spectrum = abs(fft(frames(:,1:floor(size(frames,2)/2)),Fs/2)).^2;
-0280         power_spectrum = [power_spectrum abs(fft(frames(:,floor(size(frames,2)/2)+1:end),Fs/2)).^2];
-0281     <span class="keyword">end</span>    
-0282 
-0283     <span class="comment">% Remove all zeros from spectrogram</span>
-0284     power_spectrum(power_spectrum==0) = 1;
-0285 
-0286     <span class="comment">% Finding the energy at each subband</span>
-0287     energy_in_subbands = zeros(F+1,N(<span class="keyword">end</span>,k)+1);
-0288     <span class="keyword">for</span> f=1:F+1
-0289         energy_in_subbands(f,:) = sum(power_spectrum(subbands(f):subbands(f+1),1:N(<span class="keyword">end</span>,k)+1));            
-0290     <span class="keyword">end</span>
-0291     
-0292     <span class="comment">% First difference through time on the spectrogram</span>
-0293     first_difference_in_time = energy_in_subbands(2:<span class="keyword">end</span>,:) - energy_in_subbands(1:end-1,:);
-0294     <span class="comment">% First difference through frequency on the spectrogram</span>
-0295     S{<span class="keyword">end</span>,k} = first_difference_in_time(:,2:end) - first_difference_in_time(:,1:end-1);
-0296     <span class="comment">% Thresholding with 0 to obtain bit values that represents signs -&gt;</span>
-0297     <span class="comment">% 0 = &quot;-&quot; and   1 = &quot;+&quot;</span>
-0298     S{<span class="keyword">end</span>,k} = double(S{<span class="keyword">end</span>,k}&gt;0);
-0299 
-0300     <span class="comment">% Compute low resolution sequences for each level. See Manuscript: sec. 2 - Model</span>
-0301     <span class="comment">% Each column of S has different resolution versions of the same</span>
-0302     <span class="comment">% sequence</span>
-0303     <span class="keyword">for</span> step = numSteps:-1:1 <span class="comment">% Steps from high to low</span>
-0304         L = 2^(numSteps - step + 1);
-0305         <span class="keyword">for</span> l = 1:L:N(<span class="keyword">end</span>,k)-L+1
-0306             S{step,k}(:,(l-1)/L + 1) = sum(S{<span class="keyword">end</span>,k}(:,l:l+L-1),2);                
-0307         <span class="keyword">end</span>
-0308         N(step,k) = size(S{step,k},2);
-0309     <span class="keyword">end</span>          
-0310     
-0311 <a name="_sub6" href="#_subfunctions" class="code">function micrec = extract_mic_rec_number(filename)</a>
-0312     <span class="comment">% Extract the microphone number and record number from the filenames</span>
-0313     
-0314     MicInd = strfind(filename,<span class="string">'mic'</span>); 
-0315     RecInd = strfind(filename,<span class="string">'rec'</span>);
-0316     DotInd = strfind(filename,<span class="string">'.'</span>);
-0317     
-0318     micNum = str2num(filename(MicInd+3:RecInd-2)); <span class="comment">% Microphone number</span>
-0319     recNum = str2num(filename(RecInd+3:DotInd-1)); <span class="comment">% Recording number from the same microphone</span>
-0320     
-0321     <span class="comment">% MicRec holds the microphone and record number of the file.</span>
-0322     micrec = [micNum recNum];
-0323 
-0324 <a name="_sub7" href="#_subfunctions" class="code">function [S, ss, Nsteps, Nsorted, MicRec_sorted, ind] = sort_sequences(S, ss, N, MicRec)</a>
-0325     <span class="comment">% Sort the songs according to their lengths in decreasing order</span>
+0208     <span class="comment">% Minimum reliable overlap - See Manuscript: Sec. 5.1 Evaluation criterion</span>
+0209     Minimum_reliable_overlap_in_frames = minimum_reliable_overlap_in_secs*Fs/frameInc; <span class="comment">% In frames</span>
+0210 
+0211     N = zeros(numSteps+1,K); <span class="comment">% The length of sequences in frames at each resolution</span>
+0212     <span class="comment">% The form of N is;  ( Assuming Nk is the length of k'th sequence)</span>
+0213     
+0214     <span class="comment">%         .           .            .                   .</span>
+0215     <span class="comment">%         .           .            .                   .</span>
+0216     <span class="comment">%       N1/4    N2/4     N3/4    ...     NK/4</span>
+0217     <span class="comment">%       N1/2    N2/2     N3/2    ...     NK/2</span>
+0218     <span class="comment">%       N1      N2       N3      ...     NK</span>
+0219        
+0220     S = cell(numSteps+1,K); <span class="comment">% Feature sequences all in cell 'S' at each resolution</span>
+0221     <span class="comment">% The form of S is; (* Assuming xk is the k'th sequence and xk_L is the low resolution of xk at resolution L)</span>
+0222     
+0223     <span class="comment">%         .            .             .                       .</span>
+0224     <span class="comment">%         .            .             .                       .</span>
+0225     <span class="comment">%       x1_4     x2_4      x3_4     ...        xK_4</span>
+0226     <span class="comment">%       x1_2     x2_2      x3_2     ...        xK_2</span>
+0227     <span class="comment">%       x1       x2        x3       ...        xK</span>
+0228             
+0229     ss = cell(1,K); <span class="comment">% Original signals in cell 'ss'</span>
+0230     
+0231     feature_parameters = struct(<span class="string">'Fs'</span>, Fs, <span class="string">'Ws'</span>, Ws, <span class="string">'F'</span>, F, <span class="string">'frameLen'</span>, frameLen, <span class="string">'frameInc'</span>, frameInc, <span class="string">'audioWindow'</span>, audioWindow,<span class="keyword">...</span>
+0232                                 <span class="string">'Minimum_reliable_overlap_in_frames'</span>,Minimum_reliable_overlap_in_frames, <span class="keyword">...</span>
+0233                                 <span class="string">'subbands'</span>, subbands, <span class="string">'N'</span>, N, <span class="string">'S'</span>, {S}, <span class="string">'ss'</span>, {ss});
+0234 
+0235 <a name="_sub4" href="#_subfunctions" class="code">function s = preprocess_audio(s, fs, Fs)  </a>
+0236     <span class="comment">% Preprocess audio to convert into mono, set the sampling rate, and</span>
+0237     <span class="comment">% normalize.</span>
+0238 
+0239     <span class="comment">% Stereo - Mono conversion</span>
+0240     <span class="keyword">if</span> size(s,2) == 2 <span class="comment">% if signal is stereo, turn into mono</span>
+0241         s = (s(:,1) + s(:,2))/2;
+0242     <span class="keyword">end</span>
+0243 
+0244     <span class="comment">% Set the sampling frequency to Fs</span>
+0245     <span class="keyword">if</span> (fs ~= Fs)
+0246         s = resample(s,Fs,fs); <span class="comment">% Resample the signal to have chosen sampling rate i.e., 16KHz</span>
+0247     <span class="keyword">end</span>
+0248     
+0249     <span class="comment">% Normalization</span>
+0250     s = s/std(s);
+0251 
+0252     <span class="comment">% Remove the silence parts from the beginning and end of sequences if exists</span>
+0253     ind1 = find(s~=0);
+0254     ind2 = find(s(end:-1:1)~=0);
+0255 
+0256     start_sample = ind1(1);
+0257     end_sample = length(s)-ind2(1)+1;
+0258 
+0259     s = s(start_sample:end_sample);
+0260 
+0261 <a name="_sub5" href="#_subfunctions" class="code">function [S, N] = extract_features(s, k, smc_parameters, feature_parameters)</a>
+0262     <span class="comment">% Extract features with predefined smc and feature parameters.</span>
+0263     
+0264     audioWindow = feature_parameters.audioWindow;
+0265     frameInc = feature_parameters.frameInc;
+0266     N = feature_parameters.N;
+0267     Fs = feature_parameters.Fs;
+0268     F = feature_parameters.F;
+0269     S = feature_parameters.S;
+0270     subbands = feature_parameters.subbands;
+0271     
+0272     numSteps = smc_parameters.numSteps;
+0273     
+0274     <span class="comment">% Framing</span>
+0275     frames = <a href="#_sub1" class="code" title="subfunction [f,t]=enframe(x,win,inc)">enframe</a>(s,audioWindow,frameInc)';
+0276     
+0277     <span class="comment">% Length of k'th sequence in frames</span>
+0278     N(<span class="keyword">end</span>,k) = size(frames,2)-1; 
+0279 
+0280     <span class="comment">% Energy of each coefficient in spectrogram</span>
+0281     <span class="keyword">try</span> <span class="comment">% To avoid the memory problems with long files</span>
+0282         power_spectrum = abs(fft(frames,Fs/2)).^2;
+0283     <span class="keyword">catch</span> me 
+0284         disp(me.message)
+0285         power_spectrum = abs(fft(frames(:,1:floor(size(frames,2)/2)),Fs/2)).^2;
+0286         power_spectrum = [power_spectrum abs(fft(frames(:,floor(size(frames,2)/2)+1:end),Fs/2)).^2];
+0287     <span class="keyword">end</span>    
+0288 
+0289     <span class="comment">% Remove all zeros from spectrogram</span>
+0290     power_spectrum(power_spectrum==0) = 1;
+0291 
+0292     <span class="comment">% Finding the energy at each subband</span>
+0293     energy_in_subbands = zeros(F+1,N(<span class="keyword">end</span>,k)+1);
+0294     <span class="keyword">for</span> f=1:F+1
+0295         energy_in_subbands(f,:) = sum(power_spectrum(subbands(f):subbands(f+1),1:N(<span class="keyword">end</span>,k)+1));            
+0296     <span class="keyword">end</span>
+0297     
+0298     <span class="comment">% First difference through time on the spectrogram</span>
+0299     first_difference_in_time = energy_in_subbands(2:<span class="keyword">end</span>,:) - energy_in_subbands(1:end-1,:);
+0300     <span class="comment">% First difference through frequency on the spectrogram</span>
+0301     S{<span class="keyword">end</span>,k} = first_difference_in_time(:,2:end) - first_difference_in_time(:,1:end-1);
+0302     <span class="comment">% Thresholding with 0 to obtain bit values that represents signs -&gt;</span>
+0303     <span class="comment">% 0 = &quot;-&quot; and   1 = &quot;+&quot;</span>
+0304     S{<span class="keyword">end</span>,k} = double(S{<span class="keyword">end</span>,k}&gt;0);
+0305 
+0306     <span class="comment">% Compute low resolution sequences for each level. See Manuscript: sec. 2 - Model</span>
+0307     <span class="comment">% Each column of S has different resolution versions of the same</span>
+0308     <span class="comment">% sequence</span>
+0309     <span class="keyword">for</span> step = numSteps:-1:1 <span class="comment">% Steps from high to low</span>
+0310         L = 2^(numSteps - step + 1);
+0311         <span class="keyword">for</span> l = 1:L:N(<span class="keyword">end</span>,k)-L+1
+0312             S{step,k}(:,(l-1)/L + 1) = sum(S{<span class="keyword">end</span>,k}(:,l:l+L-1),2);                
+0313         <span class="keyword">end</span>
+0314         N(step,k) = size(S{step,k},2);
+0315     <span class="keyword">end</span>          
+0316     
+0317 <a name="_sub6" href="#_subfunctions" class="code">function micrec = extract_mic_rec_number(filename)</a>
+0318     <span class="comment">% Extract the microphone number and record number from the filenames</span>
+0319     
+0320     MicInd = strfind(filename,<span class="string">'mic'</span>); 
+0321     RecInd = strfind(filename,<span class="string">'rec'</span>);
+0322     DotInd = strfind(filename,<span class="string">'.'</span>);
+0323     
+0324     micNum = str2num(filename(MicInd+3:RecInd-2)); <span class="comment">% Microphone number</span>
+0325     recNum = str2num(filename(RecInd+3:DotInd-1)); <span class="comment">% Recording number from the same microphone</span>
 0326     
-0327     [Nsorted,ind] = sort(N(<span class="keyword">end</span>,:),<span class="string">'descend'</span>);
-0328     Nsteps = N(:,ind);
-0329     ss = ss(ind);
-0330     S = S(:,ind);
-0331     MicRec_sorted = MicRec(ind,:);
-0332 
-0333 <a name="_sub8" href="#_subfunctions" class="code">function filenames_sorted = print_ordered_files(filenames, ind)</a>
-0334     <span class="comment">% Print the sorted filenamess on the screen</span>
-0335     
-0336     filenames_sorted = filenames(ind);
-0337     fprintf(<span class="string">'\nThe sorted filenames: \n'</span>);
-0338     <span class="keyword">for</span> i=1:length(filenames)
-0339         fprintf(<span class="string">'     %d -  %s\n'</span>,i, filenames_sorted(i).name);
-0340     <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Fri 23-Jun-2017 18:37:17 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0327     <span class="comment">% MicRec holds the microphone and record number of the file.</span>
+0328     micrec = [micNum recNum];
+0329 
+0330 <a name="_sub7" href="#_subfunctions" class="code">function [S, ss, Nsteps, Nsorted, MicRec_sorted, ind] = sort_sequences(S, ss, N, MicRec)</a>
+0331     <span class="comment">% Sort the songs according to their lengths in decreasing order</span>
+0332     
+0333     [Nsorted,ind] = sort(N(<span class="keyword">end</span>,:),<span class="string">'descend'</span>);
+0334     Nsteps = N(:,ind);
+0335     ss = ss(ind);
+0336     S = S(:,ind);
+0337     MicRec_sorted = MicRec(ind,:);
+0338 
+0339 <a name="_sub8" href="#_subfunctions" class="code">function filenames_sorted = print_ordered_files(filenames, ind)</a>
+0340     <span class="comment">% Print the sorted filenamess on the screen</span>
+0341     
+0342     filenames_sorted = filenames(ind);
+0343     fprintf(<span class="string">'\nThe sorted filenames: \n'</span>);
+0344     <span class="keyword">for</span> i=1:length(filenames)
+0345         fprintf(<span class="string">'     %d -  %s\n'</span>,i, filenames_sorted(i).name);
+0346     <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Sat 24-Jun-2017 17:39:42 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

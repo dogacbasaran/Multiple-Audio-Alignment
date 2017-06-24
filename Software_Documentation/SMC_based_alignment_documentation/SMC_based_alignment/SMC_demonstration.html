@@ -63,22 +63,16 @@ This function is called by:
 0017 <span class="comment">%    You should have received a copy of the GNU General Public License</span>
 0018 <span class="comment">%    along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;</span>
 0019 
-0020 current_folder = pwd;
-0021 <span class="keyword">if</span> isempty(strfind(current_folder,<span class="string">'/'</span>))==1 <span class="comment">% OS is Windows</span>
-0022     parent_folder = current_folder(1:strfind(current_folder,<span class="string">'\SMC_based_alignment'</span>));
-0023     load_path = [parent_folder <span class="string">'audio_data\'</span>];    
-0024 <span class="keyword">else</span> <span class="comment">% OS is Linux</span>
-0025     parent_folder = current_folder(1:strfind(current_folder,<span class="string">'/SMC_based_alignment'</span>));
-0026     load_path = [parent_folder <span class="string">'audio_data/'</span>];    
-0027 <span class="keyword">end</span>
-0028 
-0029 <span class="comment">% Extract features from audio dataset</span>
-0030 dataset_features = <a href="feature_extract_module.html" class="code" title="function dataset_features = feature_extract_module(load_path)">feature_extract_module</a>(load_path);
-0031 
-0032 <span class="comment">% Align the unsyncronized audio signals (might take a while..), the results</span>
-0033 <span class="comment">% are written in a text file.</span>
-0034 [Clusters, r_clusters, time_elapsed] = <a href="SMC_main_module.html" class="code" title="function [Clusters, rs_fixed, time_elapsed] = SMC_main_module(dataset_features, print_proc, display_results)">SMC_main_module</a>(dataset_features);
-0035</pre></div>
-<hr><address>Generated on Fri 23-Jun-2017 18:37:17 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0020 <span class="comment">% Choose the directory where the audio dataset is present</span>
+0021 load_path = uigetdir(pwd,<span class="string">'Select the path to the audio dataset'</span>);
+0022 
+0023 <span class="comment">% Extract features from audio dataset</span>
+0024 dataset_features = <a href="feature_extract_module.html" class="code" title="function dataset_features = feature_extract_module(load_path)">feature_extract_module</a>(load_path);
+0025 
+0026 <span class="comment">% Align the unsyncronized audio signals (might take a while..), the results</span>
+0027 <span class="comment">% are written in a text file.</span>
+0028 [Clusters, r_clusters, time_elapsed] = <a href="SMC_main_module.html" class="code" title="function [Clusters, rs_fixed, time_elapsed] = SMC_main_module(dataset_features, print_proc, display_results)">SMC_main_module</a>(dataset_features);
+0029</pre></div>
+<hr><address>Generated on Sat 24-Jun-2017 17:39:42 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>
