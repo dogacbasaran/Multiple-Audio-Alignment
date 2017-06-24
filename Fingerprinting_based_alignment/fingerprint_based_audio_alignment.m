@@ -46,7 +46,7 @@ else % OS is Linux
 end
     
 % Read files
-tks= myls([load_path '/*.wav']);
+tks= myls([load_path '*.wav']);
  
 filenames = cell(1, length(tks));
 for k = 1:length(tks)   
