@@ -80,7 +80,7 @@ if __name__ == '__main__':
     index_of_best = accuracy_list.index(best_accuracy_fingerprinting_based)
         
     print('The best accuracy is obtained for threshold = {0} with accuracy = {1}'.format(thresholds[index_of_best], best_accuracy_fingerprinting_based))
-    
+     
     print('\nOther metrics:')
     print(('\nFalse Negative - FN = {0}').format(FN_list[index_of_best]))
     print(('False Positive - FP = {0}').format(FP_list[index_of_best]))

@@ -25,7 +25,7 @@ URL http://labrosa.ee.columbia.edu/matlab/fingerprint/
 
 The codes for fingerprinting software are available under the subfolder "Fingerprinting_based_alignment/fingerprint_labrosa".
 
-Note that this software is not directly applicable to the alignment setting since it is a query-by-example based audio fingerprinting software. For alignment purposes, we simply count the number of exact hash(fingerprint) matches between each pair of sequences. Then by thresholding according to the number of hash matches, we decide if the sequences are matching. The time information of the matching hashes are then used to compute the relative offset between sequences. A more detailed description can be found in Sec.4.1 in the DSP manuscript. 
+Note that this software is not directly applicable to the alignment setting since it is a query-by-example based audio fingerprinting software. For alignment purposes, we simply count the number of exact hash(fingerprint) matches between each pair of sequences. Then by thresholding according to the number of hash matches, we decide if the sequences are matching. The time information of the matching hashes are then used to compute the relative offset between sequences. A more detailed description can be found in Sec.4.1 in the DSP manuscript.  
 
 ## Evaluation 
 
