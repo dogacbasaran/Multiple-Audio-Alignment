@@ -1,6 +1,6 @@
 """ 
 compute_accuracy.py
-~~~~~~~~ 
+~~~~~~~~~~~~~~~~~~~ 
 .. topic:: Content
 
     This is the main file that computes the accuracy of an alignment
@@ -33,83 +33,80 @@ import json
 import os
 from os import listdir
 
-def set_key_name(sequence, sequence_):
+def set_key_name(sequence1, sequence2):
     
     """ Sets the key name for ground_truth dictionary entry, order the sequences in 
         ascending order of microphone number and record number
-        Example: If sequence = 'mic4_rec2.wav', sequence_ = 'mic1_rec3.wav'
-                 the key_name = 'mic1_rec3.wav mic4_rec2.wav'
                  
-    Parameters
-    ----------
-    sequence: String
-        First filename
-    sequence_: String
-        Second filename
+    **Parameters**
+    
+    sequence1: String
+        The name of the first file
+    sequence2: String
+        The name of the second file
         
-    Returns
-    -------
+    **Returns**
+    
     key_name: String
-        Key name for the ground_truth dictionary. Either 'filename filename_' or 'filename_ filename'"""
+        Key name for the ground_truth dictionary."""
         
-    mic_number = int(sequence[sequence.find('mic')+3:sequence.find('_')])
-    mic_number_ = int(sequence_[sequence_.find('mic')+3:sequence_.find('_')])
-    rec_number = int(sequence[sequence.find('rec')+3:sequence.find('.wav')])
-    rec_number_ = int(sequence_[sequence_.find('rec')+3:sequence_.find('.wav')])
+    mic_number = int(sequence1[sequence1.find('mic')+3:sequence1.find('_')])
+    mic_number_ = int(sequence2[sequence2.find('mic')+3:sequence2.find('_')])
+    rec_number = int(sequence1[sequence1.find('rec')+3:sequence1.find('.wav')])
+    rec_number_ = int(sequence2[sequence2.find('rec')+3:sequence2.find('.wav')])
     
     if mic_number > mic_number_:
-        key_name = sequence_ + ' ' + sequence
+        key_name = sequence2 + ' ' + sequence1
     elif mic_number == mic_number_:
         if rec_number > rec_number_:
-            key_name = sequence_ + ' ' + sequence
+            key_name = sequence2 + ' ' + sequence1
         else:
-            key_name = sequence + ' ' + sequence_
+            key_name = sequence1 + ' ' + sequence2
     else:
-        key_name = sequence + ' ' + sequence_
+        key_name = sequence1 + ' ' + sequence2
     return key_name
     
-def set_relative_offset(key_name, sequence, relative_offset_):
+def set_relative_offset(key_name, sequence, relative_offset):
     
     """Sets the estimated relative offset between two sequences according to the
        ordering of the sequences
        
-   Parameters
-   ----------
+   **Parameters**
+   
    key_name: String
        The key name that is consistent with the ground_truth dictionary
    sequence: String
        The sequence name
-   relative_offset_: float 
+   relative_offset: float 
        Estimated relative offset
    
-   Returns
-   -------
+   **Returns**
+   
    relative_offset_distance: float
        Relative offset according to the ordering of the aligned sequences"""
            
     if key_name.find(sequence)==0:
-        relative_offset_distance = relative_offset_
+        relative_offset_distance = relative_offset
     else:
-        relative_offset_distance = -relative_offset_
+        relative_offset_distance = -relative_offset
     return relative_offset_distance
     
 def extract_estimated_pairs(path, offset_estimation_result_filename, coeff=1.):
     
-    """ Gets the estimated alignments from a txt file in the 
-           /path/offset_estimation_result_filename 
-        extracts all the pair of alignment in format convenient with ground_truth
-        dictionary
+    """ Gets the estimated alignments from a txt file and extracts all the pair of alignment in format convenient with ground_truth
+    dictionary
         
-    Parameters
-    ----------
+    **Parameters**
+    
     path: String
         Path to the estimation file
     offset_estimation_result_filename: String
         Name of the estimation file
     coeff: Float
-        
-    Returns
-    -------
+            
+    
+    **Returns**
+    
     estimations: Dictionary
             The dictionary containing the estimated pair of alignments"""
             
@@ -140,8 +137,8 @@ def compute_accuracy(path, offset_estimation_result_filename, verbose = False):
     
     """Computes the main evaluation metrics namely Accuracy, Precision, Recall and F-measure
       
-    Parameters
-    ----------
+    **Parameters**
+    
     path: String
         Path to the estimation file
     offset_estimation_result_filename: String
@@ -150,8 +147,8 @@ def compute_accuracy(path, offset_estimation_result_filename, verbose = False):
         Prints the resulting metrics as well as the number of TP, TN, FP and FN 
         if it is True
         
-    Returns
-    -------
+    **Returns**
+    
     Accuracy: Float
         The accuracy of the estimation
     Precision: Float

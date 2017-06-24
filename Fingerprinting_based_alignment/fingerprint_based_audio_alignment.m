@@ -1,3 +1,14 @@
+% FINGERPRINTING_BASED_AUDIO_ALIGNMENT: Implements fingerprinting based
+% audio alignment 
+%   This function uses the fingerprinting scheme from 
+%   D. Ellis (2009), "Robust Landmark-Based Audio Fingerprinting", 
+%   web resource, available: http://labrosa.ee.columbia.edu/matlab/fingerprint/ .
+%   
+%   The function reads the audio files from the dataset, applies a grid
+%   search to find the best threshold to detect matching sequences. The
+%   estimated alignments with the highest accuracy are written in a text
+%   file.
+
 % Copyright (C) 2016  Author: Dogac Basaran
 %
 %    This program is free software: you can redistribute it and/or modify
@@ -16,14 +27,16 @@
 tic
 current_folder = pwd;
 if isempty(strfind(current_folder,'/'))==1 % OS is Windows
-    parent_folder = current_folder(1:strfind(current_folder,'\SMC_based_alignment'));
+    parent_folder = current_folder(1:strfind(current_folder,'\Fingerprinting_based_alignment'));
     load_path = [parent_folder 'audio_data\'];    
+    addpath([current_folder '\fingerprint_labrosa']);
 else % OS is Linux
-    parent_folder = current_folder(1:strfind(current_folder,'/SMC_based_alignment'));
-    load_path = [parent_folder 'audio_data/'];    
+    parent_folder = current_folder(1:strfind(current_folder,'/Fingerprinting_based_alignment'));
+    load_path = [parent_folder 'audio_data/'];
+    addpath([current_folder '/fingerprint_labrosa']);
 end
 
- % Read files
+% Read files
 tks= myls([load_path '*.wav']);
  
 filenames = cell(1, length(tks));
@@ -31,7 +44,7 @@ for k = 1:length(tks)
     str = tks{k};
     filename = str(strfind(str,load_path)+length(load_path):end);
     filenames{k} = filename;
-end
+end 
  
 % Initialize the hash table database array 
 clear_hashtable
