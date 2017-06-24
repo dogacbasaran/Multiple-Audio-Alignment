@@ -49,7 +49,7 @@
   <h1>Source code for compute_accuracy</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot; </span>
 <span class="sd">compute_accuracy.py</span>
-<span class="sd">~~~~~~~~ </span>
+<span class="sd">~~~~~~~~~~~~~~~~~~~ </span>
 <span class="sd">.. topic:: Content</span>
 
 <span class="sd">    This is the main file that computes the accuracy of an alignment</span>
@@ -82,83 +82,80 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">os</span> <span class="k">import</span> <span class="n">listdir</span>
 
-<div class="viewcode-block" id="set_key_name"><a class="viewcode-back" href="../index.html#compute_accuracy.set_key_name">[docs]</a><span class="k">def</span> <span class="nf">set_key_name</span><span class="p">(</span><span class="n">sequence</span><span class="p">,</span> <span class="n">sequence_</span><span class="p">):</span>
+<div class="viewcode-block" id="set_key_name"><a class="viewcode-back" href="../index.html#compute_accuracy.set_key_name">[docs]</a><span class="k">def</span> <span class="nf">set_key_name</span><span class="p">(</span><span class="n">sequence1</span><span class="p">,</span> <span class="n">sequence2</span><span class="p">):</span>
     
     <span class="sd">&quot;&quot;&quot; Sets the key name for ground_truth dictionary entry, order the sequences in </span>
 <span class="sd">        ascending order of microphone number and record number</span>
-<span class="sd">        Example: If sequence = &#39;mic4_rec2.wav&#39;, sequence_ = &#39;mic1_rec3.wav&#39;</span>
-<span class="sd">                 the key_name = &#39;mic1_rec3.wav mic4_rec2.wav&#39;</span>
 <span class="sd">                 </span>
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    sequence: String</span>
-<span class="sd">        First filename</span>
-<span class="sd">    sequence_: String</span>
-<span class="sd">        Second filename</span>
+<span class="sd">    **Parameters**</span>
+<span class="sd">    </span>
+<span class="sd">    sequence1: String</span>
+<span class="sd">        The name of the first file</span>
+<span class="sd">    sequence2: String</span>
+<span class="sd">        The name of the second file</span>
 <span class="sd">        </span>
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
+<span class="sd">    **Returns**</span>
+<span class="sd">    </span>
 <span class="sd">    key_name: String</span>
-<span class="sd">        Key name for the ground_truth dictionary. Either &#39;filename filename_&#39; or &#39;filename_ filename&#39;&quot;&quot;&quot;</span>
+<span class="sd">        Key name for the ground_truth dictionary.&quot;&quot;&quot;</span>
         
-    <span class="n">mic_number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">sequence</span><span class="p">[</span><span class="n">sequence</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;mic&#39;</span><span class="p">)</span><span class="o">+</span><span class="mi">3</span><span class="p">:</span><span class="n">sequence</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)])</span>
-    <span class="n">mic_number_</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">sequence_</span><span class="p">[</span><span class="n">sequence_</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;mic&#39;</span><span class="p">)</span><span class="o">+</span><span class="mi">3</span><span class="p">:</span><span class="n">sequence_</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)])</span>
-    <span class="n">rec_number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">sequence</span><span class="p">[</span><span class="n">sequence</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;rec&#39;</span><span class="p">)</span><span class="o">+</span><span class="mi">3</span><span class="p">:</span><span class="n">sequence</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;.wav&#39;</span><span class="p">)])</span>
-    <span class="n">rec_number_</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">sequence_</span><span class="p">[</span><span class="n">sequence_</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;rec&#39;</span><span class="p">)</span><span class="o">+</span><span class="mi">3</span><span class="p">:</span><span class="n">sequence_</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;.wav&#39;</span><span class="p">)])</span>
+    <span class="n">mic_number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">sequence1</span><span class="p">[</span><span class="n">sequence1</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;mic&#39;</span><span class="p">)</span><span class="o">+</span><span class="mi">3</span><span class="p">:</span><span class="n">sequence1</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)])</span>
+    <span class="n">mic_number_</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">sequence2</span><span class="p">[</span><span class="n">sequence2</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;mic&#39;</span><span class="p">)</span><span class="o">+</span><span class="mi">3</span><span class="p">:</span><span class="n">sequence2</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)])</span>
+    <span class="n">rec_number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">sequence1</span><span class="p">[</span><span class="n">sequence1</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;rec&#39;</span><span class="p">)</span><span class="o">+</span><span class="mi">3</span><span class="p">:</span><span class="n">sequence1</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;.wav&#39;</span><span class="p">)])</span>
+    <span class="n">rec_number_</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">sequence2</span><span class="p">[</span><span class="n">sequence2</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;rec&#39;</span><span class="p">)</span><span class="o">+</span><span class="mi">3</span><span class="p">:</span><span class="n">sequence2</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;.wav&#39;</span><span class="p">)])</span>
     
     <span class="k">if</span> <span class="n">mic_number</span> <span class="o">&gt;</span> <span class="n">mic_number_</span><span class="p">:</span>
-        <span class="n">key_name</span> <span class="o">=</span> <span class="n">sequence_</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">sequence</span>
+        <span class="n">key_name</span> <span class="o">=</span> <span class="n">sequence2</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">sequence1</span>
     <span class="k">elif</span> <span class="n">mic_number</span> <span class="o">==</span> <span class="n">mic_number_</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">rec_number</span> <span class="o">&gt;</span> <span class="n">rec_number_</span><span class="p">:</span>
-            <span class="n">key_name</span> <span class="o">=</span> <span class="n">sequence_</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">sequence</span>
+            <span class="n">key_name</span> <span class="o">=</span> <span class="n">sequence2</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">sequence1</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">key_name</span> <span class="o">=</span> <span class="n">sequence</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">sequence_</span>
+            <span class="n">key_name</span> <span class="o">=</span> <span class="n">sequence1</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">sequence2</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">key_name</span> <span class="o">=</span> <span class="n">sequence</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">sequence_</span>
+        <span class="n">key_name</span> <span class="o">=</span> <span class="n">sequence1</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">sequence2</span>
     <span class="k">return</span> <span class="n">key_name</span></div>
     
-<div class="viewcode-block" id="set_relative_offset"><a class="viewcode-back" href="../index.html#compute_accuracy.set_relative_offset">[docs]</a><span class="k">def</span> <span class="nf">set_relative_offset</span><span class="p">(</span><span class="n">key_name</span><span class="p">,</span> <span class="n">sequence</span><span class="p">,</span> <span class="n">relative_offset_</span><span class="p">):</span>
+<div class="viewcode-block" id="set_relative_offset"><a class="viewcode-back" href="../index.html#compute_accuracy.set_relative_offset">[docs]</a><span class="k">def</span> <span class="nf">set_relative_offset</span><span class="p">(</span><span class="n">key_name</span><span class="p">,</span> <span class="n">sequence</span><span class="p">,</span> <span class="n">relative_offset</span><span class="p">):</span>
     
     <span class="sd">&quot;&quot;&quot;Sets the estimated relative offset between two sequences according to the</span>
 <span class="sd">       ordering of the sequences</span>
 <span class="sd">       </span>
-<span class="sd">   Parameters</span>
-<span class="sd">   ----------</span>
+<span class="sd">   **Parameters**</span>
+<span class="sd">   </span>
 <span class="sd">   key_name: String</span>
 <span class="sd">       The key name that is consistent with the ground_truth dictionary</span>
 <span class="sd">   sequence: String</span>
 <span class="sd">       The sequence name</span>
-<span class="sd">   relative_offset_: float </span>
+<span class="sd">   relative_offset: float </span>
 <span class="sd">       Estimated relative offset</span>
 <span class="sd">   </span>
-<span class="sd">   Returns</span>
-<span class="sd">   -------</span>
+<span class="sd">   **Returns**</span>
+<span class="sd">   </span>
 <span class="sd">   relative_offset_distance: float</span>
 <span class="sd">       Relative offset according to the ordering of the aligned sequences&quot;&quot;&quot;</span>
            
     <span class="k">if</span> <span class="n">key_name</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">sequence</span><span class="p">)</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
-        <span class="n">relative_offset_distance</span> <span class="o">=</span> <span class="n">relative_offset_</span>
+        <span class="n">relative_offset_distance</span> <span class="o">=</span> <span class="n">relative_offset</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">relative_offset_distance</span> <span class="o">=</span> <span class="o">-</span><span class="n">relative_offset_</span>
+        <span class="n">relative_offset_distance</span> <span class="o">=</span> <span class="o">-</span><span class="n">relative_offset</span>
     <span class="k">return</span> <span class="n">relative_offset_distance</span></div>
     
 <div class="viewcode-block" id="extract_estimated_pairs"><a class="viewcode-back" href="../index.html#compute_accuracy.extract_estimated_pairs">[docs]</a><span class="k">def</span> <span class="nf">extract_estimated_pairs</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">offset_estimation_result_filename</span><span class="p">,</span> <span class="n">coeff</span><span class="o">=</span><span class="mf">1.</span><span class="p">):</span>
     
-    <span class="sd">&quot;&quot;&quot; Gets the estimated alignments from a txt file in the </span>
-<span class="sd">           /path/offset_estimation_result_filename </span>
-<span class="sd">        extracts all the pair of alignment in format convenient with ground_truth</span>
-<span class="sd">        dictionary</span>
+    <span class="sd">&quot;&quot;&quot; Gets the estimated alignments from a txt file and extracts all the pair of alignment in format convenient with ground_truth</span>
+<span class="sd">    dictionary</span>
 <span class="sd">        </span>
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
+<span class="sd">    **Parameters**</span>
+<span class="sd">    </span>
 <span class="sd">    path: String</span>
 <span class="sd">        Path to the estimation file</span>
 <span class="sd">    offset_estimation_result_filename: String</span>
 <span class="sd">        Name of the estimation file</span>
 <span class="sd">    coeff: Float</span>
-<span class="sd">        </span>
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
+<span class="sd">            </span>
+<span class="sd">    </span>
+<span class="sd">    **Returns**</span>
+<span class="sd">    </span>
 <span class="sd">    estimations: Dictionary</span>
 <span class="sd">            The dictionary containing the estimated pair of alignments&quot;&quot;&quot;</span>
             
@@ -189,8 +186,8 @@
     
     <span class="sd">&quot;&quot;&quot;Computes the main evaluation metrics namely Accuracy, Precision, Recall and F-measure</span>
 <span class="sd">      </span>
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
+<span class="sd">    **Parameters**</span>
+<span class="sd">    </span>
 <span class="sd">    path: String</span>
 <span class="sd">        Path to the estimation file</span>
 <span class="sd">    offset_estimation_result_filename: String</span>
@@ -199,8 +196,8 @@
 <span class="sd">        Prints the resulting metrics as well as the number of TP, TN, FP and FN </span>
 <span class="sd">        if it is True</span>
 <span class="sd">        </span>
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
+<span class="sd">    **Returns**</span>
+<span class="sd">    </span>
 <span class="sd">    Accuracy: Float</span>
 <span class="sd">        The accuracy of the estimation</span>
 <span class="sd">    Precision: Float</span>

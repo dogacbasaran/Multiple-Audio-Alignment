@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 Documentation
--------------
+=============
 .. automodule:: groundtruth
 	:members:
 
@@ -14,3 +14,9 @@ Documentation
 .. automodule:: fingerprinting_evaluation
 	:members:
 
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`

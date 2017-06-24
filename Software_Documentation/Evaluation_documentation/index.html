@@ -72,6 +72,7 @@ along with this program.  If not, see &lt;<a class="reference external" href="ht
 and convert length and offset information from seconds to frames (STFT based).
 Note that this piece of code is unique for the GT_090912.xml file. For other
 Jiku datasets it has to be modified!!</p>
+<p><strong>Parameters</strong></p>
 <dl class="docutils">
 <dt>path: String</dt>
 <dd>path of the GT_090912.xml file</dd>
@@ -82,6 +83,7 @@ Jiku datasets it has to be modified!!</p>
 <dt>hopsize: Float (default 0.02)</dt>
 <dd>Hop size in the STFT</dd>
 </dl>
+<p><strong>Returns</strong></p>
 <dl class="docutils">
 <dt>offset_length_in_frames: List</dt>
 <dd>The list of offset lengths in frames</dd>
@@ -95,10 +97,12 @@ Jiku datasets it has to be modified!!</p>
 <dt>Find the length of each sequence, in addition finds the silence parts in the</dt>
 <dd>beginning of each sequence for calibration of the offsets accordingly</dd>
 </dl>
+<p><strong>Parameters</strong></p>
 <dl class="docutils">
 <dt>path: String </dt>
 <dd>The path to the audio dataset</dd>
 </dl>
+<p><strong>Returns</strong></p>
 <dl class="docutils">
 <dt>filelengths: Dictionary</dt>
 <dd>The dictionary that contains the file lengths in seconds. Keys are the filenames</dd>
@@ -109,21 +113,20 @@ Jiku datasets it has to be modified!!</p>
 
 <dl class="function">
 <dt id="groundtruth.set_key_name">
-<code class="descclassname">groundtruth.</code><code class="descname">set_key_name</code><span class="sig-paren">(</span><em>filename</em>, <em>filename_</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/groundtruth.html#set_key_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#groundtruth.set_key_name" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt>Sets the key name for ground_truth dictionary entry, order the sequences in </dt>
-<dd>ascending order of microphone number and record number. Example: If sequence = &#8216;mic4_rec2.wav&#8217;, <a href="#id1"><span class="problematic" id="id2">sequence_</span></a> = &#8216;mic1_rec3.wav&#8217;
-the key_name = &#8216;mic1_rec3.wav mic4_rec2.wav&#8217;</dd>
-</dl>
+<code class="descclassname">groundtruth.</code><code class="descname">set_key_name</code><span class="sig-paren">(</span><em>filename1</em>, <em>filename2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/groundtruth.html#set_key_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#groundtruth.set_key_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the key name for ground_truth dictionary entry, order the sequences in 
+ascending order of microphone number and record number.</p>
+<p><strong>Parameters</strong></p>
 <dl class="docutils">
-<dt>filename: String</dt>
-<dd>First filename</dd>
-<dt><a href="#id3"><span class="problematic" id="id4">filename_</span></a>: String</dt>
-<dd>Second filename</dd>
+<dt>filename1: String</dt>
+<dd>The name of the first file</dd>
+<dt>filename2: String</dt>
+<dd>The name of the second file</dd>
 </dl>
+<p><strong>Returns</strong></p>
 <dl class="docutils">
 <dt>key_name: String</dt>
-<dd>Key name for the ground_truth dictionary. Either &#8216;filename <a href="#id5"><span class="problematic" id="id6">filename_</span></a>&#8216; or &#8216;<a href="#id7"><span class="problematic" id="id8">filename_</span></a> filename&#8217;</dd>
+<dd>Key name for the ground_truth dictionary.</dd>
 </dl>
 </dd></dl>
 
@@ -132,36 +135,40 @@ the key_name = &#8216;mic1_rec3.wav mic4_rec2.wav&#8217;</dd>
 <code class="descclassname">groundtruth.</code><code class="descname">set_paths</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/groundtruth.html#set_paths"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#groundtruth.set_paths" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the paths to the ground_truth (Path 1) and audio data (Path 2). Detects
 the operating system and set the paths accordingly.</p>
+<p><strong>Parameters</strong></p>
+<p><strong>Returns</strong></p>
 <dl class="docutils">
 <dt>path1: String</dt>
 <dd>Path to the ground truth</dd>
 <dt>path2: String</dt>
 <dd>Path to the audio dataset</dd>
 <dt>wl: Integer</dt>
-<dd>wl=1 represents Windows based, wl=2 represents Linux based systems</dd>
+<dd>1 represents Windows based and 2 represents Linux based systems.</dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="groundtruth.set_relative_offset">
-<code class="descclassname">groundtruth.</code><code class="descname">set_relative_offset</code><span class="sig-paren">(</span><em>key_name</em>, <em>filename</em>, <em>offset</em>, <em>offset_</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/groundtruth.html#set_relative_offset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#groundtruth.set_relative_offset" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">groundtruth.</code><code class="descname">set_relative_offset</code><span class="sig-paren">(</span><em>key_name</em>, <em>filename</em>, <em>offset1</em>, <em>offset2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/groundtruth.html#set_relative_offset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#groundtruth.set_relative_offset" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="docutils">
-<dt>Sets the true relative offset between two sequences according to the</dt>
+<dt>Sets the true relative distance between two sequences according to the</dt>
 <dd>ordering of the sequences</dd>
 </dl>
+<p><strong>Parameters</strong></p>
 <dl class="docutils">
 <dt>key_name: String</dt>
 <dd>The key name for the ground_truth dictionary entry</dd>
 <dt>filename: String</dt>
 <dd>The sequence name</dd>
-<dt>offset: Integer</dt>
-<dd>Offset of the first sequence in frames</dd>
-<dt><a href="#id9"><span class="problematic" id="id10">offset_</span></a>: Integer</dt>
-<dd>Offset of the second sequence in frames</dd>
+<dt>offset1: Integer</dt>
+<dd>Starting point of the first sequence in frames</dd>
+<dt>offset2: Integer</dt>
+<dd>Starting point of the second sequence in frames</dd>
 </dl>
+<p><strong>Returns</strong></p>
 <dl class="docutils">
 <dt>relative_offset_distance: float</dt>
-<dd>Relative offset according to the ordering of the aligned sequences</dd>
+<dd>Relative distance according to the ordering of the aligned sequences</dd>
 </dl>
 </dd></dl>
 
@@ -195,6 +202,7 @@ along with this program.  If not, see &lt;<a class="reference external" href="ht
 <dt id="compute_accuracy.compute_accuracy">
 <code class="descclassname">compute_accuracy.</code><code class="descname">compute_accuracy</code><span class="sig-paren">(</span><em>path</em>, <em>offset_estimation_result_filename</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/compute_accuracy.html#compute_accuracy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#compute_accuracy.compute_accuracy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computes the main evaluation metrics namely Accuracy, Precision, Recall and F-measure</p>
+<p><strong>Parameters</strong></p>
 <dl class="docutils">
 <dt>path: String</dt>
 <dd>Path to the estimation file</dd>
@@ -204,6 +212,7 @@ along with this program.  If not, see &lt;<a class="reference external" href="ht
 <dd>Prints the resulting metrics as well as the number of TP, TN, FP and FN 
 if it is True</dd>
 </dl>
+<p><strong>Returns</strong></p>
 <dl class="docutils">
 <dt>Accuracy: Float</dt>
 <dd>The accuracy of the estimation</dd>
@@ -227,14 +236,9 @@ if it is True</dd>
 <dl class="function">
 <dt id="compute_accuracy.extract_estimated_pairs">
 <code class="descclassname">compute_accuracy.</code><code class="descname">extract_estimated_pairs</code><span class="sig-paren">(</span><em>path</em>, <em>offset_estimation_result_filename</em>, <em>coeff=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/compute_accuracy.html#extract_estimated_pairs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#compute_accuracy.extract_estimated_pairs" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt>Gets the estimated alignments from a txt file in the </dt>
-<dd><blockquote class="first">
-<div>/path/offset_estimation_result_filename</div></blockquote>
-<p class="last">extracts all the pair of alignment in format convenient with ground_truth
+<dd><p>Gets the estimated alignments from a txt file and extracts all the pair of alignment in format convenient with ground_truth
 dictionary</p>
-</dd>
-</dl>
+<p><strong>Parameters</strong></p>
 <dl class="docutils">
 <dt>path: String</dt>
 <dd>Path to the estimation file</dd>
@@ -242,6 +246,7 @@ dictionary</p>
 <dd>Name of the estimation file</dd>
 </dl>
 <p>coeff: Float</p>
+<p><strong>Returns</strong></p>
 <dl class="docutils">
 <dt>estimations: Dictionary</dt>
 <dd>The dictionary containing the estimated pair of alignments</dd>
@@ -250,42 +255,42 @@ dictionary</p>
 
 <dl class="function">
 <dt id="compute_accuracy.set_key_name">
-<code class="descclassname">compute_accuracy.</code><code class="descname">set_key_name</code><span class="sig-paren">(</span><em>sequence</em>, <em>sequence_</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/compute_accuracy.html#set_key_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#compute_accuracy.set_key_name" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">compute_accuracy.</code><code class="descname">set_key_name</code><span class="sig-paren">(</span><em>sequence1</em>, <em>sequence2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/compute_accuracy.html#set_key_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#compute_accuracy.set_key_name" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="docutils">
 <dt>Sets the key name for ground_truth dictionary entry, order the sequences in </dt>
-<dd><p class="first">ascending order of microphone number and record number
-Example: If sequence = &#8216;mic4_rec2.wav&#8217;, <a href="#id11"><span class="problematic" id="id12">sequence_</span></a> = &#8216;mic1_rec3.wav&#8217;</p>
-<blockquote class="last">
-<div>the key_name = &#8216;mic1_rec3.wav mic4_rec2.wav&#8217;</div></blockquote>
-</dd>
+<dd>ascending order of microphone number and record number</dd>
 </dl>
+<p><strong>Parameters</strong></p>
 <dl class="docutils">
-<dt>sequence: String</dt>
-<dd>First filename</dd>
-<dt><a href="#id13"><span class="problematic" id="id14">sequence_</span></a>: String</dt>
-<dd>Second filename</dd>
+<dt>sequence1: String</dt>
+<dd>The name of the first file</dd>
+<dt>sequence2: String</dt>
+<dd>The name of the second file</dd>
 </dl>
+<p><strong>Returns</strong></p>
 <dl class="docutils">
 <dt>key_name: String</dt>
-<dd>Key name for the ground_truth dictionary. Either &#8216;filename <a href="#id15"><span class="problematic" id="id16">filename_</span></a>&#8216; or &#8216;<a href="#id17"><span class="problematic" id="id18">filename_</span></a> filename&#8217;</dd>
+<dd>Key name for the ground_truth dictionary.</dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="compute_accuracy.set_relative_offset">
-<code class="descclassname">compute_accuracy.</code><code class="descname">set_relative_offset</code><span class="sig-paren">(</span><em>key_name</em>, <em>sequence</em>, <em>relative_offset_</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/compute_accuracy.html#set_relative_offset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#compute_accuracy.set_relative_offset" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">compute_accuracy.</code><code class="descname">set_relative_offset</code><span class="sig-paren">(</span><em>key_name</em>, <em>sequence</em>, <em>relative_offset</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/compute_accuracy.html#set_relative_offset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#compute_accuracy.set_relative_offset" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="docutils">
 <dt>Sets the estimated relative offset between two sequences according to the</dt>
 <dd>ordering of the sequences</dd>
 </dl>
+<p><strong>Parameters</strong></p>
 <dl class="docutils">
 <dt>key_name: String</dt>
 <dd>The key name that is consistent with the ground_truth dictionary</dd>
 <dt>sequence: String</dt>
 <dd>The sequence name</dd>
-<dt><a href="#id19"><span class="problematic" id="id20">relative_offset_</span></a>: float </dt>
+<dt>relative_offset: float </dt>
 <dd>Estimated relative offset</dd>
 </dl>
+<p><strong>Returns</strong></p>
 <dl class="docutils">
 <dt>relative_offset_distance: float</dt>
 <dd>Relative offset according to the ordering of the aligned sequences</dd>
@@ -314,6 +319,14 @@ along with this program.  If not, see &lt;<a class="reference external" href="ht
 </div>
 </div>
 </div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
+<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
+<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
+</ul>
+</div>
 
 
           </div>
@@ -329,6 +342,7 @@ along with this program.  If not, see &lt;<a class="reference external" href="ht
 <li><a class="reference internal" href="#fingerprinting-evaluation-py">fingerprinting_evaluation.py</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
 </ul>
 
   <div role="note" aria-label="source link">
