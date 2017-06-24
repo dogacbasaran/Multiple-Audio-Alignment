@@ -18,7 +18,7 @@
 %    along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 % Choose the directory where the audio dataset is present
-load_path = uigetdir(current_folder,'Select the path to the audio dataset');
+load_path = uigetdir(pwd,'Select the path to the audio dataset');
 
 % Extract features from audio dataset
 dataset_features = feature_extract_module(load_path);
