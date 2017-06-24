@@ -81,6 +81,8 @@
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">os</span> <span class="k">import</span> <span class="n">listdir</span>
+<span class="kn">import</span> <span class="nn">Tkinter</span>
+<span class="kn">import</span> <span class="nn">tkFileDialog</span>
 
 <div class="viewcode-block" id="set_key_name"><a class="viewcode-back" href="../index.html#compute_accuracy.set_key_name">[docs]</a><span class="k">def</span> <span class="nf">set_key_name</span><span class="p">(</span><span class="n">sequence1</span><span class="p">,</span> <span class="n">sequence2</span><span class="p">):</span>
     
@@ -140,17 +142,15 @@
         <span class="n">relative_offset_distance</span> <span class="o">=</span> <span class="o">-</span><span class="n">relative_offset</span>
     <span class="k">return</span> <span class="n">relative_offset_distance</span></div>
     
-<div class="viewcode-block" id="extract_estimated_pairs"><a class="viewcode-back" href="../index.html#compute_accuracy.extract_estimated_pairs">[docs]</a><span class="k">def</span> <span class="nf">extract_estimated_pairs</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">offset_estimation_result_filename</span><span class="p">,</span> <span class="n">coeff</span><span class="o">=</span><span class="mf">1.</span><span class="p">):</span>
+<div class="viewcode-block" id="extract_estimated_pairs"><a class="viewcode-back" href="../index.html#compute_accuracy.extract_estimated_pairs">[docs]</a><span class="k">def</span> <span class="nf">extract_estimated_pairs</span><span class="p">(</span><span class="n">offset_estimation_result_filename</span><span class="p">,</span> <span class="n">coeff</span><span class="o">=</span><span class="mf">1.</span><span class="p">):</span>
     
     <span class="sd">&quot;&quot;&quot; Gets the estimated alignments from a txt file and extracts all the pair of alignment in format convenient with ground_truth</span>
 <span class="sd">    dictionary</span>
 <span class="sd">        </span>
 <span class="sd">    **Parameters**</span>
 <span class="sd">    </span>
-<span class="sd">    path: String</span>
-<span class="sd">        Path to the estimation file</span>
 <span class="sd">    offset_estimation_result_filename: String</span>
-<span class="sd">        Name of the estimation file</span>
+<span class="sd">        Name of the estimation file with full path</span>
 <span class="sd">    coeff: Float</span>
 <span class="sd">            </span>
 <span class="sd">    </span>
@@ -160,12 +160,10 @@
 <span class="sd">            The dictionary containing the estimated pair of alignments&quot;&quot;&quot;</span>
             
     <span class="n">estimations</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="c1"># Start reading the estimation results </span>
-    <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span><span class="o">==-</span><span class="mi">1</span><span class="p">:</span> <span class="c1"># Windows based</span>
-        <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="n">offset_estimation_result_filename</span><span class="p">,</span><span class="s1">&#39;r&#39;</span><span class="p">)</span> 
-    <span class="k">else</span><span class="p">:</span> <span class="c1"># Linux based</span>
-        <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">offset_estimation_result_filename</span><span class="p">,</span><span class="s1">&#39;r&#39;</span><span class="p">)</span> 
     
+    <span class="c1"># Start reading the estimation results </span>
+    <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">offset_estimation_result_filename</span><span class="p">,</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+
     <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">():</span>
         <span class="n">estimated_sequences</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
         <span class="n">sequence</span> <span class="o">=</span> <span class="n">estimated_sequences</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># The first sequence is current sequence</span>
@@ -188,8 +186,8 @@
 <span class="sd">      </span>
 <span class="sd">    **Parameters**</span>
 <span class="sd">    </span>
-<span class="sd">    path: String</span>
-<span class="sd">        Path to the estimation file</span>
+<span class="sd">    path: List</span>
+<span class="sd">        List contains the path to the ground truth and path to the audio dataset</span>
 <span class="sd">    offset_estimation_result_filename: String</span>
 <span class="sd">        Name of the estimation file</span>
 <span class="sd">    verbose: Boolean (default False)</span>
@@ -215,10 +213,8 @@
 <span class="sd">    FN: Integer</span>
 <span class="sd">        The number of the false negatives&quot;&quot;&quot;</span>
     
-    <span class="n">path1</span> <span class="o">=</span> <span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">path2</span> <span class="o">=</span> <span class="n">path</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-    <span class="n">path3</span> <span class="o">=</span> <span class="n">path</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
-    <span class="n">path4</span> <span class="o">=</span> <span class="n">path</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+    <span class="n">path_ground_truth</span> <span class="o">=</span> <span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">path_audio_data</span> <span class="o">=</span> <span class="n">path</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
     <span class="n">FN</span> <span class="o">=</span> <span class="mf">0.</span> <span class="c1"># False Negative</span>
     <span class="n">FP</span> <span class="o">=</span> <span class="mf">0.</span> <span class="c1"># False Positive</span>
@@ -226,16 +222,16 @@
     <span class="n">TN</span> <span class="o">=</span> <span class="mf">0.</span> <span class="c1"># True Negative</span>
     
     <span class="c1"># Read precomputed ground truth dictionary</span>
-    <span class="k">if</span> <span class="n">path1</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span><span class="o">==-</span><span class="mi">1</span><span class="p">:</span> <span class="c1"># Windows based</span>
-        <span class="n">ground_truth</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">(</span><span class="n">path1</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="s1">&#39;ground_truth.txt&#39;</span><span class="p">))</span> 
+    <span class="k">if</span> <span class="n">path_ground_truth</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span><span class="o">==-</span><span class="mi">1</span><span class="p">:</span> <span class="c1"># Windows based</span>
+        <span class="n">ground_truth</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">(</span><span class="n">path_ground_truth</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="s1">&#39;ground_truth.txt&#39;</span><span class="p">))</span> 
     <span class="k">else</span><span class="p">:</span> <span class="c1"># Linux based</span>
-        <span class="n">ground_truth</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">(</span><span class="n">path1</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="s1">&#39;ground_truth.txt&#39;</span><span class="p">))</span> 
+        <span class="n">ground_truth</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">(</span><span class="n">path_ground_truth</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="s1">&#39;ground_truth.txt&#39;</span><span class="p">))</span> 
     
     <span class="c1"># Extract estimated pairs dictionary</span>
     <span class="k">if</span> <span class="n">offset_estimation_result_filename</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;fingerprint&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span> 
-        <span class="n">estimations</span> <span class="o">=</span> <span class="n">extract_estimated_pairs</span><span class="p">(</span><span class="n">path3</span><span class="p">,</span> <span class="n">offset_estimation_result_filename</span><span class="p">)</span>
+        <span class="n">estimations</span> <span class="o">=</span> <span class="n">extract_estimated_pairs</span><span class="p">(</span><span class="n">offset_estimation_result_filename</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">estimations</span> <span class="o">=</span> <span class="n">extract_estimated_pairs</span><span class="p">(</span><span class="n">path4</span><span class="p">,</span> <span class="n">offset_estimation_result_filename</span><span class="p">)</span>
+        <span class="n">estimations</span> <span class="o">=</span> <span class="n">extract_estimated_pairs</span><span class="p">(</span><span class="n">offset_estimation_result_filename</span><span class="p">)</span>
         
     <span class="c1"># Scan estimations to find FN, FP types of errors and TP</span>
     <span class="n">tolerance</span> <span class="o">=</span> <span class="mi">10</span> <span class="c1"># The alignment is acceptable in neighborhood of ground truth with amount of tolerance</span>
@@ -258,7 +254,7 @@
     <span class="c1"># Find number of recordings for each microphone</span>
     <span class="n">number_of_microphones</span> <span class="o">=</span> <span class="mi">4</span>
     <span class="n">number_of_recordings</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">number_of_microphones</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float64&#39;</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">listdir</span><span class="p">(</span><span class="n">path2</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">listdir</span><span class="p">(</span><span class="n">path_audio_data</span><span class="p">):</span>
         <span class="n">mic_number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">filename</span><span class="p">[</span><span class="n">filename</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;mic&#39;</span><span class="p">)</span><span class="o">+</span><span class="mi">3</span><span class="p">:</span><span class="n">filename</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)])</span>
         <span class="n">rec_number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">filename</span><span class="p">[</span><span class="n">filename</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;rec&#39;</span><span class="p">)</span><span class="o">+</span><span class="mi">3</span><span class="p">:</span><span class="n">filename</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;.wav&#39;</span><span class="p">)])</span>
         <span class="k">if</span> <span class="n">number_of_recordings</span><span class="p">[</span><span class="n">mic_number</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">&lt;</span><span class="n">rec_number</span><span class="p">:</span>
@@ -285,11 +281,11 @@
     
     <span class="k">if</span> <span class="n">verbose</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">The evaluation results for &quot;</span> <span class="o">+</span> <span class="n">offset_estimation_result_filename</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">((</span><span class="s1">&#39;False Negative - FN = </span><span class="si">{0}</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">FN</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">((</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">False Negative - FN = </span><span class="si">{0}</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">FN</span><span class="p">))</span>
         <span class="nb">print</span><span class="p">((</span><span class="s1">&#39;False Positive - FP = </span><span class="si">{0}</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">FP</span><span class="p">))</span>
         <span class="nb">print</span><span class="p">((</span><span class="s1">&#39;True Positive - TP = </span><span class="si">{0}</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">TP</span><span class="p">))</span>
         <span class="nb">print</span><span class="p">((</span><span class="s1">&#39;True Negative - TN = </span><span class="si">{0}</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">TN</span><span class="p">))</span>
-        <span class="nb">print</span><span class="p">((</span><span class="s1">&#39;Accuracy = </span><span class="si">{0}</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">Accuracy</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">((</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Accuracy = </span><span class="si">{0}</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">Accuracy</span><span class="p">))</span>
         <span class="nb">print</span><span class="p">((</span><span class="s1">&#39;Precision = </span><span class="si">{0}</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">Precision</span><span class="p">))</span>
         <span class="nb">print</span><span class="p">((</span><span class="s1">&#39;Recall = </span><span class="si">{0}</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">Recall</span><span class="p">))</span>
         <span class="nb">print</span><span class="p">((</span><span class="s1">&#39;F-measure = </span><span class="si">{0}</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">F_measure</span><span class="p">))</span>
@@ -300,25 +296,23 @@
     <span class="n">cw_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">();</span>
     <span class="k">if</span> <span class="n">cw_path</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span><span class="o">==-</span><span class="mi">1</span><span class="p">:</span>
         <span class="n">cw_path_parent</span> <span class="o">=</span> <span class="n">cw_path</span><span class="p">[:</span><span class="n">cw_path</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">Evaluation&#39;</span><span class="p">)]</span>
-        <span class="n">path1</span> <span class="o">=</span> <span class="n">cw_path</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">ground_truth&#39;</span>
-        <span class="n">path2</span> <span class="o">=</span> <span class="n">cw_path_parent</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">audio_data&#39;</span>
-        <span class="n">path3</span> <span class="o">=</span> <span class="n">cw_path</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">SMC_offset_estimation_results&#39;</span>
-        <span class="n">path4</span> <span class="o">=</span> <span class="n">cw_path</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">fingerprinting_offset_estimation_results&#39;</span>
+        <span class="n">path_ground_truth</span> <span class="o">=</span> <span class="n">cw_path</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">ground_truth&#39;</span>
+        <span class="c1">#path_audio_data = cw_path_parent + &#39;\\audio_data&#39;</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">cw_path_parent</span> <span class="o">=</span> <span class="n">cw_path</span><span class="p">[:</span><span class="n">cw_path</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;/Evaluation&#39;</span><span class="p">)]</span>
-        <span class="n">path1</span> <span class="o">=</span> <span class="n">cw_path</span> <span class="o">+</span> <span class="s1">&#39;/ground_truth&#39;</span>
-        <span class="n">path2</span> <span class="o">=</span> <span class="n">cw_path_parent</span> <span class="o">+</span> <span class="s1">&#39;/audio_data&#39;</span>
-        <span class="n">path3</span> <span class="o">=</span> <span class="n">cw_path</span> <span class="o">+</span> <span class="s1">&#39;/SMC_offset_estimation_results&#39;</span>
-        <span class="n">path4</span> <span class="o">=</span> <span class="n">cw_path</span> <span class="o">+</span> <span class="s1">&#39;/fingerprinting_offset_estimation_results&#39;</span>
-
-    <span class="n">path</span> <span class="o">=</span> <span class="p">[</span><span class="n">path1</span><span class="p">,</span> <span class="n">path2</span><span class="p">,</span> <span class="n">path3</span><span class="p">,</span> <span class="n">path4</span><span class="p">]</span>
-
-    <span class="c1"># Example input for the Multiresolution alignment result</span>
-<span class="c1">#    offset_estimation_result_filename = &#39;offset_estimation_SMC_result_16_11_2016_13h_26m.txt&#39;</span>
+        <span class="n">path_ground_truth</span> <span class="o">=</span> <span class="n">cw_path</span> <span class="o">+</span> <span class="s1">&#39;/ground_truth&#39;</span>
+        <span class="c1">#path_audio_data = cw_path_parent + &#39;/audio_data&#39;</span>
+        
+    <span class="n">root</span> <span class="o">=</span> <span class="n">Tkinter</span><span class="o">.</span><span class="n">Tk</span><span class="p">()</span>
+    <span class="n">root</span><span class="o">.</span><span class="n">withdraw</span><span class="p">()</span> <span class="c1">#use to hide tkinter window</span>
     
-    <span class="c1"># Example input for the baseline method result</span>
-    <span class="n">offset_estimation_result_filename</span> <span class="o">=</span> <span class="s1">&#39;offset_estimation_fingerprinting_thr_20_result.txt&#39;</span>
-    
+    <span class="n">currdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+    <span class="n">path_audio_data</span> <span class="o">=</span> <span class="n">tkFileDialog</span><span class="o">.</span><span class="n">askdirectory</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="n">root</span><span class="p">,</span> <span class="n">initialdir</span><span class="o">=</span><span class="n">currdir</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Please select a directory&#39;</span><span class="p">)</span>
+
+    <span class="n">offset_estimation_result_filename</span> <span class="o">=</span> <span class="n">tkFileDialog</span><span class="o">.</span><span class="n">askopenfilename</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="n">root</span><span class="p">,</span> <span class="n">initialdir</span><span class="o">=</span><span class="n">currdir</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Please select a result file&#39;</span><span class="p">)</span>
+   
+    <span class="n">path</span> <span class="o">=</span> <span class="p">[</span><span class="n">path_ground_truth</span><span class="p">,</span> <span class="n">path_audio_data</span><span class="p">]</span>
+
     <span class="n">Accuracy</span><span class="p">,</span> <span class="n">Precision</span><span class="p">,</span> <span class="n">Recall</span><span class="p">,</span> <span class="n">F_measure</span><span class="p">,</span> <span class="n">TP</span><span class="p">,</span> <span class="n">TN</span><span class="p">,</span> <span class="n">FP</span><span class="p">,</span> <span class="n">FN</span> <span class="o">=</span> <span class="n">compute_accuracy</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">offset_estimation_result_filename</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> 
     
 </pre></div>

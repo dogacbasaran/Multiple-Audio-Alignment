@@ -204,8 +204,8 @@ along with this program.  If not, see &lt;<a class="reference external" href="ht
 <dd><p>Computes the main evaluation metrics namely Accuracy, Precision, Recall and F-measure</p>
 <p><strong>Parameters</strong></p>
 <dl class="docutils">
-<dt>path: String</dt>
-<dd>Path to the estimation file</dd>
+<dt>path: List</dt>
+<dd>List contains the path to the ground truth and path to the audio dataset</dd>
 <dt>offset_estimation_result_filename: String</dt>
 <dd>Name of the estimation file</dd>
 <dt>verbose: Boolean (default False)</dt>
@@ -235,15 +235,13 @@ if it is True</dd>
 
 <dl class="function">
 <dt id="compute_accuracy.extract_estimated_pairs">
-<code class="descclassname">compute_accuracy.</code><code class="descname">extract_estimated_pairs</code><span class="sig-paren">(</span><em>path</em>, <em>offset_estimation_result_filename</em>, <em>coeff=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/compute_accuracy.html#extract_estimated_pairs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#compute_accuracy.extract_estimated_pairs" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">compute_accuracy.</code><code class="descname">extract_estimated_pairs</code><span class="sig-paren">(</span><em>offset_estimation_result_filename</em>, <em>coeff=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/compute_accuracy.html#extract_estimated_pairs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#compute_accuracy.extract_estimated_pairs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets the estimated alignments from a txt file and extracts all the pair of alignment in format convenient with ground_truth
 dictionary</p>
 <p><strong>Parameters</strong></p>
 <dl class="docutils">
-<dt>path: String</dt>
-<dd>Path to the estimation file</dd>
 <dt>offset_estimation_result_filename: String</dt>
-<dd>Name of the estimation file</dd>
+<dd>Name of the estimation file with full path</dd>
 </dl>
 <p>coeff: Float</p>
 <p><strong>Returns</strong></p>
