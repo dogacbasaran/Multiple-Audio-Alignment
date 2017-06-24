@@ -68,7 +68,7 @@ with the name convention,
 
 and choose /path/to/project/SMC_offset_estimation_results/result_file to compute the accuracy, precision, recall and F-measure scores.
 
-4-  To run the fingerprinting based multiple audio alignment system, simply run
+5-  To run the fingerprinting based multiple audio alignment system, simply run
  
 	/path/to/project/Fingerprinting_based_alignment/fingerprinting_based_audio_alignment.m
 
@@ -80,7 +80,7 @@ with the name convention,
 
 	offset_estimation_fingerprinting_thr_<value>_result.txt
 
-5- To evaluate the estimation results, simply run
+6- To evaluate the estimation results, simply run
 
 	/path/to/project/Evaluation/fingerprinting_evaluation.py
 	
