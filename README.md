@@ -4,9 +4,13 @@ This is the distributed software for the article "Multiresolution Alignment for 
 
 ## How to use the software
 
-There are 3 separate parts of the software; Multiresolution Alignment, Baseline - Fingerprinting based alignment and Evaluation.
+There are 3 separate parts of the software; 
 
-### Multiresolution Alignment Software
+1- Multiresolution multiple audio alignment software 
+2- Fingerprinting based multiple audio alignment software (Baseline)
+3- Evaluation
+
+### Multiresolution Multiple Audio Alignment Software
 
 The software consists of 5 Matlab files and is located under the folder "SMC_based_alignment".
 
@@ -39,19 +43,19 @@ As an example,
 
 The detailed explanations and block diagrams of the main modules 'feature_extract_module', 'SMC_main_module', 'sequential_alignment_module' and 'SMC_core_module' can be found in the SoftwareX manuscript. 
 
-### Baseline - Fingerprinting based alignment
+### Fingerprinting Based Multiple Audio Alignment Software (Baseline)
 
 The fingerprinting software is obtained from 
 
 D. Ellis, Robust Landmark based Audio Fingerprinting, web source, available (2009).
 URL http://labrosa.ee.columbia.edu/matlab/fingerprint/
 
-The codes are available under the folder "Fingerprinting_based_alignment".
+The codes for fingerprinting software are available under the subfolder "Fingerprinting_based_alignment/fingerprint_labrosa".
 
-This software is not directly applicable to the alignment setting since it is a query-by-example based audio fingerprinting software. Here, we simply try to match all pairs of sequences from the number of exactly matching ngerprints and compute the relative offset from the time
-information of  fingerprints. A more detailed description can be found in Sec.4.1 in DSP manuscript. 
+This software is not directly applicable to the alignment setting since it is a query-by-example based audio fingerprinting software. Here, we simply try to match all pairs of sequences from the number of exactly matching fingerprints and compute the relative offset from the time
+information of fingerprints. A more detailed description can be found in Sec.4.1 in DSP manuscript. 
 
-For demonstration of the fingerprinting based alignment software, please run "fingerprint_based_audio_alignment.m" file. Here, the software takes the audio files for GT_090912 event of the Jiku dataset as input and the connected pair of sequences are estimated with their relative offsets using a threshold for the exact matching hashes. The threshold value is searched with a grid search method. The results are written to a separate text file for each threshold consisting each connected pair in a format 
+For demonstration of the fingerprinting based alignment software, please run "Fingerprinting_based_alignment/fingerprint_based_audio_alignment.m" file. Here, the software takes the audio files for GT_090912 event of the Jiku dataset as input and the connected pair of sequences are estimated with their relative offsets using a threshold for the exact matching hashes. The threshold value is searched with a grid search method. The results are written to a separate text file for each threshold consisting each connected pair in a format 
 
 	<Sequence 1> <Sequence 2> <Relative offset>
 
@@ -92,7 +96,7 @@ The variable 'offset_estimation_result_filename' has to be set to the name of th
 
 3- fingerprinting_evaluation.py
 
-The baseline method requires a threshold to decide a matching/not matching decision between two sequences. A grid search is applied to tune the threshold for best accuracy result. The alignment estimation results are computed for thresholds {10 , 20 , ... , 150} with the baseline. "fingerprinting_evaluation.py" file computes accuracy for each estimation result using the "compute_accuracy.py", and prints the best accuracy and the threshold value. It also plots a figure with two subplots; the accuracy for each threshold, FP, FN_1 and FN_2 values for each threshold. 
+The baseline method requires a threshold to decide a matching/not matching decision between two sequences. A grid search is applied to tune the threshold for best accuracy result. The alignment estimation results are computed for thresholds {10 , 20 , ... , 150} with the baseline. "fingerprinting_evaluation.py" file computes accuracy for each estimation result using the "compute_accuracy.py", and prints the best accuracy and the threshold value. It also plots a figure with two subplots; the accuracy for each threshold and precision, recall and F-measure values for each threshold. 
 
 ## For reviewers
 
