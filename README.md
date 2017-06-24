@@ -12,29 +12,51 @@ There are 3 separate parts of the software;
 
 3- Evaluation.
 
+Here, we demostrate the software with using the audio dataset from GT_090912 event of the Jiku dataset (available [here](https://www.dropbox.com/sh/ktirf3t6b8lhs7d/AADlCm24Xw2A_qru5sUP71jFa?dl=0)). Note that the audio files have a name convention for microphones with multiple recordings. In the provided link, the audio filenames are modified accordingly.
+
 ### Multiresolution Multiple Audio Alignment Software
 
-The software consists of 5 Matlab files and is located under the folder "SMC_based_alignment".
-
-To run the software first provide the path of the input dataset to feature_extract_module;
-
-	dataset_features = feature_extract_module(<Path to the dataset>)
-
-Then the resulting struct 'dataset_features' is fed into the SMC_main_module that finds the best alignment estimates using the multiresolution alignment scheme proposed in DSP Manuscript,
-	
-	[Clusters, r_clusters, time_elapsed] = SMC_main_module(dataset_features)
-
-'Clusters' is a cell array and a non-empty cell with index 'i' holds the list of connected sequences of the cluster 'i'. 
-
-'r_clusters' is a cell array and a non-empty cell with index 'i' holds the relative offsets of the connected sequences in cluster 'i'
-
-'time_elapsed' variable holds the elapsed time in seconds for the procedure to be completed i.e., all the sequences are aligned.
+This is the main software that computes the alignment estimates of unsynchronized audio files using the SMC based multiresolution multiple audio alignment method. The software consists of 5 Matlab files and is located under the folder "SMC_based_alignment". The documentation of the software is available [here](www.dogacbasaran.com/Software\_documentation/SMC\_based\_alignment\_documentation/index.html)
  
-For the demonstration of the software, please run "SMC_demonstration.m" file. The audio dataset is available in the following link
+For the demonstration of the software, please apply the following steps,
 
-https://www.dropbox.com/sh/ktirf3t6b8lhs7d/AADlCm24Xw2A_qru5sUP71jFa?dl=0
+1- Download and decompress Jiku dataset with the provided download link.
 
-Here, the software takes the audio files for GT_090912 event of the Jiku dataset as input (available under folder "audio_data") and returns the list of connected sequences (Clusters), their relative offset information (r_clusters) and the elapsed time information (time_elapsed). The results are written to a text file for each connected pair separately in a format 
+2- Download and decompress the project from the github repo
+    
+3- To run SMC based multiresolution multiple audio alignment software, simply run 
+
+	/path/to/project/SMC\_based\_alignment/SMC\_demonstration.m 
+
+and choose /path/to/audio_data as input in the browse menu. The resulting alignment estimates will be written in a text file under 
+
+	/path/to/project/Evaluation/SMC_offset_estimation_results 
+
+with the name convention,
+
+	offset_estimation_SMC_result_<dd>_<mm>_<yyyy>_<hh>h_<mm>m.txt
+
+4-  To run the fingerprinting based multiple audio alignment system, simply run
+ 
+	/path/to/project/Fingerprinting\_based\_alignment/fingerprinting\_based\_audio\_alignment.m
+
+and choose /path/to/audio_data as input in the browse menu. The resulting alignment estimates will be written in a text file under 
+
+	/path/to/project/Evaluation/fingerprinting_offset_estimation_results 
+
+with the name convention,
+
+	offset_estimation_fingerprinting_thr_<value>_result.txt
+
+5- To evaluate any result, simply run
+
+	/path/to/project/Evaluation/compute\_accuracy.py
+
+and choose /path/to/alignment_result to see the accuracy, precision, recall and F-measure scores.
+
+For the demonstration of the software, please run "SMC_demonstration.m" file and choose the path to the downloaded and decompressed audio dataset as input.
+
+ Once the user obtained the dataset, the user can hence any input audio dataset should be  and returns the list of connected sequences (Clusters), their relative offset information (r_clusters) and the elapsed time information (time_elapsed). The results are written to a text file for each connected pair separately in a format 
 
 	<Sequence 1> <Sequence 2> <Relative offset>
 
