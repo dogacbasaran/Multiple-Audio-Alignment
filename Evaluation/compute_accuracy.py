@@ -32,6 +32,8 @@ import numpy as np
 import json
 import os
 from os import listdir
+import Tkinter
+import tkFileDialog
 
 def set_key_name(sequence1, sequence2):
     
@@ -91,17 +93,15 @@ def set_relative_offset(key_name, sequence, relative_offset):
         relative_offset_distance = -relative_offset
     return relative_offset_distance
     
-def extract_estimated_pairs(path, offset_estimation_result_filename, coeff=1.):
+def extract_estimated_pairs(offset_estimation_result_filename, coeff=1.):
     
     """ Gets the estimated alignments from a txt file and extracts all the pair of alignment in format convenient with ground_truth
     dictionary
         
     **Parameters**
     
-    path: String
-        Path to the estimation file
     offset_estimation_result_filename: String
-        Name of the estimation file
+        Name of the estimation file with full path
     coeff: Float
             
     
@@ -111,12 +111,10 @@ def extract_estimated_pairs(path, offset_estimation_result_filename, coeff=1.):
             The dictionary containing the estimated pair of alignments"""
             
     estimations = {}
-    # Start reading the estimation results 
-    if path.find('/')==-1: # Windows based
-        f = open(path + '\\' + offset_estimation_result_filename,'r') 
-    else: # Linux based
-        f = open(path + '/' + offset_estimation_result_filename,'r') 
     
+    # Start reading the estimation results 
+    f = open(offset_estimation_result_filename,'r')
+
     for line in f.readlines():
         estimated_sequences = line.split(" ")
         sequence = estimated_sequences[0] # The first sequence is current sequence
@@ -139,8 +137,8 @@ def compute_accuracy(path, offset_estimation_result_filename, verbose = False):
       
     **Parameters**
     
-    path: String
-        Path to the estimation file
+    path: List
+        List contains the path to the ground truth and path to the audio dataset
     offset_estimation_result_filename: String
         Name of the estimation file
     verbose: Boolean (default False)
@@ -166,10 +164,8 @@ def compute_accuracy(path, offset_estimation_result_filename, verbose = False):
     FN: Integer
         The number of the false negatives"""
     
-    path1 = path[0]
-    path2 = path[1]
-    path3 = path[2]
-    path4 = path[3]
+    path_ground_truth = path[0]
+    path_audio_data = path[1]
 
     FN = 0. # False Negative
     FP = 0. # False Positive
@@ -177,16 +173,16 @@ def compute_accuracy(path, offset_estimation_result_filename, verbose = False):
     TN = 0. # True Negative
     
     # Read precomputed ground truth dictionary
-    if path1.find('/')==-1: # Windows based
-        ground_truth = json.load(file(path1 + '\\' + 'ground_truth.txt')) 
+    if path_ground_truth.find('/')==-1: # Windows based
+        ground_truth = json.load(file(path_ground_truth + '\\' + 'ground_truth.txt')) 
     else: # Linux based
-        ground_truth = json.load(file(path1 + '/' + 'ground_truth.txt')) 
+        ground_truth = json.load(file(path_ground_truth + '/' + 'ground_truth.txt')) 
     
     # Extract estimated pairs dictionary
     if offset_estimation_result_filename.find('fingerprint') == -1: 
-        estimations = extract_estimated_pairs(path3, offset_estimation_result_filename)
+        estimations = extract_estimated_pairs(offset_estimation_result_filename)
     else:
-        estimations = extract_estimated_pairs(path4, offset_estimation_result_filename)
+        estimations = extract_estimated_pairs(offset_estimation_result_filename)
         
     # Scan estimations to find FN, FP types of errors and TP
     tolerance = 10 # The alignment is acceptable in neighborhood of ground truth with amount of tolerance
@@ -209,7 +205,7 @@ def compute_accuracy(path, offset_estimation_result_filename, verbose = False):
     # Find number of recordings for each microphone
     number_of_microphones = 4
     number_of_recordings = np.zeros(number_of_microphones,dtype='float64')
-    for filename in listdir(path2):
+    for filename in listdir(path_audio_data):
         mic_number = int(filename[filename.find('mic')+3:filename.find('_')])
         rec_number = int(filename[filename.find('rec')+3:filename.find('.wav')])
         if number_of_recordings[mic_number-1]<rec_number:
@@ -236,11 +232,11 @@ def compute_accuracy(path, offset_estimation_result_filename, verbose = False):
     
     if verbose == True:
         print("\nThe evaluation results for " + offset_estimation_result_filename)
-        print(('False Negative - FN = {0}').format(FN))
+        print(('\nFalse Negative - FN = {0}').format(FN))
         print(('False Positive - FP = {0}').format(FP))
         print(('True Positive - TP = {0}').format(TP))
         print(('True Negative - TN = {0}').format(TN))
-        print(('Accuracy = {0}').format(Accuracy))
+        print(('\nAccuracy = {0}').format(Accuracy))
         print(('Precision = {0}').format(Precision))
         print(('Recall = {0}').format(Recall))
         print(('F-measure = {0}').format(F_measure))
@@ -251,24 +247,22 @@ if __name__ == '__main__':
     cw_path = os.getcwd();
     if cw_path.find('/')==-1:
         cw_path_parent = cw_path[:cw_path.find('\\Evaluation')]
-        path1 = cw_path + '\\ground_truth'
-        path2 = cw_path_parent + '\\audio_data'
-        path3 = cw_path + '\\SMC_offset_estimation_results'
-        path4 = cw_path + '\\fingerprinting_offset_estimation_results'
+        path_ground_truth = cw_path + '\\ground_truth'
+        #path_audio_data = cw_path_parent + '\\audio_data'
     else:
         cw_path_parent = cw_path[:cw_path.find('/Evaluation')]
-        path1 = cw_path + '/ground_truth'
-        path2 = cw_path_parent + '/audio_data'
-        path3 = cw_path + '/SMC_offset_estimation_results'
-        path4 = cw_path + '/fingerprinting_offset_estimation_results'
-
-    path = [path1, path2, path3, path4]
-
-    # Example input for the Multiresolution alignment result
-#    offset_estimation_result_filename = 'offset_estimation_SMC_result_16_11_2016_13h_26m.txt'
+        path_ground_truth = cw_path + '/ground_truth'
+        #path_audio_data = cw_path_parent + '/audio_data'
+        
+    root = Tkinter.Tk()
+    root.withdraw() #use to hide tkinter window
     
-    # Example input for the baseline method result
-    offset_estimation_result_filename = 'offset_estimation_fingerprinting_thr_20_result.txt'
-    
+    currdir = os.getcwd()
+    path_audio_data = tkFileDialog.askdirectory(parent=root, initialdir=currdir, title='Please select a directory')
+
+    offset_estimation_result_filename = tkFileDialog.askopenfilename(parent=root, initialdir=currdir, title='Please select a result file')
+   
+    path = [path_ground_truth, path_audio_data]
+
     Accuracy, Precision, Recall, F_measure, TP, TN, FP, FN = compute_accuracy(path, offset_estimation_result_filename, True) 
     

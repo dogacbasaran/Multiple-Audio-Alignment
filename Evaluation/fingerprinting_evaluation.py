@@ -26,24 +26,30 @@ import numpy as np
 import compute_accuracy
 import matplotlib.pyplot as plt
 import os
+import Tkinter
+import tkFileDialog
 
 if __name__ == '__main__':
-    cw_path = os.getcwd()
     
+    cw_path = os.getcwd() 
     if cw_path.find('/')==-1:
         cw_path_parent = cw_path[:cw_path.find('\\Evaluation')]
-        path1 = cw_path + '\\ground_truth'
-        path2 = cw_path_parent + '\\audio_data'
-        path3 = cw_path + '\\SMC_offset_estimation_results'
-        path4 = cw_path + '\\fingerprinting_offset_estimation_results'
+        path_ground_truth = cw_path + '\\ground_truth'
+        #path_audio_data = cw_path_parent + '\\audio_data'
+        path_fingerprinting_results = cw_path + '\\fingerprinting_offset_estimation_results'
     else:
         cw_path_parent = cw_path[:cw_path.find('/Evaluation')]
-        path1 = cw_path + '/ground_truth'
-        path2 = cw_path_parent + '/audio_data'
-        path3 = cw_path + '/SMC_offset_estimation_results'
-        path4 = cw_path + '/fingerprinting_offset_estimation_results'
+        path_ground_truth = cw_path + '/ground_truth'
+        #path_audio_data = cw_path_parent + '/audio_data'
+        path_fingerprinting_results = cw_path + '/fingerprinting_offset_estimation_results'
     
-    path = [path1, path2, path3, path4]
+    root = Tkinter.Tk()
+    root.withdraw() #use to hide tkinter window
+    
+    currdir = os.getcwd()
+    path_audio_data = tkFileDialog.askdirectory(parent=root, initialdir=currdir, title='Please select a directory')
+ 
+    path = [path_ground_truth, path_audio_data]
     
     accuracy_list = []
     precision_list = []
@@ -59,7 +65,7 @@ if __name__ == '__main__':
     # threholds: 10, 20, ..., 150
     thresholds = range(10,151,10)
     for thr in thresholds:        
-        offset_estimation_result_filename = 'offset_estimation_fingerprinting_thr_' + np.str(thr) + '_result.txt'
+        offset_estimation_result_filename = '{0}/offset_estimation_fingerprinting_thr_'.format(path_fingerprinting_results) + np.str(thr) + '_result.txt'
         Accuracy, Precision, Recall, F_measure, TP, TN, FP, FN = compute_accuracy.compute_accuracy(path, offset_estimation_result_filename)
         accuracy_list.append(100*Accuracy)
         precision_list.append(Precision)
@@ -89,9 +95,9 @@ if __name__ == '__main__':
     
     fig.tight_layout()
     if cw_path.find('/')==-1:
-        fig.savefig(path4 + '\\' + 'Fingerprinting_based_estimation_results.png')
+        fig.savefig(path_fingerprinting_results + '\\' + 'Fingerprinting_based_estimation_results.png')
     else:
-        fig.savefig(path4 + '/' + 'Fingerprinting_based_estimation_results.png')
+        fig.savefig(path_fingerprinting_results + '/' + 'Fingerprinting_based_estimation_results.png')
     
     
     
