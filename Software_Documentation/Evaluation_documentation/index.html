@@ -315,6 +315,47 @@ GNU General Public License for more details.</p>
 <p>You should have received a copy of the GNU General Public License
 along with this program.  If not, see &lt;<a class="reference external" href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>&gt;</p>
 </div>
+<dl class="function">
+<dt id="fingerprinting_evaluation.fingerprinting_threshold_grid_search">
+<code class="descclassname">fingerprinting_evaluation.</code><code class="descname">fingerprinting_threshold_grid_search</code><span class="sig-paren">(</span><em>path_audio_data, thresholds=[10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150], verbose=True, plotFigure=True, saveFigure=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fingerprinting_evaluation.html#fingerprinting_threshold_grid_search"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fingerprinting_evaluation.fingerprinting_threshold_grid_search" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluates the fingerprinting based alignment system with Accuracy, Precision, Recall and F-measure metrics for several thresholds</p>
+<p><strong>Parameters</strong></p>
+<dl class="docutils">
+<dt>path_audio_data: String</dt>
+<dd>Path to the audio dataset</dd>
+<dt>thresholds: List (default range(10,151,10))</dt>
+<dd>List contains the threshold values</dd>
+<dt>verbose: Boolean (default True)</dt>
+<dd>Prints the resulting evaluation metrics as well as the number of TP, TN, FP and FN 
+if it is True</dd>
+<dt>plotFigure: Boolean (default True)</dt>
+<dd>Plots the evaluation metrics vs. thresholds if it is True.</dd>
+<dt>saveFigure: Boolean (default False)</dt>
+<dd>Saves the plot for evaluation metrics. Valid only if &#8216;plotFigure==True&#8217;</dd>
+</dl>
+<p><strong>Returns</strong></p>
+<dl class="docutils">
+<dt>accuracy_list: List</dt>
+<dd>The list of accuracy results for each threshold</dd>
+<dt>rrecision_list: List</dt>
+<dd>The list of precision results for each threshold</dd>
+<dt>recall_list: List</dt>
+<dd>The list of recall results for each threshold</dd>
+<dt>F_measure_list: List</dt>
+<dd>The list of F-measure results for each threshold</dd>
+<dt>TP_list: List</dt>
+<dd>The number of the true positives for each threshold</dd>
+<dt>TN_list: List</dt>
+<dd>The number of the true negatives for each threshold</dd>
+<dt>FP_list: List</dt>
+<dd>The number of the false positives for each threshold</dd>
+<dt>FN_list: List</dt>
+<dd>The number of the false negatives for each threshold</dd>
+<dt>index_of_best: Integer    </dt>
+<dd>The index of the best accuracy result</dd>
+</dl>
+</dd></dl>
+
 </div>
 </div>
 <div class="section" id="indices-and-tables">

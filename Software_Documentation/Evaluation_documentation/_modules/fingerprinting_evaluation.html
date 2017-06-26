@@ -1,0 +1,242 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>fingerprinting_evaluation &#8212; Evaluation 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Evaluation 1.0 documentation" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Evaluation 1.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for fingerprinting_evaluation</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">fingerprinting_evaluation.py  </span>
+<span class="sd">~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
+<span class="sd">.. topic:: Contents</span>
+
+<span class="sd">    This function searches for the best threshold value for the fingerprinting</span>
+<span class="sd">    based alignment system by evaluating the Accuracy, Precision, Recall and </span>
+<span class="sd">    F-measure metrics. The best threshold is found using the aacuracy measure.</span>
+<span class="sd">    </span>
+<span class="sd">    Copyright (C) 2016  Author: Dogac Basaran</span>
+
+<span class="sd">    This program is free software: you can redistribute it and/or modify</span>
+<span class="sd">    it under the terms of the GNU General Public License as published by</span>
+<span class="sd">    the Free Software Foundation, either version 3 of the License, or</span>
+<span class="sd">    (at your option) any later version.</span>
+
+<span class="sd">    This program is distributed in the hope that it will be useful,</span>
+<span class="sd">    but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="sd">    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="sd">    GNU General Public License for more details.</span>
+
+<span class="sd">    You should have received a copy of the GNU General Public License</span>
+<span class="sd">    along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">compute_accuracy</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">Tkinter</span>
+<span class="kn">import</span> <span class="nn">tkFileDialog</span>
+   
+<div class="viewcode-block" id="fingerprinting_threshold_grid_search"><a class="viewcode-back" href="../index.html#fingerprinting_evaluation.fingerprinting_threshold_grid_search">[docs]</a><span class="k">def</span> <span class="nf">fingerprinting_threshold_grid_search</span><span class="p">(</span><span class="n">path_audio_data</span><span class="p">,</span> <span class="n">thresholds</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">151</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span> <span class="p">,</span> <span class="n">plotFigure</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">saveFigure</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    
+    <span class="sd">&quot;&quot;&quot;Evaluates the fingerprinting based alignment system with Accuracy, Precision, Recall and F-measure metrics for several thresholds</span>
+<span class="sd">      </span>
+<span class="sd">    **Parameters**</span>
+<span class="sd">    </span>
+<span class="sd">    path_audio_data: String</span>
+<span class="sd">        Path to the audio dataset</span>
+<span class="sd">    thresholds: List (default range(10,151,10))</span>
+<span class="sd">        List contains the threshold values</span>
+<span class="sd">    verbose: Boolean (default True)</span>
+<span class="sd">        Prints the resulting evaluation metrics as well as the number of TP, TN, FP and FN </span>
+<span class="sd">        if it is True</span>
+<span class="sd">    plotFigure: Boolean (default True)</span>
+<span class="sd">        Plots the evaluation metrics vs. thresholds if it is True.</span>
+<span class="sd">    saveFigure: Boolean (default False)</span>
+<span class="sd">        Saves the plot for evaluation metrics. Valid only if &#39;plotFigure==True&#39;</span>
+<span class="sd">        </span>
+<span class="sd">    **Returns**</span>
+<span class="sd">    </span>
+<span class="sd">    accuracy_list: List</span>
+<span class="sd">        The list of accuracy results for each threshold</span>
+<span class="sd">    rrecision_list: List</span>
+<span class="sd">        The list of precision results for each threshold</span>
+<span class="sd">    recall_list: List</span>
+<span class="sd">        The list of recall results for each threshold</span>
+<span class="sd">    F_measure_list: List</span>
+<span class="sd">        The list of F-measure results for each threshold</span>
+<span class="sd">    TP_list: List</span>
+<span class="sd">        The number of the true positives for each threshold</span>
+<span class="sd">    TN_list: List</span>
+<span class="sd">        The number of the true negatives for each threshold</span>
+<span class="sd">    FP_list: List</span>
+<span class="sd">        The number of the false positives for each threshold</span>
+<span class="sd">    FN_list: List</span>
+<span class="sd">        The number of the false negatives for each threshold</span>
+<span class="sd">    index_of_best: Integer    </span>
+<span class="sd">        The index of the best accuracy result&quot;&quot;&quot;</span>
+    
+    <span class="n">cw_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span> 
+    <span class="k">if</span> <span class="n">cw_path</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span><span class="o">==-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="n">cw_path_parent</span> <span class="o">=</span> <span class="n">cw_path</span><span class="p">[:</span><span class="n">cw_path</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">Evaluation&#39;</span><span class="p">)]</span>
+        <span class="n">path_ground_truth</span> <span class="o">=</span> <span class="n">cw_path</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">ground_truth&#39;</span>
+        <span class="c1">#path_audio_data = cw_path_parent + &#39;\\audio_data&#39;</span>
+        <span class="n">path_fingerprinting_results</span> <span class="o">=</span> <span class="n">cw_path</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">fingerprinting_offset_estimation_results&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">cw_path_parent</span> <span class="o">=</span> <span class="n">cw_path</span><span class="p">[:</span><span class="n">cw_path</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;/Evaluation&#39;</span><span class="p">)]</span>
+        <span class="n">path_ground_truth</span> <span class="o">=</span> <span class="n">cw_path</span> <span class="o">+</span> <span class="s1">&#39;/ground_truth&#39;</span>
+        <span class="c1">#path_audio_data = cw_path_parent + &#39;/audio_data&#39;</span>
+        <span class="n">path_fingerprinting_results</span> <span class="o">=</span> <span class="n">cw_path</span> <span class="o">+</span> <span class="s1">&#39;/fingerprinting_offset_estimation_results&#39;</span>    
+ 
+    <span class="n">path</span> <span class="o">=</span> <span class="p">[</span><span class="n">path_ground_truth</span><span class="p">,</span> <span class="n">path_audio_data</span><span class="p">]</span>
+    
+    <span class="n">accuracy_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">precision_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">recall_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">F_measure_list</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="n">TP_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">TN_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">FP_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">FN_list</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="c1"># Evaluation of fingerprinting based alignment for different thresholds</span>
+    <span class="k">for</span> <span class="n">thr</span> <span class="ow">in</span> <span class="n">thresholds</span><span class="p">:</span>        
+        <span class="n">offset_estimation_result_filename</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{0}</span><span class="s1">/offset_estimation_fingerprinting_thr_&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path_fingerprinting_results</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">str</span><span class="p">(</span><span class="n">thr</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;_result.txt&#39;</span>
+        <span class="n">Accuracy</span><span class="p">,</span> <span class="n">Precision</span><span class="p">,</span> <span class="n">Recall</span><span class="p">,</span> <span class="n">F_measure</span><span class="p">,</span> <span class="n">TP</span><span class="p">,</span> <span class="n">TN</span><span class="p">,</span> <span class="n">FP</span><span class="p">,</span> <span class="n">FN</span> <span class="o">=</span> <span class="n">compute_accuracy</span><span class="o">.</span><span class="n">compute_accuracy</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">offset_estimation_result_filename</span><span class="p">)</span>
+        <span class="n">accuracy_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">100</span><span class="o">*</span><span class="n">Accuracy</span><span class="p">)</span>
+        <span class="n">precision_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Precision</span><span class="p">)</span>
+        <span class="n">recall_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Recall</span><span class="p">)</span>
+        <span class="n">F_measure_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">F_measure</span><span class="p">)</span>
+        <span class="n">TP_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">TP</span><span class="p">)</span>
+        <span class="n">TN_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">TN</span><span class="p">)</span>
+        <span class="n">FN_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">FN</span><span class="p">)</span>
+        <span class="n">FP_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">FP</span><span class="p">)</span>
+        
+    <span class="n">best_accuracy_fingerprinting_based</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">accuracy_list</span><span class="p">)</span>    
+    <span class="n">index_of_best</span> <span class="o">=</span> <span class="n">accuracy_list</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">best_accuracy_fingerprinting_based</span><span class="p">)</span>
+      
+    <span class="k">if</span> <span class="n">verbose</span><span class="o">==</span><span class="kc">True</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The best accuracy is obtained for threshold = </span><span class="si">{0}</span><span class="s1"> with accuracy = </span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">thresholds</span><span class="p">[</span><span class="n">index_of_best</span><span class="p">],</span> <span class="n">best_accuracy_fingerprinting_based</span><span class="p">))</span>         
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Other metrics:&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">((</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">False Negative - FN = </span><span class="si">{0}</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">FN_list</span><span class="p">[</span><span class="n">index_of_best</span><span class="p">]))</span>
+        <span class="nb">print</span><span class="p">((</span><span class="s1">&#39;False Positive - FP = </span><span class="si">{0}</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">FP_list</span><span class="p">[</span><span class="n">index_of_best</span><span class="p">]))</span>
+        <span class="nb">print</span><span class="p">((</span><span class="s1">&#39;True Positive - TP = </span><span class="si">{0}</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">TP_list</span><span class="p">[</span><span class="n">index_of_best</span><span class="p">]))</span>
+        <span class="nb">print</span><span class="p">((</span><span class="s1">&#39;True Negative - TN = </span><span class="si">{0}</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">TN_list</span><span class="p">[</span><span class="n">index_of_best</span><span class="p">]))</span>
+        <span class="nb">print</span><span class="p">((</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Accuracy = </span><span class="si">{0}</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">accuracy_list</span><span class="p">[</span><span class="n">index_of_best</span><span class="p">]))</span>
+        <span class="nb">print</span><span class="p">((</span><span class="s1">&#39;Precision = </span><span class="si">{0}</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">precision_list</span><span class="p">[</span><span class="n">index_of_best</span><span class="p">]))</span>
+        <span class="nb">print</span><span class="p">((</span><span class="s1">&#39;Recall = </span><span class="si">{0}</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">recall_list</span><span class="p">[</span><span class="n">index_of_best</span><span class="p">]))</span>
+        <span class="nb">print</span><span class="p">((</span><span class="s1">&#39;F-measure = </span><span class="si">{0}</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">F_measure_list</span><span class="p">[</span><span class="n">index_of_best</span><span class="p">]))</span>
+    
+    <span class="k">if</span> <span class="n">plotFigure</span><span class="o">==</span><span class="kc">True</span><span class="p">:</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">thresholds</span><span class="p">,</span> <span class="n">accuracy_list</span><span class="p">)</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Thresholds&#39;</span><span class="p">)</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Accuracy (%)&#39;</span><span class="p">)</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="mi">80</span><span class="p">,</span><span class="mi">100</span><span class="p">])</span>
+            
+        <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">thresholds</span><span class="p">,</span> <span class="n">precision_list</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;$Precision$&#39;</span><span class="p">)</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">thresholds</span><span class="p">,</span> <span class="n">recall_list</span><span class="p">,</span> <span class="s1">&#39;+&#39;</span><span class="p">,</span><span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;$Recall$&#39;</span><span class="p">)</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">thresholds</span><span class="p">,</span> <span class="n">F_measure_list</span><span class="p">,</span> <span class="s1">&#39;--&#39;</span><span class="p">,</span><span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;$F-measure$&#39;</span><span class="p">)</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Thresholds&#39;</span><span class="p">)</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>    
+        
+        <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="n">saveFigure</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>        
+            <span class="k">if</span> <span class="n">cw_path</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span><span class="o">==-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">path_fingerprinting_results</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="s1">&#39;Fingerprinting_based_estimation_results.png&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">path_fingerprinting_results</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="s1">&#39;Fingerprinting_based_estimation_results.png&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">accuracy_list</span><span class="p">,</span> <span class="n">precision_list</span><span class="p">,</span> <span class="n">recall_list</span><span class="p">,</span> <span class="n">F_measure_list</span><span class="p">,</span> <span class="n">TP_list</span><span class="p">,</span> <span class="n">TN_list</span><span class="p">,</span> <span class="n">FP_list</span><span class="p">,</span> <span class="n">FN_list</span><span class="p">,</span> <span class="n">index_of_best</span><span class="p">)</span></div>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    
+    <span class="n">root</span> <span class="o">=</span> <span class="n">Tkinter</span><span class="o">.</span><span class="n">Tk</span><span class="p">()</span>
+    <span class="n">root</span><span class="o">.</span><span class="n">withdraw</span><span class="p">()</span> <span class="c1">#use to hide tkinter window</span>
+    
+    <span class="n">currdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+    <span class="n">path_audio_data</span> <span class="o">=</span> <span class="n">tkFileDialog</span><span class="o">.</span><span class="n">askdirectory</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="n">root</span><span class="p">,</span> <span class="n">initialdir</span><span class="o">=</span><span class="n">currdir</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Please select the path to the audio dataset&#39;</span><span class="p">)</span>
+    
+    <span class="n">accuracy_list</span><span class="p">,</span> <span class="n">precision_list</span><span class="p">,</span> <span class="n">recall_list</span><span class="p">,</span> <span class="n">F_measure_list</span><span class="p">,</span> <span class="n">TP_list</span><span class="p">,</span> <span class="n">TN_list</span><span class="p">,</span> <span class="n">FP_list</span><span class="p">,</span> <span class="n">FN_list</span><span class="p">,</span> <span class="n">index_of_best</span> <span class="o">=</span> <span class="n">fingerprinting_threshold_grid_search</span><span class="p">(</span><span class="n">path_audio_data</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Evaluation 1.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Dogac Basaran.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.6.
+    </div>
+  </body>
+</html>

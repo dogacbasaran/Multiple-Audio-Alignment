@@ -46,6 +46,21 @@
 %
 function dataset_features = feature_extract_module(load_path)
 
+    %%%%%%%%%%%%%%%% Default Parameters %%%%%%%%%%%%%%%%%
+    %                                                   %
+    % Default parameters for SMC Sampler                %
+    numSteps = 11;                                      %
+    w_min = 0.51;                                       %
+    w_max = 0.64;                                       %
+    minNumberOfSamples = 100;                           %    
+    % Default parameters for feature extraction         %
+    Fs = 16000;                                         %
+    Ws = 0.064;                                         %
+    F = 32;                                             %
+    minimum_reliable_overlap_in_secs = 10;              %
+    %                                                   %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
     if isempty(strfind(load_path,'/'))==1 % OS is Windows
         load_path = [load_path '\'];
     else % OS is Linux
@@ -61,12 +76,12 @@ function dataset_features = feature_extract_module(load_path)
     % MicRec is of the form  [1 1 ; 1 2 ; 1 3; .. ; 2 1 ; 2 2 ; 2 3 ;...]
     % See Manuscript:
     MicRec = zeros(K,2); 
- 
+    
     % Set the initial parameters for Sequential Monte Carlo Sampler
-    smc_parameters = initialize_SMC_parameters();
+    smc_parameters = initialize_SMC_parameters(numSteps, w_min, w_max, minNumberOfSamples);
     
     % Set the parameters for feature extraction
-    feature_parameters = initialize_feature_parameters(smc_parameters.numSteps, K);
+    feature_parameters = initialize_feature_parameters(smc_parameters.numSteps, K, Fs, Ws, F, minimum_reliable_overlap_in_secs);
 
     for k = 1:K
         fprintf('\nSequence %s\n',filenames(k).name);

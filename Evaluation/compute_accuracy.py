@@ -258,7 +258,7 @@ if __name__ == '__main__':
     root.withdraw() #use to hide tkinter window
     
     currdir = os.getcwd()
-    path_audio_data = tkFileDialog.askdirectory(parent=root, initialdir=currdir, title='Please select a directory')
+    path_audio_data = tkFileDialog.askdirectory(parent=root, initialdir=currdir, title='Please select the path to the audio dataset')
 
     offset_estimation_result_filename = tkFileDialog.askopenfilename(parent=root, initialdir=currdir, title='Please select a result file')
    
