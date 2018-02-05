@@ -1,6 +1,42 @@
 # Multiresolution Alignment for Multiple Unsynchronized Audio Sequences using Sequential Monte Carlo Samplers
 
-This is the distributed software for the article "Multiresolution Alignment for Multiple Unsynchronized Audio Sequences using Sequential Monte Carlo Samplers" submitted to Digital Signal Processing - SoftwareX joint special issue on Reproducible Research in signal processing.
+## Citation
+
+If you are using this source code please consider citing the following papers:
+
+> D. Basaran et al., Multiresolution alignment for multiple unsynchronized audio sequences using sequential Monte Carlo samplers, Digital Signal Processing (2017), https://doi.org/10.1016/j.dsp.2017.10.024
+
+Bibtex
+```
+	@article{BASARAN2017,
+	title = "Multiresolution alignment for multiple unsynchronized audio sequences using sequential Monte Carlo samplers",
+	journal = "Digital Signal Processing",
+	year = "2017",
+	issn = "1051-2004",
+	doi = "https://doi.org/10.1016/j.dsp.2017.10.024",
+	url = "http://www.sciencedirect.com/science/article/pii/S1051200417302518",
+	author = "Dogac Basaran and Ali Taylan Cemgil and Emin Anarim",
+	keywords = "Multiple audio alignment, Multiresolution alignment, Audio fingerprint, Bayesian inference, Sequential Monte Carlo samplers, Sequential alignment"
+	}
+```
+
+> Dogac Basaran, Ali Taylan Cemgil, Emin Anarim, Multiresolution alignment for multiple unsynchronized audio sequences using Sequential Monte Carlo samplers, SoftwareX, 12 December 2017, ISSN 2352-7110, https://doi.org/10.1016/j.softx.2017.11.006.
+
+Bibtex
+```
+    @article{Basaran2017,
+    title = "Multiresolution alignment for multiple unsynchronized audio sequences using Sequential Monte Carlo samplers ",
+    journal = "SoftwareX ",
+    year = "2017",
+    issn = "2352-7110",
+    doi = "https://doi.org/10.1016/j.softx.2017.11.006",
+    url = "https://www.sciencedirect.com/science/article/pii/S235271101730064X",
+    author = "Dogac Basaran and Ali Taylan Cemgil and Emin Anarim",
+    keywords = "Multiple audio alignment, Multiresolution alignment, Audio fingerprint, Bayesian inference, Sequential Monte Carlo samplers, Sequential alignment"
+    }
+```
+
+## Software
 
 There are 3 separate parts of the software; 
 
@@ -12,11 +48,11 @@ There are 3 separate parts of the software;
 
 Here, we demostrate the software with using the audio dataset from GT_090912 event of the Jiku dataset (available [here](https://www.dropbox.com/sh/ktirf3t6b8lhs7d/AADlCm24Xw2A_qru5sUP71jFa?dl=0)). Note that the audio files have a name convention for microphones with multiple recordings. In the provided link, the audio filenames are modified accordingly.
 
-## Multiresolution Multiple Audio Alignment Software
+### Multiresolution Multiple Audio Alignment Software
 
 This is the main software that computes the alignment estimates of unsynchronized audio files using the SMC based multiresolution multiple audio alignment method. The software is written in Matlab and is located under the folder "/SMC_based_alignment". The documentation of the software is available [here](http://www.dogacbasaran.com/Software_documentation/SMC_based_alignment_documentation/index.html).
  
-## Fingerprinting Based Multiple Audio Alignment Software (Baseline)
+### Fingerprinting Based Multiple Audio Alignment Software (Baseline)
 
 As a baseline, we use a fingerprinting based alignment approach. The fingerprinting software is obtained from 
 
@@ -27,7 +63,7 @@ The codes for fingerprinting software are available under the subfolder "/Finger
 
 Note that this software is not directly applicable to the alignment setting since it is a query-by-example based audio fingerprinting software. For alignment purposes, we simply count the number of exact hash(fingerprint) matches between each pair of sequences. Then by thresholding according to the number of hash matches, we decide if the sequences are matching. The time information of the matching hashes are then used to compute the relative offset between sequences. A more detailed description can be found in Sec.4.1 in the DSP manuscript.  
 
-## Evaluation 
+### Evaluation 
 
 The evaluation software is written in python 2.7 and is located under the folder "/Evaluation". The documentation of the software is available [here](http://www.dogacbasaran.com/Software_documentation/Evaluation_documentation/index.html).
 
